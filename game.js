@@ -33,8 +33,8 @@ const PADDING = 2;    // extra tile buffer around viewport
 ══════════════════════════════════════════════════════════════════════ */
 const BIOMES = {
   vulcan3:    { label:'Vulcan+3',   danger:.99, base:'#6B0000', dark:'#3A0000', hi:'#FF6B00' },
-  water:      { label:'Water',      danger:.30, base:'#1565C0', dark:'#0D47A1', hi:'#90CAF9' },
-  water1:     { label:'Water-1',    danger:.60, base:'#0277BD', dark:'#01579B', hi:'#4FC3F7' },
+  water:      { label:'Water',      danger:.30, base:'#0277BD', dark:'#01579B', hi:'#90CAF9' },
+  water1:     { label:'Water-1',    danger:.60, base:'#1565C0', dark:'#0D47A1', hi:'#4FC3F7' },
   water2:     { label:'Water-2',    danger:.99, base:'#01579B', dark:'#002F6C', hi:'#039BE5' },
   meadows:    { label:'Meadows',    danger:.20, base:'#558B2F', dark:'#33691E', hi:'#AED581' },
   swamp:      { label:'Swamp',      danger:.25, base:'#2D4A1E', dark:'#1B3010', hi:'#6A9E48' },

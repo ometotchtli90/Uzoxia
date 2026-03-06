@@ -18,6 +18,7 @@
     <div class="hud-hint">Drag · Pan</div>
     <div class="hud-hint">Scroll · Zoom</div>
     <div class="hud-hint">Click · Explore</div>
+    <button id="btn-fit" onclick="fitMap()">⊡ Fit Map</button>
   </div>
 
   <div id="legend">
@@ -27,6 +28,8 @@
 
   <div id="tooltip"></div>
 
+  <!-- mapdata.js MUST come before game.js -->
+  <script src="mapdata.js"></script>
   <script src="game.js"></script>
 </body>
 </html>
