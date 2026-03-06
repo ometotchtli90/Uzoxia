@@ -1,20 +1,26 @@
 'use strict';
 
 // ═══════════════════════════════════════════════════════════════════════
-//  UZOXIA – WORLD MAP ENGINE
-//  CSS div-based tile renderer | fog of war | boss markers
+//  UZOXIA – WORLD MAP ENGINE  (chunk-canvas renderer)
 //
-//  ⚙ SETUP
-//  1. Copy pasted-text.txt  →  mapdata.js
-//  2. In mapdata.js change the first line ONLY:
-//         const map = [        →   const MAP_DATA = [
-//  3. Open index.html — done!
+//  PERFORMANCE STRATEGY
+//  ─────────────────────
+//  Problem : At low zoom the viewport covers tens-of-thousands of tiles.
+//            Putting each tile in the DOM causes massive layout thrashing.
 //
-//  Biome keys used in MAP_DATA and wired here:
-//  water2  water1  water  vulcan3  snow3
-//  forest  forest2  forest3  mountain1  mountains2
-//  meadows  swamp  plains  plains1  plain2  desert  desert1
-//  Any unrecognised value (e.g. raw colour '15773696') → 'plains'
+//  Solution: Pre-render the map into 32×32-tile "chunks".
+//            Each chunk is painted once onto an offscreen <canvas> and
+//            converted to a <img> (data-URL).  The world container then
+//            holds only ~(cols/32)×(rows/32) images instead of thousands
+//            of divs.  CSS transform:scale() zooms the whole container
+//            on the GPU — no reflow, silky smooth.
+//
+//            When the user zooms in beyond DETAIL_ZOOM (default 1.5) the
+//            engine switches back to individual DOM tiles for the small
+//            visible area, giving full visual fidelity up close.
+//
+//  Browser canvas size limit is ~16 384 px per side — chunks of 32 tiles
+//  at 48 px each = 1 536 px, well within every browser's budget.
 // ═══════════════════════════════════════════════════════════════════════
 
 /* ── DOM refs ──────────────────────────────────────────────────────── */
@@ -24,12 +30,14 @@ const elZoomVal = document.getElementById('zoom-val');
 const tooltip   = document.getElementById('tooltip');
 
 /* ── Config ────────────────────────────────────────────────────────── */
-const TILE_PX = 48;   // world-space px per tile
-const PADDING = 2;    // extra tile buffer around viewport
+const TILE_PX    = 48;   // world-space pixels per tile
+const CHUNK_SIZE = 32;   // tiles per chunk side
+const CHUNK_PX   = TILE_PX * CHUNK_SIZE;   // 1536 px per chunk side
+const PADDING    = 1;    // extra chunk buffer around viewport
+const DETAIL_ZOOM = 1.5; // switch to DOM tiles above this zoom level
 
 /* ══════════════════════════════════════════════════════════════════════
    BIOMES
-   Keys match exactly the strings produced by the Excel colour export
 ══════════════════════════════════════════════════════════════════════ */
 const BIOMES = {
   vulcan3:    { label:'Vulcan+3',   danger:.99, base:'#6B0000', dark:'#3A0000', hi:'#FF6B00' },
@@ -52,7 +60,7 @@ const BIOMES = {
 };
 
 /* ══════════════════════════════════════════════════════════════════════
-   ENCOUNTER TABLES  (Biotopes sheet)
+   ENCOUNTER TABLES
 ══════════════════════════════════════════════════════════════════════ */
 const ENCOUNTERS = {
   vulcan3:    [['Lavaspawn',60],['Lavaelement',29]],
@@ -75,14 +83,13 @@ const ENCOUNTERS = {
 };
 
 /* ══════════════════════════════════════════════════════════════════════
-   BOSS POSITIONS  (Excel cell refs from Biotopes sheet, 1-indexed)
+   BOSS POSITIONS
 ══════════════════════════════════════════════════════════════════════ */
 function colNum(s) {
   let n = 0;
   for (const ch of s.toUpperCase()) n = n * 26 + ch.charCodeAt(0) - 64;
   return n;
 }
-// Convert 1-indexed Excel cell → 0-indexed array position
 function ex(col, row) { return { x: colNum(col) - 1, y: row - 1 }; }
 
 const BOSSES_RAW = [
@@ -99,8 +106,7 @@ const BOSSES_RAW = [
 ];
 
 /* ══════════════════════════════════════════════════════════════════════
-   MAP DATA  —  loaded from mapdata.js
-   Unknown keys (raw colour numbers like '15773696') fall back to 'plains'
+   MAP DATA
 ══════════════════════════════════════════════════════════════════════ */
 if (typeof MAP_DATA === 'undefined') {
   const msg =
@@ -115,17 +121,19 @@ if (typeof MAP_DATA === 'undefined') {
   throw new Error(msg);
 }
 
-// Normalise: any key not in BIOMES → 'plains'
 const map   = MAP_DATA.map(row => row.map(k => (BIOMES[k] ? k : 'plains')));
 const MAP_H = map.length;
 const MAP_W = map[0].length;
 
-// Filter bosses to those within map bounds
 const BOSSES = BOSSES_RAW.filter(b => b.x >= 0 && b.x < MAP_W && b.y >= 0 && b.y < MAP_H);
 const BOSS_AT = new Map(BOSSES.map(b => [`${b.x},${b.y}`, b]));
 
+// Chunk grid dimensions
+const CHUNKS_X = Math.ceil(MAP_W / CHUNK_SIZE);
+const CHUNKS_Y = Math.ceil(MAP_H / CHUNK_SIZE);
+
 /* ══════════════════════════════════════════════════════════════════════
-   FOG OF WAR  —  0=dark  1=dim/visited  2=fully lit
+   FOG OF WAR
 ══════════════════════════════════════════════════════════════════════ */
 const fog = Array.from({ length: MAP_H }, () => new Uint8Array(MAP_W));
 
@@ -134,126 +142,111 @@ function reveal(cx, cy, r = 3) {
     for (let i = -r; i <= r; i++) {
       const tx = cx + i, ty = cy + j;
       if (tx < 0 || tx >= MAP_W || ty < 0 || ty >= MAP_H) continue;
-      const d = Math.sqrt(i * i + j * j);
-      fog[ty][tx] = Math.max(fog[ty][tx], d <= r ? 2 : 1);
+      fog[ty][tx] = Math.max(fog[ty][tx], Math.sqrt(i*i+j*j) <= r ? 2 : 1);
     }
   }
 }
 
-// Starting reveal — centre of the map
 const CX = Math.floor(MAP_W / 2);
 const CY = Math.floor(MAP_H / 2);
 reveal(CX, CY, 10);
 
 /* ══════════════════════════════════════════════════════════════════════
-   SVG TILE PATTERNS  —  injected once as CSS data-URI backgrounds
+   SVG PATTERN HELPERS  (shared between canvas renderer & CSS injector)
 ══════════════════════════════════════════════════════════════════════ */
-function buildSVGPattern(key, b) {
-  const T = TILE_PX, hi = b.hi;
-
-  const svg = {
+function getSVGInnerMarkup(key, b) {
+  const hi = b.hi;
+  const patterns = {
     vulcan3:
       `<line x1="25" y1="48" x2="30" y2="14" stroke="${hi}" stroke-width="2"   opacity=".62"/>
        <line x1="30" y1="14" x2="44" y2="36" stroke="${hi}" stroke-width="1.5" opacity=".48"/>
        <line x1="6"  y1="32" x2="22" y2="44" stroke="#FF4500" stroke-width="1.5" opacity=".42"/>
        <circle cx="30" cy="14" r="6" fill="${hi}" opacity=".36"/>`,
-
     water:
       `<path d="M0,17 Q12,11 24,17 T48,17" stroke="${hi}" stroke-width="2"   fill="none" opacity=".36"/>
        <path d="M0,29 Q12,23 24,29 T48,29" stroke="${hi}" stroke-width="1.5" fill="none" opacity=".26"/>
        <path d="M0,41 Q12,35 24,41 T48,41" stroke="${hi}" stroke-width="1"   fill="none" opacity=".16"/>`,
-
     water1:
       `<path d="M0,14 Q12,8  24,14 T48,14" stroke="${hi}" stroke-width="2.5" fill="none" opacity=".36"/>
        <path d="M0,27 Q12,21 24,27 T48,27" stroke="${hi}" stroke-width="2"   fill="none" opacity=".26"/>
        <path d="M0,40 Q12,34 24,40 T48,40" stroke="${hi}" stroke-width="1.5" fill="none" opacity=".18"/>`,
-
     water2:
       `<path d="M0,11 Q12,4  24,13 T48,11" stroke="${hi}" stroke-width="3"   fill="none" opacity=".30"/>
        <path d="M0,26 Q12,19 24,28 T48,26" stroke="${hi}" stroke-width="2.5" fill="none" opacity=".22"/>
        <path d="M0,41 Q12,34 24,43 T48,41" stroke="${hi}" stroke-width="2"   fill="none" opacity=".15"/>
        <circle cx="10" cy="37" r="3.5" fill="${hi}" opacity=".12"/>`,
-
     meadows:
       `<circle cx="10" cy="15" r="3.5" fill="${hi}" opacity=".36"/>
        <circle cx="32" cy="10" r="2.5" fill="${hi}" opacity=".28"/>
        <circle cx="44" cy="28" r="3"   fill="${hi}" opacity=".36"/>
        <circle cx="18" cy="40" r="2.5" fill="${hi}" opacity=".28"/>
        <circle cx="42" cy="43" r="2"   fill="${hi}" opacity=".22"/>`,
-
     swamp:
       `<ellipse cx="14" cy="19" rx="8"  ry="5" stroke="${hi}" stroke-width="1.5" fill="none" opacity=".35"/>
        <ellipse cx="36" cy="34" rx="10" ry="6" stroke="${hi}" stroke-width="1.5" fill="none" opacity=".28"/>
        <ellipse cx="24" cy="43" rx="7"  ry="4" stroke="${hi}" stroke-width="1"   fill="none" opacity=".22"/>
        <line x1="14" y1="10" x2="14" y2="28" stroke="${hi}" stroke-width="1.2" opacity=".24"/>`,
-
     forest:
       `<polygon points="24,5 16,22 32,22"  fill="${hi}" opacity=".34"/>
        <polygon points="10,18 3,34 17,34"  fill="${hi}" opacity=".26"/>
        <polygon points="40,15 33,31 47,31" fill="${hi}" opacity=".26"/>`,
-
     forest2:
       `<polygon points="24,4 15,23 33,23"  fill="${hi}" opacity=".36"/>
        <polygon points="9,14 1,32 17,32"   fill="${hi}" opacity=".28"/>
        <polygon points="41,12 33,31 49,31" fill="${hi}" opacity=".28"/>
        <polygon points="24,23 17,36 31,36" fill="${hi}" opacity=".22"/>`,
-
     forest3:
       `<polygon points="24,3 14,25 34,25"  fill="${hi}" opacity=".38"/>
        <polygon points="8,13 0,33 16,33"  fill="${hi}" opacity=".30"/>
        <polygon points="42,10 34,30 50,30" fill="${hi}" opacity=".30"/>
        <polygon points="24,24 16,39 32,39" fill="${hi}" opacity=".24"/>
        <polygon points="15,38 9,48 21,48"  fill="${hi}" opacity=".18"/>`,
-
     mountain1:
       `<polygon points="24,5 6,43 42,43"  fill="${hi}" opacity=".20"/>
        <polygon points="24,5 16,24 32,24" fill="#ECEFF1" opacity=".50"/>`,
-
     mountains2:
       `<polygon points="24,3 4,45 44,45"   fill="${hi}" opacity=".24"/>
        <polygon points="24,3 14,24 34,24"  fill="#ECEFF1" opacity=".54"/>
        <polygon points="14,45 8,37 20,37"  fill="${hi}" opacity=".18"/>`,
-
     snow3:
       `<line x1="24" y1="7"  x2="24" y2="41" stroke="white" stroke-width="1.5" opacity=".52"/>
        <line x1="7"  y1="24" x2="41" y2="24" stroke="white" stroke-width="1.5" opacity=".52"/>
        <line x1="13" y1="13" x2="35" y2="35" stroke="white" stroke-width="1"   opacity=".36"/>
        <line x1="35" y1="13" x2="13" y2="35" stroke="white" stroke-width="1"   opacity=".36"/>`,
-
     plains:
       `<line x1="3" y1="16" x2="45" y2="18" stroke="${hi}" stroke-width="1.5" opacity=".32"/>
        <line x1="3" y1="28" x2="45" y2="30" stroke="${hi}" stroke-width="1"   opacity=".24"/>
        <line x1="3" y1="40" x2="45" y2="42" stroke="${hi}" stroke-width="1"   opacity=".18"/>`,
-
     plains1:
       `<line x1="3" y1="13" x2="45" y2="15" stroke="${hi}" stroke-width="2"   opacity=".34"/>
        <line x1="3" y1="25" x2="45" y2="27" stroke="${hi}" stroke-width="1.5" opacity=".26"/>
        <line x1="3" y1="37" x2="45" y2="39" stroke="${hi}" stroke-width="1"   opacity=".20"/>
        <circle cx="38" cy="10" r="3" fill="${hi}" opacity=".24"/>`,
-
     plain2:
       `<line x1="3" y1="11" x2="45" y2="13" stroke="${hi}" stroke-width="2.5" opacity=".34"/>
        <line x1="3" y1="22" x2="45" y2="24" stroke="${hi}" stroke-width="2"   opacity=".28"/>
        <line x1="3" y1="33" x2="45" y2="35" stroke="${hi}" stroke-width="1.5" opacity=".22"/>
        <line x1="3" y1="44" x2="45" y2="46" stroke="${hi}" stroke-width="1"   opacity=".16"/>`,
-
     desert:
       `<ellipse cx="24" cy="32" rx="20" ry="6"  fill="${hi}" opacity=".20"/>
        <ellipse cx="14" cy="18" rx="11" ry="4"  fill="${hi}" opacity=".14"/>`,
-
     desert1:
       `<ellipse cx="24" cy="30" rx="21" ry="7"  fill="${hi}" opacity=".25"/>
        <ellipse cx="13" cy="16" rx="12" ry="5"  fill="${hi}" opacity=".18"/>
        <line x1="3" y1="43" x2="45" y2="45" stroke="${hi}" stroke-width="1" opacity=".24"/>`,
   };
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${T}" height="${T}">${svg[key] || ''}</svg>`;
+  return patterns[key] || '';
 }
 
+/* ══════════════════════════════════════════════════════════════════════
+   CSS INJECTION  (for detail-mode DOM tiles)
+══════════════════════════════════════════════════════════════════════ */
 function injectBiomeCSS() {
   const lines = [];
   for (const [key, b] of Object.entries(BIOMES)) {
-    const uri = encodeURIComponent(buildSVGPattern(key, b));
+    const svgBody = getSVGInnerMarkup(key, b);
+    const svgStr  = `<svg xmlns="http://www.w3.org/2000/svg" width="${TILE_PX}" height="${TILE_PX}">${svgBody}</svg>`;
+    const uri     = encodeURIComponent(svgStr);
     lines.push(
       `.tile[data-biome="${key}"]{` +
       `background:url("data:image/svg+xml,${uri}") center/${TILE_PX}px ${TILE_PX}px no-repeat,` +
@@ -266,29 +259,108 @@ function injectBiomeCSS() {
 }
 
 /* ══════════════════════════════════════════════════════════════════════
-   LEGEND
+   PRE-RENDERED SVG IMAGES  (one Image object per biome, for canvas use)
 ══════════════════════════════════════════════════════════════════════ */
-function buildLegend() {
-  const c = document.getElementById('legend-items');
+const biomeImages = {};   // key → HTMLImageElement (may still be loading)
+const biomeImagesReady = {}; // key → bool
+
+function preloadBiomeImages() {
   for (const [key, b] of Object.entries(BIOMES)) {
-    const d = document.createElement('div');
-    d.className = 'legend-item';
-    d.innerHTML =
-      `<div class="legend-swatch" style="background:linear-gradient(135deg,${b.base},${b.dark})"></div>` +
-      `<span>${b.label}</span>`;
-    c.appendChild(d);
+    const svgBody = getSVGInnerMarkup(key, b);
+    const svgStr  = `<svg xmlns="http://www.w3.org/2000/svg" width="${TILE_PX}" height="${TILE_PX}">${svgBody}</svg>`;
+    const img = new Image(TILE_PX, TILE_PX);
+    img.onload = () => { biomeImagesReady[key] = true; };
+    img.src = 'data:image/svg+xml,' + encodeURIComponent(svgStr);
+    biomeImages[key] = img;
   }
 }
 
 /* ══════════════════════════════════════════════════════════════════════
-   CAMERA
+   CHUNK CANVAS RENDERER
+   Each chunk is a CHUNK_SIZE × CHUNK_SIZE tile grid painted to a canvas.
+   The canvas is converted to a data-URL <img> once, then reused.
+   Fog changes invalidate the affected chunks so they repaint on next sync.
 ══════════════════════════════════════════════════════════════════════ */
-let panX = 0, panY = 0, zoom = 1;
+const chunkCache   = new Map();   // "cx,cy" → { img, fogHash }
+const activeChunks = new Map();   // "cx,cy" → img element in DOM
+
+// Compute a cheap fog hash for a chunk to detect changes
+function chunkFogHash(cx, cy) {
+  const tx0 = cx * CHUNK_SIZE, ty0 = cy * CHUNK_SIZE;
+  const tx1 = Math.min(tx0 + CHUNK_SIZE, MAP_W);
+  const ty1 = Math.min(ty0 + CHUNK_SIZE, MAP_H);
+  let h = 0;
+  for (let ty = ty0; ty < ty1; ty++)
+    for (let tx = tx0; tx < tx1; tx++)
+      h = (h * 31 + fog[ty][tx]) | 0;
+  return h;
+}
+
+function renderChunkToDataURL(cx, cy) {
+  const tx0 = cx * CHUNK_SIZE, ty0 = cy * CHUNK_SIZE;
+  const tx1 = Math.min(tx0 + CHUNK_SIZE, MAP_W);
+  const ty1 = Math.min(ty0 + CHUNK_SIZE, MAP_H);
+  const pw   = (tx1 - tx0) * TILE_PX;
+  const ph   = (ty1 - ty0) * TILE_PX;
+
+  const canvas = document.createElement('canvas');
+  canvas.width  = pw;
+  canvas.height = ph;
+  const ctx = canvas.getContext('2d');
+
+  for (let ty = ty0; ty < ty1; ty++) {
+    for (let tx = tx0; tx < tx1; tx++) {
+      const lx = (tx - tx0) * TILE_PX;
+      const ly = (ty - ty0) * TILE_PX;
+      const key = map[ty][tx];
+      const b   = BIOMES[key];
+      const f   = fog[ty][tx];
+
+      if (f === 0) {
+        // Fully dark — just black
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(lx, ly, TILE_PX, TILE_PX);
+        continue;
+      }
+
+      // Draw gradient background
+      const grad = ctx.createLinearGradient(lx, ly, lx + TILE_PX, ly + TILE_PX);
+      grad.addColorStop(0, b.base);
+      grad.addColorStop(1, b.dark);
+      ctx.fillStyle = grad;
+      ctx.fillRect(lx, ly, TILE_PX, TILE_PX);
+
+      // Draw SVG pattern overlay (if image loaded)
+      if (biomeImagesReady[key]) {
+        ctx.drawImage(biomeImages[key], lx, ly, TILE_PX, TILE_PX);
+      }
+
+      // Fog overlay
+      if (f === 1) {
+        ctx.fillStyle = 'rgba(0,0,0,0.55)';
+        ctx.fillRect(lx, ly, TILE_PX, TILE_PX);
+      }
+    }
+  }
+
+  return canvas.toDataURL('image/png');
+}
+
+function getOrBuildChunk(cx, cy) {
+  const key  = `${cx},${cy}`;
+  const hash = chunkFogHash(cx, cy);
+  const cached = chunkCache.get(key);
+  if (cached && cached.fogHash === hash) return cached.dataURL;
+
+  const dataURL = renderChunkToDataURL(cx, cy);
+  chunkCache.set(key, { dataURL, fogHash: hash });
+  return dataURL;
+}
 
 /* ══════════════════════════════════════════════════════════════════════
-   TILE POOL  —  recycle DOM elements to reduce GC pressure
+   DETAIL TILE POOL  (only used at high zoom)
 ══════════════════════════════════════════════════════════════════════ */
-const activeTiles = new Map();   // key "x,y" → element
+const activeTiles = new Map();
 const tilePool    = [];
 
 function makeTileEl(tx, ty) {
@@ -322,55 +394,227 @@ function makeTileEl(tx, ty) {
 function dropTile(key) {
   const el = activeTiles.get(key);
   if (!el) return;
-  world.removeChild(el);
+  tileLayer.removeChild(el);
   tilePool.push(el);
   activeTiles.delete(key);
 }
 
+function clearAllTiles() {
+  for (const key of [...activeTiles.keys()]) dropTile(key);
+}
+
 /* ══════════════════════════════════════════════════════════════════════
-   VIRTUAL RENDERING  —  only in-viewport tiles in the DOM
+   CAMERA
 ══════════════════════════════════════════════════════════════════════ */
-let _vx0 = -1, _vy0 = -1, _vx1 = -1, _vy1 = -1, _rafId = 0;
+let panX = 0, panY = 0, zoom = 1;
+
+/* ══════════════════════════════════════════════════════════════════════
+   LAYER ELEMENTS
+   chunkLayer  — always visible, holds chunk <img>s
+   tileLayer   — visible only at DETAIL_ZOOM+, holds individual .tile divs
+   bossLayer   — boss markers at all zoom levels (above DETAIL_ZOOM bosses
+                 are shown in tileLayer; below, we place them in bossLayer)
+══════════════════════════════════════════════════════════════════════ */
+const chunkLayer = document.createElement('div');
+chunkLayer.id = 'chunk-layer';
+chunkLayer.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none;';
+world.appendChild(chunkLayer);
+
+const tileLayer = document.createElement('div');
+tileLayer.id = 'tile-layer';
+tileLayer.style.cssText = 'position:absolute;top:0;left:0;';
+world.appendChild(tileLayer);
+
+// Re-target activeTiles/tilePool ops to tileLayer
+function makeTileElInLayer(tx, ty) {
+  const el = makeTileEl(tx, ty);
+  return el; // will be appended to tileLayer
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   SYNC — main render loop entry
+══════════════════════════════════════════════════════════════════════ */
+let _rafId = 0;
+let _lastMode = null; // 'chunks' | 'detail'
 
 function scheduleSync() {
   if (_rafId) return;
   _rafId = requestAnimationFrame(() => { syncViewport(); _rafId = 0; });
 }
 
+// Track last viewport for chunk sync
+let _vcx0 = -1, _vcy0 = -1, _vcx1 = -1, _vcy1 = -1;
+// Track last viewport for tile sync
+let _vx0 = -1, _vy0 = -1, _vx1 = -1, _vy1 = -1;
+
 function syncViewport() {
   const vw = viewport.clientWidth, vh = viewport.clientHeight;
-  const x0 = Math.max(0,     Math.floor(-panX / zoom / TILE_PX)             - PADDING);
-  const y0 = Math.max(0,     Math.floor(-panY / zoom / TILE_PX)             - PADDING);
-  const x1 = Math.min(MAP_W, Math.ceil((-panX / zoom + vw / zoom) / TILE_PX) + PADDING);
-  const y1 = Math.min(MAP_H, Math.ceil((-panY / zoom + vh / zoom) / TILE_PX) + PADDING);
+  const mode = zoom >= DETAIL_ZOOM ? 'detail' : 'chunks';
 
-  if (x0 === _vx0 && y0 === _vy0 && x1 === _vx1 && y1 === _vy1) return;
-  _vx0 = x0; _vy0 = y0; _vx1 = x1; _vy1 = y1;
+  if (mode === 'chunks') {
+    // ── CHUNK MODE ───────────────────────────────────────────────────
+    // Hide tile layer
+    tileLayer.style.display = 'none';
+    chunkLayer.style.display = '';
 
-  // Drop tiles that scrolled out
-  for (const key of [...activeTiles.keys()]) {
-    const [tx, ty] = key.split(',').map(Number);
-    if (tx < x0 || tx >= x1 || ty < y0 || ty >= y1) dropTile(key);
-  }
-
-  // Add tiles that scrolled in
-  const frag = document.createDocumentFragment();
-  for (let ty = y0; ty < y1; ty++) {
-    for (let tx = x0; tx < x1; tx++) {
-      const key = `${tx},${ty}`;
-      if (activeTiles.has(key)) continue;
-      const el = makeTileEl(tx, ty);
-      frag.appendChild(el);
-      activeTiles.set(key, el);
+    // Clear detail tiles if we just switched
+    if (_lastMode === 'detail') {
+      clearAllTiles();
+      _vx0 = _vy0 = _vx1 = _vy1 = -1;
     }
+    _lastMode = 'chunks';
+
+    // Visible chunk range
+    const cx0 = Math.max(0,       Math.floor(-panX / zoom / CHUNK_PX) - PADDING);
+    const cy0 = Math.max(0,       Math.floor(-panY / zoom / CHUNK_PX) - PADDING);
+    const cx1 = Math.min(CHUNKS_X, Math.ceil((-panX / zoom + vw / zoom) / CHUNK_PX) + PADDING);
+    const cy1 = Math.min(CHUNKS_Y, Math.ceil((-panY / zoom + vh / zoom) / CHUNK_PX) + PADDING);
+
+    if (cx0 === _vcx0 && cy0 === _vcy0 && cx1 === _vcx1 && cy1 === _vcy1) return;
+    _vcx0 = cx0; _vcy0 = cy0; _vcx1 = cx1; _vcy1 = cy1;
+
+    // Remove out-of-range chunks
+    for (const [key, img] of [...activeChunks.entries()]) {
+      const [ccx, ccy] = key.split(',').map(Number);
+      if (ccx < cx0 || ccx >= cx1 || ccy < cy0 || ccy >= cy1) {
+        chunkLayer.removeChild(img);
+        activeChunks.delete(key);
+      }
+    }
+
+    // Add new in-range chunks
+    for (let ccy = cy0; ccy < cy1; ccy++) {
+      for (let ccx = cx0; ccx < cx1; ccx++) {
+        const key = `${ccx},${ccy}`;
+        if (activeChunks.has(key)) {
+          // Check if fog changed — if so, rebuild and update src
+          const fogHash = chunkFogHash(ccx, ccy);
+          const cached  = chunkCache.get(key);
+          if (!cached || cached.fogHash !== fogHash) {
+            const img = activeChunks.get(key);
+            img.src = getOrBuildChunk(ccx, ccy);
+          }
+          continue;
+        }
+        const img = document.createElement('img');
+        img.style.cssText =
+          `position:absolute;` +
+          `left:${ccx * CHUNK_PX}px;top:${ccy * CHUNK_PX}px;` +
+          `width:${Math.min(CHUNK_PX, (MAP_W - ccx * CHUNK_SIZE) * TILE_PX)}px;` +
+          `height:${Math.min(CHUNK_PX, (MAP_H - ccy * CHUNK_SIZE) * TILE_PX)}px;` +
+          `image-rendering:pixelated;`;
+        img.src = getOrBuildChunk(ccx, ccy);
+        chunkLayer.appendChild(img);
+        activeChunks.set(key, img);
+      }
+    }
+
+    // Boss markers in chunk mode — show as overlay divs on bossLayer
+    syncBossOverlays();
+
+  } else {
+    // ── DETAIL MODE ─────────────────────────────────────────────────
+    tileLayer.style.display = '';
+    chunkLayer.style.display = 'none';
+    clearBossOverlays();
+
+    if (_lastMode === 'chunks') {
+      _vcx0 = _vcy0 = _vcx1 = _vcy1 = -1; // force chunk re-eval on next switch back
+    }
+    _lastMode = 'detail';
+
+    const TILE_PAD = 2;
+    const x0 = Math.max(0,     Math.floor(-panX / zoom / TILE_PX) - TILE_PAD);
+    const y0 = Math.max(0,     Math.floor(-panY / zoom / TILE_PX) - TILE_PAD);
+    const x1 = Math.min(MAP_W, Math.ceil((-panX / zoom + vw / zoom) / TILE_PX) + TILE_PAD);
+    const y1 = Math.min(MAP_H, Math.ceil((-panY / zoom + vh / zoom) / TILE_PX) + TILE_PAD);
+
+    if (x0 === _vx0 && y0 === _vy0 && x1 === _vx1 && y1 === _vy1) return;
+    _vx0 = x0; _vy0 = y0; _vx1 = x1; _vy1 = y1;
+
+    // Drop tiles out of range
+    for (const [key] of [...activeTiles.entries()]) {
+      const [tx, ty] = key.split(',').map(Number);
+      if (tx < x0 || tx >= x1 || ty < y0 || ty >= y1) dropTile(key);
+    }
+
+    // Add new tiles
+    const frag = document.createDocumentFragment();
+    for (let ty = y0; ty < y1; ty++) {
+      for (let tx = x0; tx < x1; tx++) {
+        const key = `${tx},${ty}`;
+        if (activeTiles.has(key)) continue;
+        const el = makeTileElInLayer(tx, ty);
+        frag.appendChild(el);
+        activeTiles.set(key, el);
+      }
+    }
+    tileLayer.appendChild(frag);
   }
-  world.appendChild(frag);
 }
 
+/* ══════════════════════════════════════════════════════════════════════
+   BOSS OVERLAYS  (chunk mode only — emoji markers over chunks)
+══════════════════════════════════════════════════════════════════════ */
+const bossLayer = document.createElement('div');
+bossLayer.id = 'boss-layer';
+bossLayer.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none;';
+world.appendChild(bossLayer);
+
+let bossOverlaysBuilt = false;
+
+function syncBossOverlays() {
+  // Rebuild from scratch each time fog may have changed
+  bossLayer.innerHTML = '';
+  bossLayer.style.display = '';
+  for (const boss of BOSSES) {
+    if (fog[boss.y][boss.x] === 0) continue;
+    const el = document.createElement('div');
+    el.className   = 'boss-marker';
+    el.textContent = boss.icon;
+    el.style.cssText =
+      `position:absolute;` +
+      `left:${boss.x * TILE_PX}px;top:${boss.y * TILE_PX}px;` +
+      `width:${TILE_PX}px;height:${TILE_PX}px;` +
+      `display:flex;align-items:center;justify-content:center;font-size:26px;z-index:2;` +
+      `color:${boss.colour};`;
+    bossLayer.appendChild(el);
+  }
+}
+
+function clearBossOverlays() {
+  bossLayer.style.display = 'none';
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   FOG REFRESH
+══════════════════════════════════════════════════════════════════════ */
 function refreshFog() {
+  // Invalidate all cached chunk images so they repaint with new fog
+  chunkCache.clear();
+  // Force chunk range recalculation on next sync
+  _vcx0 = _vcy0 = _vcx1 = _vcy1 = -1;
+  _vx0  = _vy0  = _vx1  = _vy1  = -1;
+  // Update any currently visible detail tiles
   for (const [, el] of activeTiles) {
     const f = fog[+el.dataset.ty][+el.dataset.tx];
     if (el.dataset.fog !== String(f)) el.dataset.fog = f;
+  }
+  scheduleSync();
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   LEGEND
+══════════════════════════════════════════════════════════════════════ */
+function buildLegend() {
+  const c = document.getElementById('legend-items');
+  for (const [key, b] of Object.entries(BIOMES)) {
+    const d = document.createElement('div');
+    d.className = 'legend-item';
+    d.innerHTML =
+      `<div class="legend-swatch" style="background:linear-gradient(135deg,${b.base},${b.dark})"></div>` +
+      `<span>${b.label}</span>`;
+    c.appendChild(d);
   }
 }
 
@@ -384,7 +628,7 @@ function applyTransform() {
 }
 
 /* ══════════════════════════════════════════════════════════════════════
-   FIT MAP  —  called by HUD button
+   FIT MAP
 ══════════════════════════════════════════════════════════════════════ */
 function fitMap() {
   zoom = Math.min(
@@ -513,13 +757,19 @@ function handleClick(sx, sy) {
 ══════════════════════════════════════════════════════════════════════ */
 world.style.width  = `${MAP_W * TILE_PX}px`;
 world.style.height = `${MAP_H * TILE_PX}px`;
+world.style.transformOrigin = '0 0';
 
-// Start centred on the middle of the map at ~0.25 zoom (good performance/detail balance)
 zoom = 0.25;
 panX = viewport.clientWidth  / 2 - CX * TILE_PX * zoom;
 panY = viewport.clientHeight / 2 - CY * TILE_PX * zoom;
 
+preloadBiomeImages();
 injectBiomeCSS();
 buildLegend();
 applyTransform();
-syncViewport();
+
+// Wait one frame so layout is settled, then do the first sync
+// (also lets biome images start loading — canvas fallback gradient still shows instantly)
+requestAnimationFrame(() => {
+  syncViewport();
+});

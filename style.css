@@ -27,6 +27,16 @@ html, body {
   will-change: transform;
 }
 
+/* ── Chunk layer (canvas images) ───────────────────────────────── */
+#chunk-layer img {
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* ── Boss layer (chunk-mode overlays) ──────────────────────────── */
+#boss-layer { z-index: 3; }
+
 /* ── Tiles ──────────────────────────────────────────────────────── */
 .tile {
   position: absolute;
