@@ -52,7 +52,7 @@ const BIOMES = {
   mountain1:  { label:'Mountain+1', danger:.60, base:'#546E7A', dark:'#37474F', hi:'#B0BEC5' },
   mountains2: { label:'Mountain+2', danger:.99, base:'#37474F', dark:'#1C313A', hi:'#78909C' },
   snow3:      { label:'Snow+3',     danger:.60, base:'#90A4AE', dark:'#546E7A', hi:'#ECEFF1' },
-  plains:     { label:'Plains',     danger:.30, base:'#7CB342', dark:'#558B2F', hi:'#C5E1A5' },
+  plains:     { label:'Plains',     danger:.30, base:'#f7e860', dark:'#d6c57a', hi:'#f5e9a8' },
   plains1:    { label:'Plains+1',   danger:.60, base:'#C6A700', dark:'#8D6E00', hi:'#FDD835' },
   plain2:     { label:'Plains+2',   danger:.99, base:'#8D6E00', dark:'#5C4200', hi:'#FFCA28' },
   desert:     { label:'Desert',     danger:.60, base:'#F9A825', dark:'#C77800', hi:'#FFE082' },

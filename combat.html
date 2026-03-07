@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Uzoxia - Combat Simulator</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#c8a86a;--gold-bright:#f0d080;--gold-dim:#7a5f30;--ember:#ff6b1a;--bg:#000;--panel:rgba(8,6,3,0.97);--border:rgba(200,168,100,0.18);--red:#e07070;--blue:#70a8e0}
+html,body{width:100%;min-height:100%;background:var(--bg);color:var(--gold);font-family:'Cinzel',Georgia,serif;overflow-x:hidden}
+.page{max-width:1480px;margin:0 auto;padding:28px 20px 80px}
+h1{font-family:'Cinzel Decorative',serif;font-size:clamp(16px,2.2vw,26px);color:var(--gold-bright);letter-spacing:.06em;text-align:center;margin-bottom:4px}
+.sub{font-family:'IM Fell English',serif;font-style:italic;font-size:12px;color:rgba(200,168,100,.4);text-align:center;margin-bottom:28px;letter-spacing:.06em}
+.dv{display:flex;align-items:center;gap:12px;margin:20px 0}
+.dv-l{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(200,168,100,.28),transparent)}
+.dv-g{width:5px;height:5px;background:var(--gold);transform:rotate(45deg);box-shadow:0 0 6px var(--gold-bright);flex-shrink:0}
+.dv-t{font-size:8px;letter-spacing:.35em;text-transform:uppercase;color:rgba(200,168,100,.32)}
+/* setup */
+.sg{display:grid;grid-template-columns:1fr 175px 1fr;gap:0;align-items:start}
+.vc{display:flex;flex-direction:column;align-items:center;gap:12px;padding:38px 10px 0}
+.vs{font-family:'Cinzel Decorative',serif;font-size:20px;color:var(--gold-dim);letter-spacing:.1em}
+.tp{border:1px solid var(--border);background:var(--panel);padding:14px}
+.th{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.tn{font-family:'Cinzel Decorative',serif;font-size:11px;letter-spacing:.1em}
+.tn.red{color:var(--red)}.tn.blue{color:var(--blue)}
+.sc{display:flex;align-items:center;gap:7px;font-size:9px;letter-spacing:.16em;color:rgba(200,168,100,.45)}
+.sc button{width:19px;height:19px;background:transparent;border:1px solid var(--border);color:var(--gold);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:all .13s;line-height:1}
+.sc button:hover{border-color:var(--gold);color:var(--gold-bright)}
+.sd{font-size:11px;color:var(--gold);min-width:12px;text-align:center}
+.cg{display:flex;flex-direction:column;gap:8px}
+/* char card */
+.cc{border:1px solid var(--border);background:rgba(0,0,0,.55);padding:10px;position:relative;transition:border-color .2s}
+.cc.off{opacity:.22;pointer-events:none}
+.cc:not(.off):hover{border-color:rgba(200,168,100,.3)}
+.cn{position:absolute;top:-1px;left:-1px;width:17px;height:17px;background:rgba(200,168,100,.08);border-right:1px solid var(--border);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:7px;color:var(--gold-dim)}
+.pb{position:absolute;top:7px;right:7px;font-size:7px;letter-spacing:.16em;padding:1px 5px;border:1px solid rgba(200,168,100,.18);color:rgba(200,168,100,.4)}
+.pb.ov{border-color:rgba(220,80,80,.45);color:rgba(220,80,80,.65)}
+.pb.ok{border-color:rgba(80,190,100,.35);color:rgba(80,190,100,.55)}
+.fl{font-size:7px;letter-spacing:.2em;text-transform:uppercase;color:rgba(200,168,100,.33);margin-bottom:2px}
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:5px}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:5px}
+select,input[type=text],input[type=number]{width:100%;background:rgba(0,0,0,.9);border:1px solid rgba(200,168,100,.18);color:var(--gold);padding:3px 5px;font-family:'Cinzel',serif;font-size:8.5px;letter-spacing:.05em;outline:none;transition:border-color .2s;appearance:none}
+select:focus,input:focus{border-color:rgba(200,168,100,.5)}
+select option{background:#0a0800}
+.si{display:flex;align-items:center;gap:2px}
+.si button{width:15px;height:15px;flex-shrink:0;background:transparent;border:1px solid rgba(200,168,100,.16);color:var(--gold-dim);cursor:pointer;font-size:9px;display:flex;align-items:center;justify-content:center;transition:all .1s;line-height:1}
+.si button:hover{border-color:var(--gold);color:var(--gold)}
+.si input{text-align:center;padding:2px 1px;font-size:8px}
+.dg{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-top:4px;padding-top:5px;border-top:1px solid rgba(200,168,100,.06)}
+.di{text-align:center}.dv2{font-size:9.5px;color:var(--gold-bright)}.dl{font-size:6px;letter-spacing:.12em;text-transform:uppercase;color:rgba(200,168,100,.3)}
+/* buttons */
+.bs{font-family:'Cinzel Decorative',serif;font-size:11px;letter-spacing:.1em;padding:11px 24px;background:transparent;border:1px solid rgba(200,168,100,.38);color:var(--gold-bright);cursor:pointer;position:relative;transition:all .3s;width:100%}
+.bs:hover{border-color:var(--gold-bright);box-shadow:0 0 20px rgba(200,168,100,.12)}
+.bs::before,.bs::after{content:'';position:absolute;width:8px;height:8px;border-color:var(--gold);border-style:solid}
+.bs::before{top:4px;left:4px;border-width:1px 0 0 1px}
+.bs::after{bottom:4px;right:4px;border-width:0 1px 1px 0}
+.bx{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.2em;text-transform:uppercase;padding:5px 12px;background:transparent;border:1px solid rgba(200,168,100,.12);color:rgba(200,168,100,.32);cursor:pointer;transition:all .2s;width:100%}
+.bx:hover{border-color:rgba(200,168,100,.35);color:var(--gold)}
+/* battle */
+#bs2{display:none;margin-top:4px}
+.bl{display:grid;grid-template-columns:1fr 350px;gap:18px;align-items:start}
+#tw{position:relative;border:1px solid rgba(200,168,100,.13);overflow:hidden;background:#000}
+#tc{display:block;image-rendering:pixelated;max-width:100%;height:auto}
+/* round controls */
+.rc{display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.rc button{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.18em;text-transform:uppercase;padding:5px 10px;background:transparent;border:1px solid var(--border);color:var(--gold);cursor:pointer;transition:all .18s;white-space:nowrap}
+.rc button:hover{border-color:var(--gold);color:var(--gold-bright)}
+.rc button:disabled{opacity:.28;cursor:default;pointer-events:none}
+.rl{font-family:'Cinzel Decorative',serif;font-size:10px;color:var(--gold-dim);letter-spacing:.09em;margin-left:auto;white-space:nowrap}
+.rn{color:var(--gold-bright)}
+/* hp bars */
+.hp{display:flex;flex-direction:column;gap:11px}
+.htl{font-size:8px;letter-spacing:.28em;text-transform:uppercase;margin-bottom:4px}
+.htl.a{color:rgba(220,110,110,.58)}.htl.b{color:rgba(110,168,220,.58)}
+.cb{display:flex;flex-direction:column;gap:2px;margin-bottom:3px}
+.nr{font-size:9px;letter-spacing:.09em;display:flex;justify-content:space-between}
+.nl{color:rgba(200,168,100,.6)}.nh{font-size:8px;color:rgba(200,168,100,.36)}
+.ht{height:4px;background:rgba(255,255,255,.04);overflow:hidden}
+.hf{height:100%;transition:width .3s ease}
+.alive{background:linear-gradient(90deg,#2a7a30,#42b04a)}
+.low{background:linear-gradient(90deg,#7a5020,#c4801a)}
+.crit{background:linear-gradient(90deg,#7a2020,#d04040)}
+.dead{background:rgba(50,20,20,.4);width:100%!important}
+/* log */
+.lw{border:1px solid var(--border);background:rgba(0,0,0,.75);height:290px;overflow-y:auto;padding:10px}
+.lw::-webkit-scrollbar{width:3px}
+.lw::-webkit-scrollbar-thumb{background:rgba(200,168,100,.15)}
+.le{font-family:'IM Fell English',Georgia,serif;font-size:11px;line-height:1.8;letter-spacing:.02em;border-bottom:1px solid rgba(200,168,100,.025);padding:1px 0}
+.rh{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.26em;color:rgba(200,168,100,.35);text-transform:uppercase;margin-top:7px;border-bottom:1px solid rgba(200,168,100,.09);padding-bottom:3px}
+.lh{color:rgba(200,168,100,.7)}.lc{color:#f0d080}.lm{color:rgba(200,168,100,.27)}
+.ld{color:#c05555;font-style:italic}.lr{color:rgba(70,170,80,.38);font-size:10px}
+.lres{font-family:'Cinzel Decorative',serif;font-size:12px;text-align:center;padding:8px 0;letter-spacing:.07em;border-top:1px solid rgba(200,168,100,.12);margin-top:5px}
+.wa{color:var(--red)}.wb{color:var(--blue)}.wd{color:var(--gold)}
+.dm{color:var(--ember);font-weight:bold}.ct{color:var(--gold-bright);font-size:9px;letter-spacing:.12em}
+@media(max-width:1100px){.sg{grid-template-columns:1fr}.vc{flex-direction:row;padding:8px 0}.bl{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="page">
+<h1>Combat Simulator</h1>
+<p class="sub">Configure your parties &mdash; let the dice decide</p>
+<div class="sg">
+  <div class="tp">
+    <div class="th"><span class="tn red">&#9876; Party A</span>
+      <div class="sc"><button onclick="chsz('a',-1)">&#8722;</button><span class="sd" id="sz-a">1</span><button onclick="chsz('a',1)">+</button><span style="margin-left:2px">fighters</span></div>
+    </div>
+    <div class="cg" id="ca"></div>
+  </div>
+  <div class="vc">
+    <div class="vs">VS</div>
+    <div style="display:flex;flex-direction:column;gap:7px;width:100%">
+      <button class="bs" onclick="runSim()">Simulate</button>
+      <button class="bx" onclick="resetB()">Reset</button>
+    </div>
+  </div>
+  <div class="tp">
+    <div class="th"><span class="tn blue">&#9876; Party B</span>
+      <div class="sc"><button onclick="chsz('b',-1)">&#8722;</button><span class="sd" id="sz-b">1</span><button onclick="chsz('b',1)">+</button><span style="margin-left:2px">fighters</span></div>
+    </div>
+    <div class="cg" id="cb"></div>
+  </div>
+</div>
+<div id="bs2">
+  <div class="dv"><div class="dv-l"></div><div class="dv-g"></div><div class="dv-t">Battle</div><div class="dv-g"></div><div class="dv-l"></div></div>
+  <div class="rc">
+    <button id="bf" onclick="goR(0)">&#9198; Start</button>
+    <button id="bp" onclick="goR(cr-1)">&#9664; Prev</button>
+    <button id="bn" onclick="goR(cr+1)">Next &#9654;</button>
+    <button id="bl2" onclick="goR(rd.length-1)">Last &#9197;</button>
+    <button id="bpl" onclick="togPlay()">&#9654; Play</button>
+    <span class="rl">Round <span class="rn" id="rdsp">&#8212;</span> of <span id="rtot">&#8212;</span></span>
+  </div>
+  <div class="bl">
+    <div><div id="tw"><canvas id="tc"></canvas></div></div>
+    <div style="display:flex;flex-direction:column;gap:13px">
+      <div class="hp">
+        <div><div class="htl a">Party A</div><div id="ba"></div></div>
+        <div><div class="htl b">Party B</div><div id="bb"></div></div>
+      </div>
+      <div class="dv"><div class="dv-l"></div><div class="dv-g"></div><div class="dv-t">Combat Log</div><div class="dv-g"></div><div class="dv-l"></div></div>
+      <div class="lw" id="lg"></div>
+    </div>
+  </div>
+</div>
+</div>
+<script>
+const SP={Human:{s:2,a:2,i:2},Elf:{s:1,a:3,i:3},Dwarf:{s:3,a:1,i:2},Goblinoid:{s:1,a:4,i:2},Orc:{s:4,a:2,i:1},Troll:{s:3,a:3,i:1}};
+const CL={Knight:{s:4,a:2,i:1,p:'s',mn:12,mx:18},Marksman:{s:1,a:4,i:2,p:'a',mn:10,mx:16},Assassin:{s:2,a:4,i:1,p:'a',mn:11,mx:17},Slinger:{s:1,a:3,i:3,p:'a',mn:8,mx:14},Cleric:{s:2,a:1,i:4,p:'i',mn:7,mx:13},Mage:{s:1,a:1,i:5,p:'i',mn:9,mx:15},Shaman:{s:2,a:2,i:3,p:'i',mn:8,mx:14},Barbarian:{s:5,a:2,i:0,p:'s',mn:13,mx:20}};
+const WM=['Sword','Axe','Mace','Spear','Dagger','Hammer','Flail','Halberd'];
+const WR=['Shortbow','Longbow','Crossbow','Sling','Javelin','Throwing Knife'];
+const WG=['Staff','Wand','Tome','Orb','Runic Blade'];
+const ARM=['Unarmored','Leather','Chain','Plate','Robes','Scale','Brigandine'];
+const AV={Unarmored:0,Robes:1,Leather:3,Scale:5,Chain:7,Brigandine:8,Plate:10};
+const CI={Knight:'&#9822;',Marksman:'&#9678;',Assassin:'&#10022;',Slinger:'&#9672;',Cleric:'&#10010;',Mage:'&#9733;',Shaman:'&#9789;',Barbarian:'&#9876;'};
+const PNAME={s:'STR',a:'AGI',i:'INT'};
+
+function wopt(cls){const p=CL[cls]?.p;if(p==='i')return[...WG,...WM];if(p==='a')return[...WR,...WM];return[...WM]}
+
+function ds(c){
+  const sp=SP[c.sp]||{s:2,a:2,i:2};const cl=CL[c.cl]||{s:2,a:2,i:2,p:'s',mn:10,mx:15};
+  const S=sp.s+cl.s+(c.pts.s||0),A=sp.a+cl.a+(c.pts.a||0),I=sp.i+cl.i+(c.pts.i||0);
+  const lv=c.lv||1;
+  const hp=25*S+lv*19,hpr=+(S*.05).toFixed(2),mana=15*I+lv*10;
+  const arm=+(A/6+(AV[c.arm]||0)).toFixed(1),spd=+(1.75-A*.01).toFixed(2);
+  const cr=+(A*.5).toFixed(1),dg=+(A*.25).toFixed(1);
+  const ps={s:S,a:A,i:I}[cl.p];
+  const dmin=cl.mn+ps,dmax=cl.mx+ps,mit=arm/(arm+7.5);
+  return{S,A,I,hp,hpr,mana,arm,spd,cr,dg,dmin,dmax,mit,p:cl.p};
+}
+
+const ST={a:[],b:[]};let szA=1,szB=1;
+function dfc(i){return{nm:`Fighter ${i+1}`,sp:'Human',cl:'Knight',lv:1,arm:'Leather',wp:'Sword',pts:{s:0,a:0,i:0}}}
+function pu(c){return(c.pts.s||0)+(c.pts.a||0)+(c.pts.i||0)}
+function pm(c){return c.lv||1}
+
+function rc(team){
+  const el=document.getElementById(team==='a'?'ca':'cb');
+  el.innerHTML='';
+  const sz=team==='a'?szA:szB;
+  ST[team].forEach((c,i)=>{
+    const d=ds(c);const us=pu(c),mx=pm(c);const ov=us>mx,ok=us===mx;
+    const wo=wopt(c.cl);const spB=SP[c.sp];const clB=CL[c.cl];
+    const pnm=PNAME[clB.p];
+    el.innerHTML+=`<div class="cc ${i>=sz?'off':''}" id="c${team}${i}">
+<div class="cn">${i+1}</div><div class="pb ${ov?'ov':ok?'ok':''}">${us}/${mx}pts</div>
+<div style="margin:2px 0 5px"><div class="fl">Name</div>
+<input type="text" value="${c.nm}" oninput="sf('${team}',${i},'nm',this.value)" style="font-size:9px"/></div>
+<div class="r3">
+<div><div class="fl">Level</div><input type="number" min="1" max="25" value="${c.lv}" oninput="sf('${team}',${i},'lv',+this.value)"/></div>
+<div><div class="fl">Species</div><select onchange="sf('${team}',${i},'sp',this.value)">${Object.keys(SP).map(s=>`<option ${s===c.sp?'selected':''}>${s}</option>`).join('')}</select></div>
+<div><div class="fl">Class</div><select onchange="scf('${team}',${i},this.value)">${Object.keys(CL).map(s=>`<option ${s===c.cl?'selected':''}>${s}</option>`).join('')}</select></div>
+</div>
+<div class="r2">
+<div><div class="fl">Weapon</div><select onchange="sf('${team}',${i},'wp',this.value)">${wo.map(w=>`<option ${w===c.wp?'selected':''}>${w}</option>`).join('')}</select></div>
+<div><div class="fl">Armor</div><select onchange="sf('${team}',${i},'arm',this.value)">${ARM.map(a=>`<option ${a===c.arm?'selected':''}>${a}</option>`).join('')}</select></div>
+</div>
+<div style="margin-bottom:3px">
+<div class="fl" style="margin-bottom:3px">Attr pts (base ${spB.s+clB.s}/${spB.a+clB.a}/${spB.i+clB.i}) &middot; Primary: ${pnm}</div>
+<div class="r3">${['s','a','i'].map(x=>`<div><div class="fl">+${PNAME[x]}</div><div class="si">
+<button onclick="ap('${team}',${i},'${x}',-1)">&#8722;</button>
+<input type="number" min="0" value="${c.pts[x]}" oninput="sp2('${team}',${i},'${x}',+this.value)"/>
+<button onclick="ap('${team}',${i},'${x}',1)">+</button></div></div>`).join('')}</div>
+</div>
+<div class="dg">
+<div class="di"><div class="dv2">${d.hp}</div><div class="dl">HP</div></div>
+<div class="di"><div class="dv2">${d.mana}</div><div class="dl">Mana</div></div>
+<div class="di"><div class="dv2">${d.dmin}&ndash;${d.dmax}</div><div class="dl">Dmg</div></div>
+<div class="di"><div class="dv2">${d.arm}</div><div class="dl">Armor</div></div>
+<div class="di"><div class="dv2">${d.cr}%</div><div class="dl">Crit</div></div>
+<div class="di"><div class="dv2">${d.dg}%</div><div class="dl">Dodge</div></div>
+<div class="di"><div class="dv2">${d.spd}s</div><div class="dl">AtkSpd</div></div>
+<div class="di"><div class="dv2">${Math.round(d.mit*100)}%</div><div class="dl">Mitig</div></div>
+</div></div>`;
+  });
+}
+function sf(t,i,k,v){ST[t][i][k]=v;rc(t)}
+function scf(t,i,cl){ST[t][i].cl=cl;ST[t][i].wp=wopt(cl)[0];rc(t)}
+function ap(t,i,s,d2){const c=ST[t][i];const nv=Math.max(0,(c.pts[s]||0)+d2);const os=pu(c)-(c.pts[s]||0);if(os+nv>pm(c)&&d2>0)return;c.pts[s]=nv;rc(t)}
+function sp2(t,i,s,v){ST[t][i].pts[s]=Math.max(0,v||0);rc(t)}
+function chsz(team,d2){
+  if(team==='a'){szA=Math.max(1,Math.min(8,szA+d2));document.getElementById('sz-a').textContent=szA;while(ST.a.length<szA)ST.a.push(dfc(ST.a.length));}
+  else{szB=Math.max(1,Math.min(8,szB+d2));document.getElementById('sz-b').textContent=szB;while(ST.b.length<szB)ST.b.push(dfc(ST.b.length));}
+  rc('a');rc('b');
+}
+
+// TILEMAP
+const TS=40,TC=17,TR=11;
+function sRng(seed){let s=seed>>>0;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/0x100000000}}
+const rng=sRng(0xC0DE42);
+const TM=Array.from({length:TR},()=>Array.from({length:TC},()=>{const v=rng();return v<.30?0:v<.55?1:v<.70?2:v<.82?3:v<.93?4:5}));
+const TV=Array.from({length:TR},()=>Array.from({length:TC},()=>Math.floor(rng()*3)));
+const TP=[['#1a2612','#1e2c14','#222f16'],['#182213','#1c2716','#202d19'],['#141f0f','#17230f','#1a2710'],['#1e1a10','#221e12','#262214'],['#191919','#1d1d1d','#212121'],['#141414','#171717','#1a1a1a']];
+
+function gpos(sz,side){
+  const cr2=Math.floor(TR/2);
+  const ca=[2,1,3,1,3,2,1,3],cb=[14,15,13,15,13,14,15,13];
+  const cols=side==='a'?ca:cb;
+  return Array.from({length:sz},(_,i)=>{
+    const row=Math.max(1,Math.min(TR-2,cr2+(i-Math.floor(sz/2))));
+    return{row,col:cols[i]};
+  });
+}
+
+function drawMap(rd){
+  const canvas=document.getElementById('tc');
+  const W=TC*TS,H=TR*TS;
+  canvas.width=W;canvas.height=H;
+  const ctx=canvas.getContext('2d');
+  for(let r=0;r<TR;r++)for(let c=0;c<TC;c++){
+    ctx.fillStyle=TP[TM[r][c]][TV[r][c]];
+    ctx.fillRect(c*TS,r*TS,TS,TS);
+    ctx.strokeStyle='rgba(0,0,0,.38)';ctx.lineWidth=.5;
+    ctx.strokeRect(c*TS+.25,r*TS+.25,TS-.5,TS-.5);
+  }
+  const mx=Math.floor(TC/2)*TS;
+  ctx.save();ctx.strokeStyle='rgba(200,168,100,.09)';ctx.lineWidth=1;ctx.setLineDash([3,5]);
+  ctx.beginPath();ctx.moveTo(mx,0);ctx.lineTo(mx,H);ctx.stroke();
+  ctx.setLineDash([]);ctx.restore();
+  if(!rd)return;
+  for(const c of rd.cmb){
+    const px=c.col*TS,py=c.row*TS,isA=c.side==='a';
+    if(c.dead){
+      ctx.globalAlpha=.25;ctx.fillStyle='#330000';ctx.fillRect(px+3,py+3,TS-6,TS-6);
+      ctx.font=`${TS*.46}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillStyle='#555';ctx.fillText('\u2620',px+TS/2,py+TS/2);ctx.globalAlpha=1;continue;
+    }
+    const hp=c.hp/c.mhp;
+    ctx.fillStyle=isA?'rgba(200,60,60,.16)':'rgba(60,120,220,.16)';ctx.fillRect(px+1,py+1,TS-2,TS-2);
+    ctx.beginPath();ctx.arc(px+TS/2,py+TS/2,TS/2-4,0,Math.PI*2);
+    ctx.strokeStyle=hp>.5?'rgba(80,210,90,.52)':hp>.25?'rgba(210,150,30,.58)':'rgba(210,50,50,.62)';
+    ctx.lineWidth=1.5;ctx.stroke();
+    ctx.font=`${TS*.38}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillStyle='rgba(255,255,255,.86)';ctx.fillText(c.icon,px+TS/2,py+TS/2-1);
+    ctx.font='bold 7px Cinzel,serif';ctx.textBaseline='top';ctx.textAlign='left';
+    ctx.fillStyle=isA?'rgba(255,155,155,.88)':'rgba(155,200,255,.88)';ctx.fillText(String(c.idx+1),px+3,py+2);
+    const bw=TS-8,bh=3,bx=px+4,by=py+TS-6;
+    ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(bx,by,bw,bh);
+    ctx.fillStyle=hp>.5?'#42b04a':hp>.25?'#c4801a':'#d04040';ctx.fillRect(bx,by,Math.round(bw*hp),bh);
+  }
+  if(rd.auid!=null){
+    const atk=rd.cmb.find(c=>c.uid===rd.auid&&!c.dead);
+    if(atk){const px=atk.col*TS,py=atk.row*TS;ctx.strokeStyle='rgba(240,208,60,.82)';ctx.lineWidth=2;ctx.strokeRect(px+2,py+2,TS-4,TS-4);}
+  }
+}
+
+// SIMULATION
+let rd=[],cr=0,pt=null;
+function rand2(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+
+function runSim(){
+  if(pt){clearInterval(pt);pt=null;}
+  const tA=ST.a.slice(0,szA),tB=ST.b.slice(0,szB);
+  const pA=gpos(szA,'a'),pB=gpos(szB,'b');
+  let uid=0;
+  function build(team,side,pos){
+    return team.map((c,i)=>{const d=ds(c);return{uid:uid++,nm:c.nm,side,idx:i,cl:c.cl,icon:CI[c.cl]||'\u2694',wp:c.wp,mhp:d.hp,hp:d.hp,stats:d,dead:false,row:pos[i].row,col:pos[i].col};});
+  }
+  const cA=build(tA,'a',pA),cB=build(tB,'b',pB),all=[...cA,...cB];
+  const cln=o=>JSON.parse(JSON.stringify(o));
+  rd=[];
+  rd.push({round:0,cmb:cln(all),log:[],auid:null,res:null});
+  function alive(side){return all.filter(c=>c.side===side&&!c.dead)}
+  function pick(atk){const en=alive(atk.side==='a'?'b':'a');if(!en.length)return null;return en.reduce((t,c)=>c.hp<t.hp?c:t,en[0]);}
+  let round=0,cont=true;
+  while(cont&&round<100){
+    round++;const log=[];
+    log.push({cls:'rh',t:`\u2014 Round ${round} \u2014`});
+    const to=all.filter(c=>!c.dead).sort((a,b)=>a.stats.spd-b.stats.spd);
+    for(const atk of to){
+      if(atk.dead)continue;const tgt=pick(atk);if(!tgt)continue;const s=atk.stats;
+      if(Math.random()*100<tgt.stats.dg){log.push({cls:'lm',t:`${atk.nm} \u2192 <b>${tgt.nm}</b> \u2014 <i>dodged</i>`});continue;}
+      let dmg=rand2(s.dmin,s.dmax);const ic=Math.random()*100<s.cr;if(ic)dmg=Math.floor(dmg*2);
+      dmg=Math.max(1,Math.round(dmg*(1-tgt.stats.mit)));tgt.hp=Math.max(0,tgt.hp-dmg);
+      const ct=ic?` <span class="ct">\u2756 CRIT</span>`:'';
+      log.push({cls:ic?'lc':'lh',t:`${atk.nm} \u2192 <b>${tgt.nm}</b> \u00b7 <span class="dm">${dmg}</span>${ct} \u00b7 ${tgt.hp}/${tgt.mhp}hp`});
+      if(tgt.hp<=0){tgt.dead=true;log.push({cls:'ld',t:`\u2620 ${tgt.nm} has fallen`});}
+    }
+    for(const c of all.filter(x=>!x.dead)){const rg=Math.round(c.stats.hpr*5);if(rg>0){c.hp=Math.min(c.mhp,c.hp+rg);log.push({cls:'lr',t:`${c.nm} regens ${rg} hp \u2192 ${c.hp}/${c.mhp}hp`});}}
+    const aA=alive('a').length,aB=alive('b').length;let res=null;
+    if(aA===0&&aB===0){res='draw';cont=false;log.push({cls:'lres wd',t:'\u2694 Draw \u2014 both parties fallen!'});}
+    else if(aA===0){res='win-b';cont=false;log.push({cls:'lres wb',t:'\u2694 Party B is victorious!'});}
+    else if(aB===0){res='win-a';cont=false;log.push({cls:'lres wa',t:'\u2694 Party A is victorious!'});}
+    rd.push({round,cmb:cln(all),log,auid:null,res});
+  }
+  document.getElementById('bs2').style.display='block';
+  document.getElementById('rtot').textContent=rd.length-1;
+  document.getElementById('bs2').scrollIntoView({behavior:'smooth',block:'start'});
+  goR(0);
+}
+
+function goR(idx){
+  if(!rd.length)return;
+  cr=Math.max(0,Math.min(rd.length-1,idx));
+  const r=rd[cr];
+  document.getElementById('rdsp').textContent=cr===0?'Start':cr;
+  drawMap(r);
+  rbars(r.cmb.filter(c=>c.side==='a'),'ba');
+  rbars(r.cmb.filter(c=>c.side==='b'),'bb');
+  const lg=document.getElementById('lg');lg.innerHTML='';
+  if(cr===0){ale(lg,'rh','Battle begins \u2014 press Next to advance rounds');}
+  else{for(let i=1;i<=cr;i++)for(const e of rd[i].log)ale(lg,e.cls,e.t);}
+  lg.scrollTop=lg.scrollHeight;
+  document.getElementById('bf').disabled=cr===0;
+  document.getElementById('bp').disabled=cr===0;
+  document.getElementById('bn').disabled=cr>=rd.length-1;
+  document.getElementById('bl2').disabled=cr>=rd.length-1;
+}
+function ale(el,cls,html){const d=document.createElement('div');d.className='le '+cls;d.innerHTML=html;el.appendChild(d)}
+function togPlay(){
+  if(pt){clearInterval(pt);pt=null;document.getElementById('bpl').textContent='\u25b6 Play';return;}
+  document.getElementById('bpl').textContent='\u23f8 Pause';
+  pt=setInterval(()=>{if(cr>=rd.length-1){clearInterval(pt);pt=null;document.getElementById('bpl').textContent='\u25b6 Play';return;}goR(cr+1);},750);
+}
+function rbars(cmb,id){
+  const el=document.getElementById(id);el.innerHTML='';
+  for(const c of cmb){
+    const pct=c.dead?0:Math.round(c.hp/c.mhp*100);
+    const cls=c.dead?'dead':pct<=25?'crit':pct<=50?'low':'alive';
+    el.innerHTML+=`<div class="cb"><div class="nr"><span class="nl">${c.dead?'\u2620 ':''}${c.nm}</span><span class="nh">${c.dead?'dead':`${c.hp}/${c.mhp}`}</span></div><div class="ht"><div class="hf ${cls}" style="width:${pct}%"></div></div></div>`;
+  }
+}
+function resetB(){if(pt){clearInterval(pt);pt=null;}rd=[];cr=0;document.getElementById('bs2').style.display='none';document.getElementById('bpl').textContent='\u25b6 Play';}
+
+// INIT
+ST.a.push(dfc(0));ST.b.push(dfc(0));rc('a');rc('b');
+// Draw preview tilemap
+(function(){
+  const pA=gpos(1,'a'),pB=gpos(1,'b');
+  const prev={round:0,cmb:[
+    {uid:0,nm:'Fighter 1',side:'a',idx:0,cl:'Knight',icon:CI['Knight'],mhp:100,hp:100,stats:{},dead:false,row:pA[0].row,col:pA[0].col},
+    {uid:1,nm:'Fighter 1',side:'b',idx:0,cl:'Knight',icon:CI['Knight'],mhp:100,hp:100,stats:{},dead:false,row:pB[0].row,col:pB[0].col}
+  ],log:[],auid:null,res:null};
+  document.getElementById('bs2').style.display='block';
+  drawMap(prev);
+  document.getElementById('bs2').style.display='none';
+})();
+</script>
+</body>
+</html>
