@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Uzoxia – World Map</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div id="viewport">
+    <div id="world"></div>
+  </div>
+
+  <div id="hud">
+    <h3>⚔ UZOXIA</h3>
+    <div id="hud-zoom">Zoom: <span id="zoom-val">1.00</span>×</div>
+    <div class="hud-hint">Drag · Pan</div>
+    <div class="hud-hint">Scroll · Zoom</div>
+    <div class="hud-hint">Click · Explore</div>
+    <button id="btn-fit" onclick="fitMap()">⊡ Fit Map</button>
+  </div>
+
+  <div id="legend">
+    <div id="legend-title">BIOMES</div>
+    <div id="legend-items"></div>
+  </div>
+
+  <div id="tooltip"></div>
+
+  <!-- mapdata.js MUST come before game.js -->
+  <script src="mapdata.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
