@@ -11,14 +11,11 @@
   --gold:#c8a86a;--gold-bright:#f0d080;--gold-dim:#7a5f30;
   --ember:#ff6b1a;--bg:#000;--panel:rgba(8,6,3,0.97);
   --border:rgba(200,168,100,0.18);--red:#e07070;--blue:#70a8e0;
-  /* fluid base font: 14px at 1280px wide, scales with viewport */
   --base:clamp(15px, 1.25vw, 19px);
 }
 html{font-size:var(--base)}
 html,body{width:100%;min-height:100vh;background:var(--bg);color:var(--gold);
   font-family:'Cinzel',Georgia,serif;overflow-x:hidden}
-
-/* ── Page shell ── */
 .page{
   width:100%;max-width:min(98vw,1800px);margin:0 auto;
   padding:clamp(16px,2vh,32px) clamp(12px,1.5vw,28px) 5rem;
@@ -30,14 +27,10 @@ h1{font-family:'Cinzel Decorative',serif;
 .sub{font-family:'IM Fell English',serif;font-style:italic;
   font-size:clamp(.7rem,.9vw,1rem);
   color:rgba(200,168,100,.4);text-align:center;margin-bottom:1.8em;letter-spacing:.06em}
-
-/* ── Divider ── */
 .dv{display:flex;align-items:center;gap:.75rem;margin:1.2rem 0}
 .dv-l{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(200,168,100,.28),transparent)}
 .dv-g{width:.42rem;height:.42rem;background:var(--gold);transform:rotate(45deg);box-shadow:0 0 6px var(--gold-bright);flex-shrink:0}
 .dv-t{font-size:.55rem;letter-spacing:.35em;text-transform:uppercase;color:rgba(200,168,100,.32)}
-
-/* ── Setup grid: fluid 3-col, collapses to 1 col below 900px ── */
 .sg{
   display:grid;
   grid-template-columns:1fr clamp(160px,14vw,240px) 1fr;
@@ -47,8 +40,6 @@ h1{font-family:'Cinzel Decorative',serif;
   padding:clamp(20px,3vw,48px) clamp(6px,1vw,16px) 0}
 .vs{font-family:'Cinzel Decorative',serif;font-size:clamp(1rem,1.6vw,1.6rem);
   color:var(--gold-dim);letter-spacing:.1em}
-
-/* ── Team panel ── */
 .tp{border:1px solid var(--border);background:var(--panel);
   padding:clamp(10px,1.2vw,18px)}
 .th{display:flex;align-items:center;justify-content:space-between;
@@ -64,8 +55,6 @@ h1{font-family:'Cinzel Decorative',serif;
 .sc button:hover{border-color:var(--gold);color:var(--gold-bright)}
 .sd{font-size:.85em;color:var(--gold);min-width:.8rem;text-align:center}
 .cg{display:flex;flex-direction:column;gap:.6rem}
-
-/* ── Character card ── */
 .cc{border:1px solid var(--border);background:rgba(0,0,0,.55);
   padding:clamp(8px,1vw,14px);position:relative;transition:border-color .2s}
 .cc.off{opacity:.22;pointer-events:none}
@@ -79,16 +68,10 @@ h1{font-family:'Cinzel Decorative',serif;
   color:rgba(200,168,100,.4)}
 .pb.ov{border-color:rgba(220,80,80,.45);color:rgba(220,80,80,.65)}
 .pb.ok{border-color:rgba(80,190,100,.35);color:rgba(80,190,100,.55)}
-
-/* field label */
 .fl{font-size:clamp(.62rem,.72vw,.82rem);letter-spacing:.2em;text-transform:uppercase;
   color:rgba(200,168,100,.33);margin-bottom:.2em}
-
-/* grids inside card */
 .r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.4rem;margin-bottom:.4rem}
 .r2{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-bottom:.4rem}
-
-/* form controls */
 select,input[type=text],input[type=number]{
   width:100%;background:rgba(0,0,0,.9);border:1px solid rgba(200,168,100,.18);
   color:var(--gold);padding:.25em .4em;font-family:'Cinzel',serif;
@@ -96,8 +79,6 @@ select,input[type=text],input[type=number]{
   outline:none;transition:border-color .2s;appearance:none}
 select:focus,input:focus{border-color:rgba(200,168,100,.5)}
 select option{background:#0a0800}
-
-/* stat spinners */
 .si{display:flex;align-items:center;gap:.15rem}
 .si button{width:1.2em;height:1.2em;flex-shrink:0;background:transparent;
   border:1px solid rgba(200,168,100,.16);color:var(--gold-dim);cursor:pointer;
@@ -105,15 +86,11 @@ select option{background:#0a0800}
   transition:all .1s;line-height:1}
 .si button:hover{border-color:var(--gold);color:var(--gold)}
 .si input{text-align:center;padding:.15em .1em;font-size:.75rem}
-
-/* derived stats grid */
 .dg{display:grid;grid-template-columns:repeat(5,1fr);gap:.25rem;
   margin-top:.35rem;padding-top:.4rem;border-top:1px solid rgba(200,168,100,.06)}
 .di{text-align:center}
 .dv2{font-size:clamp(.8rem,.9vw,1.05rem);color:var(--gold-bright)}
 .dl{font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(200,168,100,.3)}
-
-/* ── Action buttons ── */
 .bs{font-family:'Cinzel Decorative',serif;
   font-size:clamp(.7rem,.9vw,1.1rem);letter-spacing:.1em;
   padding:.7em 1.5em;background:transparent;
@@ -129,27 +106,19 @@ select option{background:#0a0800}
   background:transparent;border:1px solid rgba(200,168,100,.12);
   color:rgba(200,168,100,.32);cursor:pointer;transition:all .2s;width:100%}
 .bx:hover{border-color:rgba(200,168,100,.35);color:var(--gold)}
-
-/* ── Battle section ── */
 #bs2{display:none;margin-top:.3rem}
-
-/* battle layout: tilemap left, sidebar right — flex so sidebar grows with content */
 .bl{
   display:flex;flex-direction:row;gap:clamp(12px,1.5vw,24px);align-items:start;
   width:100%;
 }
-.bl-map{flex:1 1 0;min-width:0}  /* tilemap column, shrinks to fit */
+.bl-map{flex:1 1 0;min-width:0}
 .bl-side{
-  flex:0 0 clamp(260px,22vw,400px);  /* sidebar: fluid width */
+  flex:0 0 clamp(260px,22vw,400px);
   display:flex;flex-direction:column;gap:.9rem;
 }
-
-/* tilemap canvas wrapper */
 #tw{position:relative;border:1px solid rgba(200,168,100,.13);
   overflow:hidden;background:#000;width:100%;display:block}
 #tc{display:block;image-rendering:pixelated;width:100%;height:auto}
-
-/* round controls */
 .rc{display:flex;align-items:center;gap:.45rem;margin-bottom:.7rem;flex-wrap:wrap}
 .rc button{font-family:'Cinzel',serif;font-size:clamp(.6rem,.7vw,.85rem);
   letter-spacing:.18em;text-transform:uppercase;padding:.35em .7em;
@@ -160,8 +129,6 @@ select option{background:#0a0800}
 .rl{font-family:'Cinzel Decorative',serif;font-size:clamp(.6rem,.75vw,.9rem);
   color:var(--gold-dim);letter-spacing:.09em;margin-left:auto;white-space:nowrap}
 .rn{color:var(--gold-bright)}
-
-/* HP bars */
 .hp{display:flex;flex-direction:column;gap:.7rem}
 .htl{font-size:clamp(.6rem,.7vw,.8rem);letter-spacing:.28em;
   text-transform:uppercase;margin-bottom:.3rem}
@@ -177,8 +144,6 @@ select option{background:#0a0800}
 .low{background:linear-gradient(90deg,#7a5020,#c4801a)}
 .crit{background:linear-gradient(90deg,#7a2020,#d04040)}
 .dead{background:rgba(50,20,20,.4);width:100%!important}
-
-/* Combat log */
 .lw{border:1px solid var(--border);background:rgba(0,0,0,.75);
   height:clamp(240px,32vh,520px);overflow-y:auto;
   padding:clamp(6px,.8vw,12px)}
@@ -202,15 +167,20 @@ select option{background:#0a0800}
 .wa{color:var(--red)}.wb{color:var(--blue)}.wd{color:var(--gold)}
 .dm{color:var(--ember);font-weight:bold}
 .ct{color:var(--gold-bright);font-size:.75em;letter-spacing:.12em}
-
-/* ── Command chain ── */
 .cmd-block{margin-bottom:.5rem;border:1px solid rgba(200,168,100,.1);padding:.45rem .5rem;background:rgba(0,0,0,.3)}
 .cmd-ph{font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(200,168,100,.38);margin-bottom:.35rem}
 .cmd-row{display:flex;gap:.3rem;align-items:center;flex-wrap:wrap;margin-bottom:.3rem}
 .cmd-sel{flex:1;min-width:80px}
 .cmd-sub{display:flex;gap:.3rem;align-items:center;flex-wrap:wrap;margin-top:.25rem;padding-left:.5rem;border-left:1px solid rgba(200,168,100,.12)}
 .cmd-note{font-size:.6rem;color:rgba(200,168,100,.3);letter-spacing:.08em;font-style:italic}
-/* ── Responsive breakpoints ── */
+
+/* ── Armor performance badge ── */
+.arm-perf{display:flex;gap:3px;flex-wrap:wrap;margin-top:3px}
+.arm-pip{font-size:6px;letter-spacing:.06em;padding:1px 4px;border:1px solid;border-radius:1px}
+.arm-pip.neg{border-color:rgba(220,100,60,.4);color:rgba(220,100,60,.7);background:rgba(220,100,60,.06)}
+.arm-pip.pos{border-color:rgba(80,200,100,.35);color:rgba(80,200,100,.6);background:rgba(80,200,100,.05)}
+.arm-pip.neu{border-color:rgba(200,168,100,.2);color:rgba(200,168,100,.4);background:rgba(200,168,100,.04)}
+
 @media(max-width:900px){
   .sg{grid-template-columns:1fr}
   .vc{flex-direction:row;padding:.5rem 0}
@@ -288,95 +258,84 @@ const CL={
   Rocker:   {s:2,a:3,i:0,p:'a',mn:10,mx:16},
   Shaman:   {s:1,a:0,i:4,p:'s',mn:9, mx:15},
 };
-// ── Weapon lists ─────────────────────────────────────────────────────────────
-
-// 1H melee (can hold offhand)
 const WM1H=['Short Sword','Short Axe','Hammer','Dagger'];
-
-// 2H melee — all occupy both hands
-// Reach group (range 2): polearms, heavy, and Staff (melee + magic enable)
 const WM2H_REACH=['Halberd','Spear','Flail','Big Axe','War Hammer','Staff','Long Sword'];
-const WM2H=[...WM2H_REACH]; // all 2H melee have reach
-const WM=[...WM1H,...WM2H]; // full melee list
-
-// Throwable 1H weapons (throw action uses range, melee attack uses range 1)
+const WM2H=[...WM2H_REACH];
+const WM=[...WM1H,...WM2H];
 const THROWABLE=new Set(['Short Axe','Hammer']);
-
-// Ranged weapons — all 2H. Giant Slingshot: Troll only.
 const WR=['Giant Slingshot','Pulver Rifle','Heavy Crossbow','Light Crossbow',
           'Long Bow','Short Bow','Slingshot'];
-
-// Focus: offhand-only magic enabler. NOT a weapon, never in main hand.
-// Staff: 2H melee weapon that also enables casting (listed in WM2H above).
-
-// Weapon attack range (Chebyshev tiles)
 const WP_RANGE={
-  // ── Ranged ──────────────────────────────────────────────
-  'Giant Slingshot' :9,  // Troll only
+  'Giant Slingshot' :9,
   'Pulver Rifle'    :8,
   'Long Bow'        :7,
   'Heavy Crossbow'  :7,
   'Light Crossbow'  :6,
   'Short Bow'       :5,
   'Slingshot'       :4,
-  // ── 2H reach melee ── range 2 ───────────────────────────
   'Halberd':2,'Spear':2,'Flail':2,
   'Big Axe':2,'War Hammer':2,
   'Staff'  :2,'Long Sword':2,
-  // ── 1H melee ── range 1 ─────────────────────────────────
   'Short Sword':1,'Dagger':1,
-  // ── Throwable (when thrown as ranged action) ─────────────
   'Short Axe':3,'Hammer':2,
 };
 function wpRange(wp,thrown){
   if(thrown&&THROWABLE.has(wp))return WP_RANGE[wp]??1;
-  if(THROWABLE.has(wp))return 1; // in melee these are range 1
+  if(THROWABLE.has(wp))return 1;
   return WP_RANGE[wp]??1;
 }
-
-// Reach melee: attacks from 2 tiles (not ranged — close-quarters reach)
 const REACH_MELEE=new Set(['Halberd','Spear','Flail','Big Axe','War Hammer','Staff','Long Sword']);
-
-// ── Classification helpers ─────────────────────────────────────────────────
 function is2H(wp){
   if(!wp||wp==='—') return false;
   return WR.includes(wp)||WM2H.includes(wp);
 }
 function is1H(wp){ return WM1H.includes(wp); }
-// Staff (2H melee) and Focus (offhand only) both enable magic casting
 function isMagicWp(wp){ return wp==='Staff'||wp==='Focus'; }
 function isRangedWp(wp){ return WR.includes(wp); }
-// Combat movement: only true ranged weapons retreat/fire at range
 function isRanged(wp){ return WR.includes(wp); }
-
-// ── Species restrictions ───────────────────────────────────────────────────
 function wpAllowedForSpecies(wp,sp){
   if(wp==='Giant Slingshot') return sp==='Troll';
   return true;
 }
-
-// Shield armor bonus
 const SHIELD_BONUS=3;
-
-// ── Armor types ───────────────────────────────────────────────────────────────
 const ARM=['Unarmored','Light Armor','Heavy Armor','Natural'];
 
-// Armor modifiers to dodge% and block%
+// ── Armor performance modifiers ────────────────────────────────────────────
+// dodge:        flat % modifier to dodge chance
+// block:        flat % modifier to block chance
+// atkSpeedMult: multiplier on attack interval (1.0=unchanged, >1=slower)
+// movePenalty:  fraction subtracted from advance steps (0=none, 0.5=half speed, 1=stopped)
 const ARM_MODS={
-  'Unarmored': {dodge:+12, block:-15},
-  'Light Armor':{dodge:+5,  block:-8 },
-  'Heavy Armor':{dodge:-12, block:+15},
-  'Natural':   {dodge:-3,  block:-4, magic_res:+0.06},
+  'Unarmored': {dodge:+12, block:-15, atkSpeedMult:1.00, movePenalty:0   },
+  'Light Armor':{dodge:+5,  block: -8, atkSpeedMult:1.10, movePenalty:0   },
+  'Heavy Armor':{dodge:-12, block:+15, atkSpeedMult:1.28, movePenalty:0.6, magic_res:0},
+  'Natural':   {dodge: -3, block: -4, atkSpeedMult:1.06, movePenalty:0,   magic_res:+0.06},
 };
 
-// ── Damage types ──────────────────────────────────────────────────────────────
+// ── Class armor affinity — trained classes suffer reduced penalties ───────────
+// 'heavy': Knight/Berserker/Butcher/Bonker/Rocker — heavy armor penalties halved, slight bonuses
+// 'light': Marksman/Ranger/Archer/Rifleman/Slinger/Raider/Warlock — light armor penalties minimal
+// no entry = full penalties apply (Mage, Witch, Cleric, Druid, Assassin, Shaman)
+const CLASS_ARMOR_AFFINITY={
+  // Heavy armor trained — reduced atkSpeed/move/dodge penalties in heavy
+  Knight:   'heavy',
+  Berserker:'heavy',
+  Butcher:  'heavy',
+  Bonker:   'heavy',
+  Rocker:   'heavy',
+  // Light armor trained — near-zero light armor penalties
+  Marksman: 'light',
+  Ranger:   'light',
+  Archer:   'light',
+  Rifleman: 'light',
+  Slinger:  'light',
+  Raider:   'light',
+  Warlock:  'light',
+  // No affinity: Mage, Witch, Cleric, Druid, Assassin, Shaman — full penalties
+};
+
 const DMG_TYPES=['slashing','piercing','bludgeoning','stabbing','magic'];
-
-// ── Resistance multipliers ────────────────────────────────────────────────────
 const RES_MUL={major_res:0.5, minor_res:0.75, normal:1.0, minor_vuln:1.25, major_vuln:1.6};
-
-// ── Weapon material data ──────────────────────────────────────────────────────
-// Each entry: {name, lv, mS, mA, mI, apr} (multipliers per stat, actions per round)
 const WP_MATS={
   'Short Sword':[
     {name:'Wood',lv:1,mS:1,mA:1.1,mI:1,apr:2},
@@ -396,318 +355,185 @@ const WP_MATS={
     {name:'Hardened Steel of *',lv:15,mS:1.3,mA:1.8,mI:1.3,apr:2},
   ],
   'Short Axe':[
-    {name:'Wood',lv:1,mS:1.1,mA:1,mI:1,apr:2},
-    {name:'Rusty',lv:2,mS:1.1,mA:1,mI:1,apr:2},
-    {name:'Simple Bronze',lv:3,mS:1.2,mA:1.1,mI:1,apr:2},
-    {name:'Bronze',lv:4,mS:1.3,mA:1.1,mI:1,apr:2},
-    {name:'Bronze of *',lv:5,mS:1.4,mA:1.2,mI:1,apr:2},
-    {name:'Hardened Bronze',lv:6,mS:1.6,mA:1.1,mI:1,apr:2},
-    {name:'Simple Iron',lv:7,mS:1.6,mA:1.1,mI:1,apr:2},
-    {name:'Iron',lv:8,mS:1.6,mA:1.1,mI:1,apr:2},
-    {name:'Hardened Iron',lv:9,mS:1.6,mA:1.1,mI:1,apr:2},
-    {name:'Hardened Iron of *',lv:10,mS:1.7,mA:1.2,mI:1,apr:2},
-    {name:'Simple Steel',lv:11,mS:1.7,mA:1.1,mI:1,apr:2},
-    {name:'Steel',lv:12,mS:1.7,mA:1.1,mI:1,apr:2},
-    {name:'Fine Steel',lv:13,mS:1.7,mA:1.1,mI:1,apr:2},
-    {name:'Hardened Steel',lv:14,mS:1.7,mA:1.1,mI:1,apr:2},
+    {name:'Wood',lv:1,mS:1.1,mA:1,mI:1,apr:2},{name:'Rusty',lv:2,mS:1.1,mA:1,mI:1,apr:2},
+    {name:'Simple Bronze',lv:3,mS:1.2,mA:1.1,mI:1,apr:2},{name:'Bronze',lv:4,mS:1.3,mA:1.1,mI:1,apr:2},
+    {name:'Bronze of *',lv:5,mS:1.4,mA:1.2,mI:1,apr:2},{name:'Hardened Bronze',lv:6,mS:1.6,mA:1.1,mI:1,apr:2},
+    {name:'Simple Iron',lv:7,mS:1.6,mA:1.1,mI:1,apr:2},{name:'Iron',lv:8,mS:1.6,mA:1.1,mI:1,apr:2},
+    {name:'Hardened Iron',lv:9,mS:1.6,mA:1.1,mI:1,apr:2},{name:'Hardened Iron of *',lv:10,mS:1.7,mA:1.2,mI:1,apr:2},
+    {name:'Simple Steel',lv:11,mS:1.7,mA:1.1,mI:1,apr:2},{name:'Steel',lv:12,mS:1.7,mA:1.1,mI:1,apr:2},
+    {name:'Fine Steel',lv:13,mS:1.7,mA:1.1,mI:1,apr:2},{name:'Hardened Steel',lv:14,mS:1.7,mA:1.1,mI:1,apr:2},
     {name:'Hardened Steel of *',lv:15,mS:1.8,mA:1.2,mI:1,apr:2},
   ],
   'Hammer':[
-    {name:'Wood',lv:1,mS:1.6,mA:1,mI:1,apr:2},
-    {name:'Rusty',lv:2,mS:1.7,mA:1.1,mI:1,apr:2},
-    {name:'Simple Bronze',lv:3,mS:1.8,mA:1.2,mI:1,apr:2},
-    {name:'Bronze',lv:4,mS:1.9,mA:1.3,mI:1,apr:2},
-    {name:'Bronze of *',lv:5,mS:2,mA:1.4,mI:1.1,apr:2},
-    {name:'Hardened Bronze',lv:6,mS:2.1,mA:1.4,mI:1.1,apr:2},
-    {name:'Simple Iron',lv:7,mS:2.1,mA:1.4,mI:1.1,apr:2},
-    {name:'Iron',lv:8,mS:2.2,mA:1.4,mI:1.2,apr:2},
-    {name:'Hardened Iron',lv:9,mS:2.2,mA:1.4,mI:1.2,apr:2},
-    {name:'Hardened Iron of *',lv:10,mS:2.3,mA:1.4,mI:1.2,apr:2},
-    {name:'Simple Steel',lv:11,mS:2.4,mA:1.5,mI:1.2,apr:2},
-    {name:'Steel',lv:12,mS:2.4,mA:1.5,mI:1.2,apr:2},
-    {name:'Fine Steel',lv:13,mS:2.5,mA:1.6,mI:1.3,apr:2},
-    {name:'Hardened Steel',lv:14,mS:2.5,mA:1.6,mI:1.3,apr:2},
+    {name:'Wood',lv:1,mS:1.6,mA:1,mI:1,apr:2},{name:'Rusty',lv:2,mS:1.7,mA:1.1,mI:1,apr:2},
+    {name:'Simple Bronze',lv:3,mS:1.8,mA:1.2,mI:1,apr:2},{name:'Bronze',lv:4,mS:1.9,mA:1.3,mI:1,apr:2},
+    {name:'Bronze of *',lv:5,mS:2,mA:1.4,mI:1.1,apr:2},{name:'Hardened Bronze',lv:6,mS:2.1,mA:1.4,mI:1.1,apr:2},
+    {name:'Simple Iron',lv:7,mS:2.1,mA:1.4,mI:1.1,apr:2},{name:'Iron',lv:8,mS:2.2,mA:1.4,mI:1.2,apr:2},
+    {name:'Hardened Iron',lv:9,mS:2.2,mA:1.4,mI:1.2,apr:2},{name:'Hardened Iron of *',lv:10,mS:2.3,mA:1.4,mI:1.2,apr:2},
+    {name:'Simple Steel',lv:11,mS:2.4,mA:1.5,mI:1.2,apr:2},{name:'Steel',lv:12,mS:2.4,mA:1.5,mI:1.2,apr:2},
+    {name:'Fine Steel',lv:13,mS:2.5,mA:1.6,mI:1.3,apr:2},{name:'Hardened Steel',lv:14,mS:2.5,mA:1.6,mI:1.3,apr:2},
     {name:'Hardened Steel of *',lv:15,mS:2.6,mA:1.6,mI:1.4,apr:2},
   ],
   'Dagger':[
-    {name:'Wood',lv:1,mS:1,mA:1.3,mI:1.1,apr:3},
-    {name:'Rusty',lv:2,mS:1,mA:1.3,mI:1.1,apr:3},
-    {name:'Simple Bronze',lv:3,mS:1,mA:1.4,mI:1.1,apr:3},
-    {name:'Bronze',lv:4,mS:1,mA:1.4,mI:1.1,apr:3},
-    {name:'Bronze of *',lv:5,mS:1.1,mA:1.5,mI:1.3,apr:3},
-    {name:'Hardened Bronze',lv:6,mS:1,mA:1.6,mI:1.2,apr:3},
-    {name:'Simple Iron',lv:7,mS:1,mA:1.6,mI:1.2,apr:3},
-    {name:'Iron',lv:8,mS:1,mA:1.7,mI:1.2,apr:3},
-    {name:'Hardened Iron',lv:9,mS:1,mA:1.7,mI:1.2,apr:3},
-    {name:'Hardened Iron of *',lv:10,mS:1.2,mA:2,mI:1.5,apr:3},
-    {name:'Simple Steel',lv:11,mS:1,mA:2,mI:1.4,apr:3},
-    {name:'Steel',lv:12,mS:1,mA:2,mI:1.4,apr:3},
-    {name:'Fine Steel',lv:13,mS:1,mA:2,mI:1.5,apr:3},
-    {name:'Hardened Steel',lv:14,mS:1,mA:2,mI:1.5,apr:3},
+    {name:'Wood',lv:1,mS:1,mA:1.3,mI:1.1,apr:3},{name:'Rusty',lv:2,mS:1,mA:1.3,mI:1.1,apr:3},
+    {name:'Simple Bronze',lv:3,mS:1,mA:1.4,mI:1.1,apr:3},{name:'Bronze',lv:4,mS:1,mA:1.4,mI:1.1,apr:3},
+    {name:'Bronze of *',lv:5,mS:1.1,mA:1.5,mI:1.3,apr:3},{name:'Hardened Bronze',lv:6,mS:1,mA:1.6,mI:1.2,apr:3},
+    {name:'Simple Iron',lv:7,mS:1,mA:1.6,mI:1.2,apr:3},{name:'Iron',lv:8,mS:1,mA:1.7,mI:1.2,apr:3},
+    {name:'Hardened Iron',lv:9,mS:1,mA:1.7,mI:1.2,apr:3},{name:'Hardened Iron of *',lv:10,mS:1.2,mA:2,mI:1.5,apr:3},
+    {name:'Simple Steel',lv:11,mS:1,mA:2,mI:1.4,apr:3},{name:'Steel',lv:12,mS:1,mA:2,mI:1.4,apr:3},
+    {name:'Fine Steel',lv:13,mS:1,mA:2,mI:1.5,apr:3},{name:'Hardened Steel',lv:14,mS:1,mA:2,mI:1.5,apr:3},
     {name:'Hardened Steel of *',lv:15,mS:1.3,mA:2.1,mI:2,apr:3},
   ],
   'Long Sword':[
-    {name:'Wood',lv:1,mS:1,mA:1.3,mI:1,apr:2},
-    {name:'Rusty',lv:2,mS:1,mA:1.3,mI:1,apr:2},
-    {name:'Simple Bronze',lv:3,mS:1,mA:1.4,mI:1,apr:2},
-    {name:'Bronze',lv:4,mS:1,mA:1.4,mI:1,apr:2},
-    {name:'Bronze of *',lv:5,mS:1.2,mA:1.5,mI:1,apr:2},
-    {name:'Hardened Bronze',lv:6,mS:1.1,mA:1.6,mI:1,apr:2},
-    {name:'Simple Iron',lv:7,mS:1.1,mA:1.6,mI:1,apr:2},
-    {name:'Iron',lv:8,mS:1.1,mA:1.7,mI:1,apr:2},
-    {name:'Hardened Iron',lv:9,mS:1.1,mA:1.7,mI:1,apr:2},
-    {name:'Hardened Iron of *',lv:10,mS:1.3,mA:1.8,mI:1.1,apr:2},
-    {name:'Simple Steel',lv:11,mS:1.2,mA:1.9,mI:1,apr:2},
-    {name:'Steel',lv:12,mS:1.2,mA:1.9,mI:1,apr:2},
-    {name:'Fine Steel',lv:13,mS:1.2,mA:1.9,mI:1,apr:2},
-    {name:'Hardened Steel',lv:14,mS:1.2,mA:1.9,mI:1,apr:2},
+    {name:'Wood',lv:1,mS:1,mA:1.3,mI:1,apr:2},{name:'Rusty',lv:2,mS:1,mA:1.3,mI:1,apr:2},
+    {name:'Simple Bronze',lv:3,mS:1,mA:1.4,mI:1,apr:2},{name:'Bronze',lv:4,mS:1,mA:1.4,mI:1,apr:2},
+    {name:'Bronze of *',lv:5,mS:1.2,mA:1.5,mI:1,apr:2},{name:'Hardened Bronze',lv:6,mS:1.1,mA:1.6,mI:1,apr:2},
+    {name:'Simple Iron',lv:7,mS:1.1,mA:1.6,mI:1,apr:2},{name:'Iron',lv:8,mS:1.1,mA:1.7,mI:1,apr:2},
+    {name:'Hardened Iron',lv:9,mS:1.1,mA:1.7,mI:1,apr:2},{name:'Hardened Iron of *',lv:10,mS:1.3,mA:1.8,mI:1.1,apr:2},
+    {name:'Simple Steel',lv:11,mS:1.2,mA:1.9,mI:1,apr:2},{name:'Steel',lv:12,mS:1.2,mA:1.9,mI:1,apr:2},
+    {name:'Fine Steel',lv:13,mS:1.2,mA:1.9,mI:1,apr:2},{name:'Hardened Steel',lv:14,mS:1.2,mA:1.9,mI:1,apr:2},
     {name:'Hardened Steel of *',lv:15,mS:1.4,mA:2,mI:1.1,apr:2},
   ],
   'Big Axe':[
-    {name:'Wood',lv:1,mS:1.3,mA:1,mI:1,apr:2},
-    {name:'Rusty',lv:2,mS:1.3,mA:1,mI:1,apr:2},
-    {name:'Simple Bronze',lv:3,mS:1.4,mA:1,mI:1,apr:2},
-    {name:'Bronze',lv:4,mS:1.4,mA:1,mI:1,apr:2},
-    {name:'Bronze of *',lv:5,mS:1.5,mA:1.2,mI:1,apr:2},
-    {name:'Hardened Bronze',lv:6,mS:1.6,mA:1.1,mI:1,apr:2},
-    {name:'Simple Iron',lv:7,mS:1.6,mA:1.1,mI:1,apr:2},
-    {name:'Iron',lv:8,mS:1.7,mA:1.1,mI:1,apr:2},
-    {name:'Hardened Iron',lv:9,mS:1.7,mA:1.1,mI:1,apr:2},
-    {name:'Hardened Iron of *',lv:10,mS:1.8,mA:1.3,mI:1.1,apr:2},
-    {name:'Simple Steel',lv:11,mS:1.9,mA:1.2,mI:1.1,apr:2},
-    {name:'Steel',lv:12,mS:1.9,mA:1.2,mI:1.1,apr:2},
-    {name:'Fine Steel',lv:13,mS:2,mA:1.2,mI:1.2,apr:2},
-    {name:'Hardened Steel',lv:14,mS:2,mA:1.2,mI:1.2,apr:2},
+    {name:'Wood',lv:1,mS:1.3,mA:1,mI:1,apr:2},{name:'Rusty',lv:2,mS:1.3,mA:1,mI:1,apr:2},
+    {name:'Simple Bronze',lv:3,mS:1.4,mA:1,mI:1,apr:2},{name:'Bronze',lv:4,mS:1.4,mA:1,mI:1,apr:2},
+    {name:'Bronze of *',lv:5,mS:1.5,mA:1.2,mI:1,apr:2},{name:'Hardened Bronze',lv:6,mS:1.6,mA:1.1,mI:1,apr:2},
+    {name:'Simple Iron',lv:7,mS:1.6,mA:1.1,mI:1,apr:2},{name:'Iron',lv:8,mS:1.7,mA:1.1,mI:1,apr:2},
+    {name:'Hardened Iron',lv:9,mS:1.7,mA:1.1,mI:1,apr:2},{name:'Hardened Iron of *',lv:10,mS:1.8,mA:1.3,mI:1.1,apr:2},
+    {name:'Simple Steel',lv:11,mS:1.9,mA:1.2,mI:1.1,apr:2},{name:'Steel',lv:12,mS:1.9,mA:1.2,mI:1.1,apr:2},
+    {name:'Fine Steel',lv:13,mS:2,mA:1.2,mI:1.2,apr:2},{name:'Hardened Steel',lv:14,mS:2,mA:1.2,mI:1.2,apr:2},
     {name:'Hardened Steel of *',lv:15,mS:2.1,mA:1.4,mI:1.2,apr:2},
   ],
   'War Hammer':[
-    {name:'Wood',lv:1,mS:2.5,mA:1,mI:1,apr:1},
-    {name:'Rusty',lv:2,mS:2.5,mA:1.1,mI:1,apr:1},
-    {name:'Simple Bronze',lv:3,mS:3,mA:1.2,mI:1.1,apr:1},
-    {name:'Bronze',lv:4,mS:3,mA:1.3,mI:1.1,apr:1},
-    {name:'Bronze of *',lv:5,mS:3,mA:1.3,mI:1.1,apr:1},
-    {name:'Hardened Bronze',lv:6,mS:3.2,mA:1.4,mI:1.2,apr:1},
-    {name:'Simple Iron',lv:7,mS:3.2,mA:1.4,mI:1.2,apr:1},
-    {name:'Iron',lv:8,mS:3.4,mA:1.5,mI:1.3,apr:1},
-    {name:'Hardened Iron',lv:9,mS:3.4,mA:1.5,mI:1.3,apr:1},
-    {name:'Hardened Iron of *',lv:10,mS:3.4,mA:1.5,mI:1.3,apr:1},
-    {name:'Simple Steel',lv:11,mS:3.6,mA:1.6,mI:1.4,apr:1},
-    {name:'Steel',lv:12,mS:3.6,mA:1.6,mI:1.4,apr:1},
-    {name:'Fine Steel',lv:13,mS:3.8,mA:1.7,mI:1.5,apr:1},
-    {name:'Hardened Steel',lv:14,mS:3.8,mA:1.7,mI:1.5,apr:1},
+    {name:'Wood',lv:1,mS:2.5,mA:1,mI:1,apr:1},{name:'Rusty',lv:2,mS:2.5,mA:1.1,mI:1,apr:1},
+    {name:'Simple Bronze',lv:3,mS:3,mA:1.2,mI:1.1,apr:1},{name:'Bronze',lv:4,mS:3,mA:1.3,mI:1.1,apr:1},
+    {name:'Bronze of *',lv:5,mS:3,mA:1.3,mI:1.1,apr:1},{name:'Hardened Bronze',lv:6,mS:3.2,mA:1.4,mI:1.2,apr:1},
+    {name:'Simple Iron',lv:7,mS:3.2,mA:1.4,mI:1.2,apr:1},{name:'Iron',lv:8,mS:3.4,mA:1.5,mI:1.3,apr:1},
+    {name:'Hardened Iron',lv:9,mS:3.4,mA:1.5,mI:1.3,apr:1},{name:'Hardened Iron of *',lv:10,mS:3.4,mA:1.5,mI:1.3,apr:1},
+    {name:'Simple Steel',lv:11,mS:3.6,mA:1.6,mI:1.4,apr:1},{name:'Steel',lv:12,mS:3.6,mA:1.6,mI:1.4,apr:1},
+    {name:'Fine Steel',lv:13,mS:3.8,mA:1.7,mI:1.5,apr:1},{name:'Hardened Steel',lv:14,mS:3.8,mA:1.7,mI:1.5,apr:1},
     {name:'Hardened Steel of *',lv:15,mS:4,mA:3,mI:2,apr:1},
   ],
   'Staff':[
-    {name:'Wood',lv:1,mS:1,mA:1,mI:1.1,apr:3},
-    {name:'Rusty',lv:2,mS:1,mA:1,mI:1.1,apr:3},
-    {name:'Simple Bronze',lv:3,mS:1,mA:1,mI:1.1,apr:3},
-    {name:'Bronze',lv:4,mS:1,mA:1,mI:1.1,apr:3},
-    {name:'Bronze of *',lv:5,mS:1,mA:1,mI:1.3,apr:3},
-    {name:'Hardened Bronze',lv:6,mS:1,mA:1,mI:1.2,apr:3},
-    {name:'Simple Iron',lv:7,mS:1,mA:1,mI:1.2,apr:3},
-    {name:'Iron',lv:8,mS:1,mA:1,mI:1.2,apr:3},
-    {name:'Hardened Iron',lv:9,mS:1,mA:1,mI:1.2,apr:3},
-    {name:'Hardened Iron of *',lv:10,mS:1,mA:1,mI:1.5,apr:3},
-    {name:'Simple Steel',lv:11,mS:1,mA:1,mI:1.4,apr:3},
-    {name:'Steel',lv:12,mS:1,mA:1,mI:1.4,apr:3},
-    {name:'Fine Steel',lv:13,mS:1,mA:1,mI:1.5,apr:3},
-    {name:'Hardened Steel',lv:14,mS:1,mA:1,mI:1.5,apr:3},
+    {name:'Wood',lv:1,mS:1,mA:1,mI:1.1,apr:3},{name:'Rusty',lv:2,mS:1,mA:1,mI:1.1,apr:3},
+    {name:'Simple Bronze',lv:3,mS:1,mA:1,mI:1.1,apr:3},{name:'Bronze',lv:4,mS:1,mA:1,mI:1.1,apr:3},
+    {name:'Bronze of *',lv:5,mS:1,mA:1,mI:1.3,apr:3},{name:'Hardened Bronze',lv:6,mS:1,mA:1,mI:1.2,apr:3},
+    {name:'Simple Iron',lv:7,mS:1,mA:1,mI:1.2,apr:3},{name:'Iron',lv:8,mS:1,mA:1,mI:1.2,apr:3},
+    {name:'Hardened Iron',lv:9,mS:1,mA:1,mI:1.2,apr:3},{name:'Hardened Iron of *',lv:10,mS:1,mA:1,mI:1.5,apr:3},
+    {name:'Simple Steel',lv:11,mS:1,mA:1,mI:1.4,apr:3},{name:'Steel',lv:12,mS:1,mA:1,mI:1.4,apr:3},
+    {name:'Fine Steel',lv:13,mS:1,mA:1,mI:1.5,apr:3},{name:'Hardened Steel',lv:14,mS:1,mA:1,mI:1.5,apr:3},
     {name:'Hardened Steel of *',lv:15,mS:1,mA:1,mI:2,apr:3},
   ],
-  // ── Generated: Halberd (reach polearm, slashing focus, STR+AGI) ──────────────
   'Halberd':[
-    {name:'Wood',lv:1,mS:1.2,mA:1.1,mI:1,apr:2},
-    {name:'Rusty',lv:2,mS:1.2,mA:1.1,mI:1,apr:2},
-    {name:'Simple Bronze',lv:3,mS:1.3,mA:1.2,mI:1,apr:2},
-    {name:'Bronze',lv:4,mS:1.3,mA:1.2,mI:1,apr:2},
-    {name:'Bronze of *',lv:5,mS:1.4,mA:1.3,mI:1,apr:2},
-    {name:'Hardened Bronze',lv:6,mS:1.5,mA:1.3,mI:1,apr:2},
-    {name:'Simple Iron',lv:7,mS:1.5,mA:1.4,mI:1,apr:2},
-    {name:'Iron',lv:8,mS:1.6,mA:1.4,mI:1,apr:2},
-    {name:'Hardened Iron',lv:9,mS:1.6,mA:1.4,mI:1,apr:2},
-    {name:'Hardened Iron of *',lv:10,mS:1.7,mA:1.5,mI:1.1,apr:2},
-    {name:'Simple Steel',lv:11,mS:1.8,mA:1.5,mI:1.1,apr:2},
-    {name:'Steel',lv:12,mS:1.8,mA:1.5,mI:1.1,apr:2},
-    {name:'Fine Steel',lv:13,mS:1.9,mA:1.6,mI:1.1,apr:2},
-    {name:'Hardened Steel',lv:14,mS:1.9,mA:1.6,mI:1.1,apr:2},
+    {name:'Wood',lv:1,mS:1.2,mA:1.1,mI:1,apr:2},{name:'Rusty',lv:2,mS:1.2,mA:1.1,mI:1,apr:2},
+    {name:'Simple Bronze',lv:3,mS:1.3,mA:1.2,mI:1,apr:2},{name:'Bronze',lv:4,mS:1.3,mA:1.2,mI:1,apr:2},
+    {name:'Bronze of *',lv:5,mS:1.4,mA:1.3,mI:1,apr:2},{name:'Hardened Bronze',lv:6,mS:1.5,mA:1.3,mI:1,apr:2},
+    {name:'Simple Iron',lv:7,mS:1.5,mA:1.4,mI:1,apr:2},{name:'Iron',lv:8,mS:1.6,mA:1.4,mI:1,apr:2},
+    {name:'Hardened Iron',lv:9,mS:1.6,mA:1.4,mI:1,apr:2},{name:'Hardened Iron of *',lv:10,mS:1.7,mA:1.5,mI:1.1,apr:2},
+    {name:'Simple Steel',lv:11,mS:1.8,mA:1.5,mI:1.1,apr:2},{name:'Steel',lv:12,mS:1.8,mA:1.5,mI:1.1,apr:2},
+    {name:'Fine Steel',lv:13,mS:1.9,mA:1.6,mI:1.1,apr:2},{name:'Hardened Steel',lv:14,mS:1.9,mA:1.6,mI:1.1,apr:2},
     {name:'Hardened Steel of *',lv:15,mS:2.1,mA:1.7,mI:1.2,apr:2},
   ],
-  // ── Generated: Spear (reach polearm, stabbing focus, AGI primary) ─────────────
   'Spear':[
-    {name:'Wood',lv:1,mS:1,mA:1.2,mI:1,apr:2},
-    {name:'Rusty',lv:2,mS:1,mA:1.2,mI:1,apr:2},
-    {name:'Simple Bronze',lv:3,mS:1,mA:1.3,mI:1,apr:2},
-    {name:'Bronze',lv:4,mS:1,mA:1.4,mI:1,apr:2},
-    {name:'Bronze of *',lv:5,mS:1.1,mA:1.5,mI:1,apr:2},
-    {name:'Hardened Bronze',lv:6,mS:1.1,mA:1.5,mI:1,apr:2},
-    {name:'Simple Iron',lv:7,mS:1.1,mA:1.6,mI:1,apr:2},
-    {name:'Iron',lv:8,mS:1.2,mA:1.7,mI:1,apr:2},
-    {name:'Hardened Iron',lv:9,mS:1.2,mA:1.7,mI:1,apr:2},
-    {name:'Hardened Iron of *',lv:10,mS:1.2,mA:1.8,mI:1.1,apr:2},
-    {name:'Simple Steel',lv:11,mS:1.2,mA:1.9,mI:1,apr:2},
-    {name:'Steel',lv:12,mS:1.2,mA:1.9,mI:1,apr:2},
-    {name:'Fine Steel',lv:13,mS:1.3,mA:2,mI:1,apr:2},
-    {name:'Hardened Steel',lv:14,mS:1.3,mA:2,mI:1,apr:2},
+    {name:'Wood',lv:1,mS:1,mA:1.2,mI:1,apr:2},{name:'Rusty',lv:2,mS:1,mA:1.2,mI:1,apr:2},
+    {name:'Simple Bronze',lv:3,mS:1,mA:1.3,mI:1,apr:2},{name:'Bronze',lv:4,mS:1,mA:1.4,mI:1,apr:2},
+    {name:'Bronze of *',lv:5,mS:1.1,mA:1.5,mI:1,apr:2},{name:'Hardened Bronze',lv:6,mS:1.1,mA:1.5,mI:1,apr:2},
+    {name:'Simple Iron',lv:7,mS:1.1,mA:1.6,mI:1,apr:2},{name:'Iron',lv:8,mS:1.2,mA:1.7,mI:1,apr:2},
+    {name:'Hardened Iron',lv:9,mS:1.2,mA:1.7,mI:1,apr:2},{name:'Hardened Iron of *',lv:10,mS:1.2,mA:1.8,mI:1.1,apr:2},
+    {name:'Simple Steel',lv:11,mS:1.2,mA:1.9,mI:1,apr:2},{name:'Steel',lv:12,mS:1.2,mA:1.9,mI:1,apr:2},
+    {name:'Fine Steel',lv:13,mS:1.3,mA:2,mI:1,apr:2},{name:'Hardened Steel',lv:14,mS:1.3,mA:2,mI:1,apr:2},
     {name:'Hardened Steel of *',lv:15,mS:1.4,mA:2.1,mI:1.1,apr:2},
   ],
-  // ── Generated: Flail (reach, bludgeoning, STR-heavy like Hammer but 2H reach) ─
   'Flail':[
-    {name:'Wood',lv:1,mS:1.8,mA:1,mI:1,apr:2},
-    {name:'Rusty',lv:2,mS:1.9,mA:1,mI:1,apr:2},
-    {name:'Simple Bronze',lv:3,mS:2,mA:1.1,mI:1,apr:2},
-    {name:'Bronze',lv:4,mS:2,mA:1.1,mI:1,apr:2},
-    {name:'Bronze of *',lv:5,mS:2.1,mA:1.2,mI:1,apr:2},
-    {name:'Hardened Bronze',lv:6,mS:2.2,mA:1.2,mI:1,apr:2},
-    {name:'Simple Iron',lv:7,mS:2.2,mA:1.2,mI:1,apr:2},
-    {name:'Iron',lv:8,mS:2.4,mA:1.3,mI:1,apr:2},
-    {name:'Hardened Iron',lv:9,mS:2.4,mA:1.3,mI:1,apr:2},
-    {name:'Hardened Iron of *',lv:10,mS:2.5,mA:1.3,mI:1.1,apr:2},
-    {name:'Simple Steel',lv:11,mS:2.6,mA:1.4,mI:1.1,apr:2},
-    {name:'Steel',lv:12,mS:2.6,mA:1.4,mI:1.1,apr:2},
-    {name:'Fine Steel',lv:13,mS:2.8,mA:1.4,mI:1.2,apr:2},
-    {name:'Hardened Steel',lv:14,mS:2.8,mA:1.4,mI:1.2,apr:2},
+    {name:'Wood',lv:1,mS:1.8,mA:1,mI:1,apr:2},{name:'Rusty',lv:2,mS:1.9,mA:1,mI:1,apr:2},
+    {name:'Simple Bronze',lv:3,mS:2,mA:1.1,mI:1,apr:2},{name:'Bronze',lv:4,mS:2,mA:1.1,mI:1,apr:2},
+    {name:'Bronze of *',lv:5,mS:2.1,mA:1.2,mI:1,apr:2},{name:'Hardened Bronze',lv:6,mS:2.2,mA:1.2,mI:1,apr:2},
+    {name:'Simple Iron',lv:7,mS:2.2,mA:1.2,mI:1,apr:2},{name:'Iron',lv:8,mS:2.4,mA:1.3,mI:1,apr:2},
+    {name:'Hardened Iron',lv:9,mS:2.4,mA:1.3,mI:1,apr:2},{name:'Hardened Iron of *',lv:10,mS:2.5,mA:1.3,mI:1.1,apr:2},
+    {name:'Simple Steel',lv:11,mS:2.6,mA:1.4,mI:1.1,apr:2},{name:'Steel',lv:12,mS:2.6,mA:1.4,mI:1.1,apr:2},
+    {name:'Fine Steel',lv:13,mS:2.8,mA:1.4,mI:1.2,apr:2},{name:'Hardened Steel',lv:14,mS:2.8,mA:1.4,mI:1.2,apr:2},
     {name:'Hardened Steel of *',lv:15,mS:3,mA:1.5,mI:1.2,apr:2},
   ],
-  // ── Ranged ────────────────────────────────────────────────────────────────────
   'Short Bow':[
-    {name:'Wood',lv:1,mS:1,mA:1.1,mI:1,apr:4},
-    {name:'Rusty',lv:2,mS:1,mA:1.1,mI:1,apr:4},
-    {name:'Simple Bronze',lv:3,mS:1.1,mA:1.2,mI:1,apr:4},
-    {name:'Bronze',lv:4,mS:1.1,mA:1.2,mI:1,apr:4},
-    {name:'Bronze of *',lv:5,mS:1.3,mA:1.4,mI:1.2,apr:4},
-    {name:'Hardened Bronze',lv:6,mS:1.2,mA:1.3,mI:1.1,apr:4},
-    {name:'Simple Iron',lv:7,mS:1.2,mA:1.3,mI:1.1,apr:4},
-    {name:'Iron',lv:8,mS:1.2,mA:1.4,mI:1.2,apr:4},
-    {name:'Hardened Iron',lv:9,mS:1.2,mA:1.4,mI:1.2,apr:4},
-    {name:'Hardened Iron of *',lv:10,mS:1.5,mA:1.6,mI:1.3,apr:4},
-    {name:'Simple Steel',lv:11,mS:1.4,mA:1.5,mI:1.2,apr:4},
-    {name:'Steel',lv:12,mS:1.4,mA:1.5,mI:1.2,apr:4},
-    {name:'Fine Steel',lv:13,mS:1.5,mA:1.7,mI:1.3,apr:4},
-    {name:'Hardened Steel',lv:14,mS:1.5,mA:1.7,mI:1.3,apr:4},
+    {name:'Wood',lv:1,mS:1,mA:1.1,mI:1,apr:4},{name:'Rusty',lv:2,mS:1,mA:1.1,mI:1,apr:4},
+    {name:'Simple Bronze',lv:3,mS:1.1,mA:1.2,mI:1,apr:4},{name:'Bronze',lv:4,mS:1.1,mA:1.2,mI:1,apr:4},
+    {name:'Bronze of *',lv:5,mS:1.3,mA:1.4,mI:1.2,apr:4},{name:'Hardened Bronze',lv:6,mS:1.2,mA:1.3,mI:1.1,apr:4},
+    {name:'Simple Iron',lv:7,mS:1.2,mA:1.3,mI:1.1,apr:4},{name:'Iron',lv:8,mS:1.2,mA:1.4,mI:1.2,apr:4},
+    {name:'Hardened Iron',lv:9,mS:1.2,mA:1.4,mI:1.2,apr:4},{name:'Hardened Iron of *',lv:10,mS:1.5,mA:1.6,mI:1.3,apr:4},
+    {name:'Simple Steel',lv:11,mS:1.4,mA:1.5,mI:1.2,apr:4},{name:'Steel',lv:12,mS:1.4,mA:1.5,mI:1.2,apr:4},
+    {name:'Fine Steel',lv:13,mS:1.5,mA:1.7,mI:1.3,apr:4},{name:'Hardened Steel',lv:14,mS:1.5,mA:1.7,mI:1.3,apr:4},
     {name:'Fine Steel of *',lv:15,mS:1.6,mA:1.8,mI:1.4,apr:4},
   ],
   'Long Bow':[
-    {name:'Wood',lv:1,mS:1,mA:1.3,mI:1,apr:3},
-    {name:'Rusty',lv:2,mS:1,mA:1.3,mI:1,apr:3},
-    {name:'Simple Bronze',lv:3,mS:1,mA:1.4,mI:1,apr:3},
-    {name:'Bronze',lv:4,mS:1,mA:1.4,mI:1,apr:3},
-    {name:'Bronze of *',lv:5,mS:1.3,mA:1.6,mI:1,apr:3},
-    {name:'Hardened Bronze',lv:6,mS:1.2,mA:1.5,mI:1,apr:3},
-    {name:'Simple Iron',lv:7,mS:1.2,mA:1.5,mI:1,apr:3},
-    {name:'Iron',lv:8,mS:1.4,mA:1.7,mI:1,apr:3},
-    {name:'Hardened Iron',lv:9,mS:1.4,mA:1.7,mI:1,apr:3},
-    {name:'Hardened Iron of *',lv:10,mS:1.6,mA:1.8,mI:1.1,apr:3},
-    {name:'Simple Steel',lv:11,mS:1.5,mA:1.9,mI:1,apr:3},
-    {name:'Steel',lv:12,mS:1.5,mA:1.9,mI:1,apr:3},
-    {name:'Fine Steel',lv:13,mS:1.6,mA:1.9,mI:1,apr:3},
-    {name:'Hardened Steel',lv:14,mS:1.6,mA:1.9,mI:1,apr:3},
+    {name:'Wood',lv:1,mS:1,mA:1.3,mI:1,apr:3},{name:'Rusty',lv:2,mS:1,mA:1.3,mI:1,apr:3},
+    {name:'Simple Bronze',lv:3,mS:1,mA:1.4,mI:1,apr:3},{name:'Bronze',lv:4,mS:1,mA:1.4,mI:1,apr:3},
+    {name:'Bronze of *',lv:5,mS:1.3,mA:1.6,mI:1,apr:3},{name:'Hardened Bronze',lv:6,mS:1.2,mA:1.5,mI:1,apr:3},
+    {name:'Simple Iron',lv:7,mS:1.2,mA:1.5,mI:1,apr:3},{name:'Iron',lv:8,mS:1.4,mA:1.7,mI:1,apr:3},
+    {name:'Hardened Iron',lv:9,mS:1.4,mA:1.7,mI:1,apr:3},{name:'Hardened Iron of *',lv:10,mS:1.6,mA:1.8,mI:1.1,apr:3},
+    {name:'Simple Steel',lv:11,mS:1.5,mA:1.9,mI:1,apr:3},{name:'Steel',lv:12,mS:1.5,mA:1.9,mI:1,apr:3},
+    {name:'Fine Steel',lv:13,mS:1.6,mA:1.9,mI:1,apr:3},{name:'Hardened Steel',lv:14,mS:1.6,mA:1.9,mI:1,apr:3},
     {name:'Fine Steel of *',lv:15,mS:1.7,mA:2,mI:1.1,apr:3},
   ],
   'Light Crossbow':[
-    {name:'Wood',lv:1,mS:1,mA:1.1,mI:1,apr:2},
-    {name:'Rusty',lv:2,mS:1,mA:1.1,mI:1,apr:2},
-    {name:'Simple Bronze',lv:3,mS:1,mA:1.2,mI:1.1,apr:2},
-    {name:'Bronze',lv:4,mS:1,mA:1.3,mI:1.1,apr:2},
-    {name:'Bronze of *',lv:5,mS:1,mA:1.4,mI:1.2,apr:2},
-    {name:'Hardened Bronze',lv:6,mS:1,mA:1.6,mI:1.1,apr:2},
-    {name:'Simple Iron',lv:7,mS:1,mA:1.6,mI:1.1,apr:2},
-    {name:'Iron',lv:8,mS:1,mA:1.6,mI:1.1,apr:2},
-    {name:'Hardened Iron',lv:9,mS:1,mA:1.6,mI:1.1,apr:2},
-    {name:'Hardened Iron of *',lv:10,mS:1,mA:1.7,mI:1.2,apr:2},
-    {name:'Simple Steel',lv:11,mS:1,mA:1.7,mI:1.1,apr:2},
-    {name:'Steel',lv:12,mS:1,mA:1.7,mI:1.1,apr:2},
-    {name:'Fine Steel',lv:13,mS:1,mA:1.7,mI:1.1,apr:2},
-    {name:'Hardened Steel',lv:14,mS:1,mA:1.7,mI:1.1,apr:2},
+    {name:'Wood',lv:1,mS:1,mA:1.1,mI:1,apr:2},{name:'Rusty',lv:2,mS:1,mA:1.1,mI:1,apr:2},
+    {name:'Simple Bronze',lv:3,mS:1,mA:1.2,mI:1.1,apr:2},{name:'Bronze',lv:4,mS:1,mA:1.3,mI:1.1,apr:2},
+    {name:'Bronze of *',lv:5,mS:1,mA:1.4,mI:1.2,apr:2},{name:'Hardened Bronze',lv:6,mS:1,mA:1.6,mI:1.1,apr:2},
+    {name:'Simple Iron',lv:7,mS:1,mA:1.6,mI:1.1,apr:2},{name:'Iron',lv:8,mS:1,mA:1.6,mI:1.1,apr:2},
+    {name:'Hardened Iron',lv:9,mS:1,mA:1.6,mI:1.1,apr:2},{name:'Hardened Iron of *',lv:10,mS:1,mA:1.7,mI:1.2,apr:2},
+    {name:'Simple Steel',lv:11,mS:1,mA:1.7,mI:1.1,apr:2},{name:'Steel',lv:12,mS:1,mA:1.7,mI:1.1,apr:2},
+    {name:'Fine Steel',lv:13,mS:1,mA:1.7,mI:1.1,apr:2},{name:'Hardened Steel',lv:14,mS:1,mA:1.7,mI:1.1,apr:2},
     {name:'Fine Steel of *',lv:15,mS:1,mA:1.8,mI:1.2,apr:2},
   ],
   'Heavy Crossbow':[
-    {name:'Wood',lv:1,mS:1,mA:1.3,mI:1,apr:1},
-    {name:'Rusty',lv:2,mS:1,mA:1.3,mI:1,apr:1},
-    {name:'Simple Bronze',lv:3,mS:1,mA:1.4,mI:1,apr:1},
-    {name:'Bronze',lv:4,mS:1,mA:1.4,mI:1,apr:1},
-    {name:'Bronze of *',lv:5,mS:1,mA:1.5,mI:1.2,apr:1},
-    {name:'Hardened Bronze',lv:6,mS:1,mA:1.6,mI:1.1,apr:1},
-    {name:'Simple Iron',lv:7,mS:1,mA:1.6,mI:1.1,apr:1},
-    {name:'Iron',lv:8,mS:1,mA:1.7,mI:1.1,apr:1},
-    {name:'Hardened Iron',lv:9,mS:1,mA:1.7,mI:1.1,apr:1},
-    {name:'Hardened Iron of *',lv:10,mS:1,mA:1.8,mI:1.3,apr:1},
-    {name:'Simple Steel',lv:11,mS:1,mA:1.9,mI:1.2,apr:1},
-    {name:'Steel',lv:12,mS:1,mA:1.9,mI:1.2,apr:1},
-    {name:'Fine Steel',lv:13,mS:1,mA:1.9,mI:1.2,apr:1},
-    {name:'Hardened Steel',lv:14,mS:1,mA:1.9,mI:1.2,apr:1},
+    {name:'Wood',lv:1,mS:1,mA:1.3,mI:1,apr:1},{name:'Rusty',lv:2,mS:1,mA:1.3,mI:1,apr:1},
+    {name:'Simple Bronze',lv:3,mS:1,mA:1.4,mI:1,apr:1},{name:'Bronze',lv:4,mS:1,mA:1.4,mI:1,apr:1},
+    {name:'Bronze of *',lv:5,mS:1,mA:1.5,mI:1.2,apr:1},{name:'Hardened Bronze',lv:6,mS:1,mA:1.6,mI:1.1,apr:1},
+    {name:'Simple Iron',lv:7,mS:1,mA:1.6,mI:1.1,apr:1},{name:'Iron',lv:8,mS:1,mA:1.7,mI:1.1,apr:1},
+    {name:'Hardened Iron',lv:9,mS:1,mA:1.7,mI:1.1,apr:1},{name:'Hardened Iron of *',lv:10,mS:1,mA:1.8,mI:1.3,apr:1},
+    {name:'Simple Steel',lv:11,mS:1,mA:1.9,mI:1.2,apr:1},{name:'Steel',lv:12,mS:1,mA:1.9,mI:1.2,apr:1},
+    {name:'Fine Steel',lv:13,mS:1,mA:1.9,mI:1.2,apr:1},{name:'Hardened Steel',lv:14,mS:1,mA:1.9,mI:1.2,apr:1},
     {name:'Fine Steel of *',lv:15,mS:1,mA:2,mI:1.4,apr:1},
   ],
   'Pulver Rifle':[
-    {name:'Wood',lv:1,mS:1.1,mA:1,mI:1,apr:1},
-    {name:'Rusty',lv:2,mS:1.1,mA:1,mI:1,apr:1},
-    {name:'Simple Bronze',lv:3,mS:1.2,mA:1,mI:1,apr:1},
-    {name:'Bronze',lv:4,mS:1.2,mA:1,mI:1,apr:1},
-    {name:'Bronze of *',lv:5,mS:1.3,mA:1.1,mI:1,apr:1},
-    {name:'Hardened Bronze',lv:6,mS:1.4,mA:1,mI:1,apr:1},
-    {name:'Simple Iron',lv:7,mS:1.4,mA:1,mI:1,apr:1},
-    {name:'Iron',lv:8,mS:1.5,mA:1,mI:1,apr:1},
-    {name:'Hardened Iron',lv:9,mS:1.5,mA:1,mI:1,apr:1},
-    {name:'Hardened Iron of *',lv:10,mS:2,mA:1.2,mI:1,apr:1},
-    {name:'Simple Steel',lv:11,mS:2,mA:1,mI:1,apr:1},
-    {name:'Steel',lv:12,mS:2,mA:1,mI:1,apr:1},
-    {name:'Fine Steel',lv:13,mS:2.1,mA:1,mI:1,apr:1},
-    {name:'Hardened Steel',lv:14,mS:2.2,mA:1,mI:1,apr:1},
+    {name:'Wood',lv:1,mS:1.1,mA:1,mI:1,apr:1},{name:'Rusty',lv:2,mS:1.1,mA:1,mI:1,apr:1},
+    {name:'Simple Bronze',lv:3,mS:1.2,mA:1,mI:1,apr:1},{name:'Bronze',lv:4,mS:1.2,mA:1,mI:1,apr:1},
+    {name:'Bronze of *',lv:5,mS:1.3,mA:1.1,mI:1,apr:1},{name:'Hardened Bronze',lv:6,mS:1.4,mA:1,mI:1,apr:1},
+    {name:'Simple Iron',lv:7,mS:1.4,mA:1,mI:1,apr:1},{name:'Iron',lv:8,mS:1.5,mA:1,mI:1,apr:1},
+    {name:'Hardened Iron',lv:9,mS:1.5,mA:1,mI:1,apr:1},{name:'Hardened Iron of *',lv:10,mS:2,mA:1.2,mI:1,apr:1},
+    {name:'Simple Steel',lv:11,mS:2,mA:1,mI:1,apr:1},{name:'Steel',lv:12,mS:2,mA:1,mI:1,apr:1},
+    {name:'Fine Steel',lv:13,mS:2.1,mA:1,mI:1,apr:1},{name:'Hardened Steel',lv:14,mS:2.2,mA:1,mI:1,apr:1},
     {name:'Fine Steel of *',lv:15,mS:2.3,mA:1.2,mI:1,apr:1},
   ],
   'Slingshot':[
-    {name:'Wood',lv:1,mS:1.3,mA:1,mI:1,apr:3},
-    {name:'Rusty',lv:2,mS:1.3,mA:1,mI:1,apr:3},
-    {name:'Simple Bronze',lv:3,mS:1.4,mA:1,mI:1,apr:3},
-    {name:'Bronze',lv:4,mS:1.4,mA:1,mI:1,apr:3},
-    {name:'Bronze of *',lv:5,mS:1.5,mA:1.1,mI:1,apr:3},
-    {name:'Hardened Bronze',lv:6,mS:1.6,mA:1,mI:1,apr:3},
-    {name:'Simple Iron',lv:7,mS:1.6,mA:1,mI:1,apr:3},
-    {name:'Iron',lv:8,mS:1.7,mA:1,mI:1,apr:3},
-    {name:'Hardened Iron',lv:9,mS:1.7,mA:1,mI:1,apr:3},
-    {name:'Hardened Iron of *',lv:10,mS:2,mA:1.2,mI:1,apr:3},
-    {name:'Simple Steel',lv:11,mS:2.2,mA:1,mI:1,apr:3},
-    {name:'Steel',lv:12,mS:2.2,mA:1,mI:1,apr:3},
-    {name:'Fine Steel',lv:13,mS:2.3,mA:1,mI:1,apr:3},
-    {name:'Hardened Steel',lv:14,mS:2.4,mA:1,mI:1,apr:3},
+    {name:'Wood',lv:1,mS:1.3,mA:1,mI:1,apr:3},{name:'Rusty',lv:2,mS:1.3,mA:1,mI:1,apr:3},
+    {name:'Simple Bronze',lv:3,mS:1.4,mA:1,mI:1,apr:3},{name:'Bronze',lv:4,mS:1.4,mA:1,mI:1,apr:3},
+    {name:'Bronze of *',lv:5,mS:1.5,mA:1.1,mI:1,apr:3},{name:'Hardened Bronze',lv:6,mS:1.6,mA:1,mI:1,apr:3},
+    {name:'Simple Iron',lv:7,mS:1.6,mA:1,mI:1,apr:3},{name:'Iron',lv:8,mS:1.7,mA:1,mI:1,apr:3},
+    {name:'Hardened Iron',lv:9,mS:1.7,mA:1,mI:1,apr:3},{name:'Hardened Iron of *',lv:10,mS:2,mA:1.2,mI:1,apr:3},
+    {name:'Simple Steel',lv:11,mS:2.2,mA:1,mI:1,apr:3},{name:'Steel',lv:12,mS:2.2,mA:1,mI:1,apr:3},
+    {name:'Fine Steel',lv:13,mS:2.3,mA:1,mI:1,apr:3},{name:'Hardened Steel',lv:14,mS:2.4,mA:1,mI:1,apr:3},
     {name:'Fine Steel of *',lv:15,mS:2.5,mA:1.2,mI:1,apr:3},
   ],
   'Giant Slingshot':[
-    {name:'Wood',lv:1,mS:1.3,mA:1,mI:1,apr:1},
-    {name:'Rusty',lv:2,mS:1.3,mA:1,mI:1,apr:1},
-    {name:'Simple Bronze',lv:3,mS:1.4,mA:1,mI:1,apr:1},
-    {name:'Bronze',lv:4,mS:1.4,mA:1,mI:1,apr:1},
-    {name:'Bronze of *',lv:5,mS:1.5,mA:1.1,mI:1,apr:1},
-    {name:'Hardened Bronze',lv:6,mS:1.6,mA:1,mI:1,apr:1},
-    {name:'Simple Iron',lv:7,mS:1.6,mA:1,mI:1,apr:1},
-    {name:'Iron',lv:8,mS:1.7,mA:1,mI:1,apr:1},
-    {name:'Hardened Iron',lv:9,mS:1.7,mA:1,mI:1,apr:1},
-    {name:'Hardened Iron of *',lv:10,mS:2,mA:1.2,mI:1,apr:1},
-    {name:'Simple Steel',lv:11,mS:2.2,mA:1,mI:1,apr:1},
-    {name:'Steel',lv:12,mS:2.2,mA:1,mI:1,apr:1},
-    {name:'Fine Steel',lv:13,mS:2.3,mA:1,mI:1,apr:1},
-    {name:'Hardened Steel',lv:14,mS:2.4,mA:1,mI:1,apr:1},
+    {name:'Wood',lv:1,mS:1.3,mA:1,mI:1,apr:1},{name:'Rusty',lv:2,mS:1.3,mA:1,mI:1,apr:1},
+    {name:'Simple Bronze',lv:3,mS:1.4,mA:1,mI:1,apr:1},{name:'Bronze',lv:4,mS:1.4,mA:1,mI:1,apr:1},
+    {name:'Bronze of *',lv:5,mS:1.5,mA:1.1,mI:1,apr:1},{name:'Hardened Bronze',lv:6,mS:1.6,mA:1,mI:1,apr:1},
+    {name:'Simple Iron',lv:7,mS:1.6,mA:1,mI:1,apr:1},{name:'Iron',lv:8,mS:1.7,mA:1,mI:1,apr:1},
+    {name:'Hardened Iron',lv:9,mS:1.7,mA:1,mI:1,apr:1},{name:'Hardened Iron of *',lv:10,mS:2,mA:1.2,mI:1,apr:1},
+    {name:'Simple Steel',lv:11,mS:2.2,mA:1,mI:1,apr:1},{name:'Steel',lv:12,mS:2.2,mA:1,mI:1,apr:1},
+    {name:'Fine Steel',lv:13,mS:2.3,mA:1,mI:1,apr:1},{name:'Hardened Steel',lv:14,mS:2.4,mA:1,mI:1,apr:1},
     {name:'Fine Steel of *',lv:15,mS:2.5,mA:1.2,mI:1,apr:1},
   ],
 };
-
-// Get highest material available for a weapon at given level
 function wpMatForLevel(wp,lv){
-  const mats=WP_MATS[wp];
-  if(!mats) return null;
-  const avail=mats.filter(m=>m.lv<=lv);
-  return avail.length?avail[avail.length-1]:mats[0];
+  const mats=WP_MATS[wp];if(!mats)return null;
+  const avail=mats.filter(m=>m.lv<=lv);return avail.length?avail[avail.length-1]:mats[0];
 }
-// Get specific material by name, or best available
 function wpMatObj(wp,matName,lv){
-  const mats=WP_MATS[wp];
-  if(!mats) return null;
+  const mats=WP_MATS[wp];if(!mats)return null;
   if(matName){const m=mats.find(x=>x.name===matName);if(m&&m.lv<=(lv||99))return m;}
   return wpMatForLevel(wp,lv||1);
 }
-
-// ── Armor material data ───────────────────────────────────────────────────────
-// Each entry: {name,lv,baseArmor,mS,mA,mI,majRes,minRes,majVuln,minVuln,norm}
-// resistances stored as dmgType strings matching DMG_TYPES
 const ARM_MATS={
   'Unarmored':[
     {name:'Rags',lv:1,ba:0,mS:1,mA:1,mI:1,majR:'bludgeoning',minR:'slashing',majV:'piercing',minV:'stabbing',norm:'magic'},
@@ -778,74 +604,43 @@ const ARM_MATS={
     {name:'Magic Chitin',lv:15,ba:40,mS:5,mA:4,mI:2,majR:'magic',minR:'piercing',majV:'slashing',minV:'piercing',norm:'stabbing'},
   ],
 };
-
-// Build resistance table from material data
 function armMatResTable(mat){
   const t={slashing:1,piercing:1,bludgeoning:1,stabbing:1,magic:1};
   if(!mat) return t;
-  t[mat.majR]=RES_MUL.major_res;
-  t[mat.minR]=RES_MUL.minor_res;
-  t[mat.majV]=RES_MUL.major_vuln;
-  t[mat.minV]=RES_MUL.minor_vuln;
-  // norm is always 1.0 by definition; anything else is also 1.0
+  t[mat.majR]=RES_MUL.major_res;t[mat.minR]=RES_MUL.minor_res;
+  t[mat.majV]=RES_MUL.major_vuln;t[mat.minV]=RES_MUL.minor_vuln;
   return t;
 }
-
-// Get best available armor material at or below level
 function armMatForLevel(armType,lv){
-  const mats=ARM_MATS[armType];
-  if(!mats) return null;
-  const avail=mats.filter(m=>m.lv<=lv);
-  return avail.length?avail[avail.length-1]:mats[0];
+  const mats=ARM_MATS[armType];if(!mats)return null;
+  const avail=mats.filter(m=>m.lv<=lv);return avail.length?avail[avail.length-1]:mats[0];
 }
 function armMatObj(armType,matName,lv){
-  const mats=ARM_MATS[armType];
-  if(!mats) return null;
+  const mats=ARM_MATS[armType];if(!mats)return null;
   if(matName){const m=mats.find(x=>x.name===matName);if(m&&m.lv<=(lv||99))return m;}
   return armMatForLevel(armType,lv||1);
 }
-
-// Resistance multipliers per armor type per damage type — now driven by ARM_MATS
-// Legacy fallback table (used if no material found)
 const ARM_RES={
   'Unarmored':{slashing:0.75, piercing:1.6, bludgeoning:0.5, stabbing:1.25, magic:1.0},
   'Light Armor':{slashing:0.5, piercing:1.25, bludgeoning:0.75, stabbing:1.6, magic:1.0},
   'Heavy Armor':{slashing:1.0, piercing:0.75, bludgeoning:1.6, stabbing:0.5, magic:1.25},
   'Natural':{slashing:1.0, piercing:0.75, bludgeoning:1.25, stabbing:0.5, magic:1.6},
 };
-
-// Weapon → damage type mapping
 const WP_DMG_TYPE={
-  // Melee — arrays for dual-type weapons (one chosen randomly per hit)
-  'Short Sword': ['piercing','slashing'],
-  'Dagger':      ['stabbing','piercing'],
-  'Long Sword':  ['stabbing','slashing'],
-  'Big Axe':     ['slashing','bludgeoning'],
-  'Short Axe':   ['slashing'],
-  'Hammer':      ['bludgeoning'],
-  'War Hammer':  ['bludgeoning'],
-  'Staff':       ['bludgeoning'],
-  'Halberd':     ['slashing'],
-  'Spear':       ['stabbing'],
-  'Flail':       ['bludgeoning'],
-  // Ranged — piercing
+  'Short Sword': ['piercing','slashing'],'Dagger':['stabbing','piercing'],
+  'Long Sword':['stabbing','slashing'],'Big Axe':['slashing','bludgeoning'],
+  'Short Axe':['slashing'],'Hammer':['bludgeoning'],'War Hammer':['bludgeoning'],
+  'Staff':['bludgeoning'],'Halberd':['slashing'],'Spear':['stabbing'],'Flail':['bludgeoning'],
   'Long Bow':'piercing','Short Bow':'piercing',
-  'Heavy Crossbow':'piercing','Light Crossbow':'piercing',
-  'Pulver Rifle':'piercing',
-  // Slings — bludgeoning
-  'Giant Slingshot':'bludgeoning','Slingshot':'bludgeoning',
-  'Throwing Knife':'stabbing',
+  'Heavy Crossbow':'piercing','Light Crossbow':'piercing','Pulver Rifle':'piercing',
+  'Giant Slingshot':'bludgeoning','Slingshot':'bludgeoning','Throwing Knife':'stabbing',
 };
 function wpDmgType(wp){
   if(isMagicWp(wp)) return 'magic';
-  const t=WP_DMG_TYPE[wp];
-  if(!t) return 'slashing';
+  const t=WP_DMG_TYPE[wp];if(!t) return 'slashing';
   if(Array.isArray(t)) return t[Math.floor(Math.random()*t.length)];
   return t;
 }
-
-// Apply armor resistance to raw damage
-// matRes: per-dmgType multiplier table from armMatResTable()
 function applyArmor(rawDmg, armorType, dmgType, naturalMagicBonus, matRes){
   const resTable=matRes||(ARM_RES[armorType]||ARM_RES['Unarmored']);
   let mult=resTable[dmgType]??1.0;
@@ -854,8 +649,6 @@ function applyArmor(rawDmg, armorType, dmgType, naturalMagicBonus, matRes){
   const label=mult<=0.55?'Major Resist':mult<=0.80?'Resist':mult>=1.55?'Major Vuln':mult>=1.20?'Vuln':'';
   return{dmg:final, label, mult};
 }
-
-// Update ARMOR_TYPES for targeting (command chain)
 const ARMOR_TYPES=['Unarmored','Light Armor','Heavy Armor','Natural'];
 const CI={
   Knight:'\u2694',Marksman:'\u25CE',Cleric:'\u271D',Ranger:'\u2766',Archer:'\u2B21',
@@ -864,31 +657,13 @@ const CI={
   Bonker:'\u25C6',Rocker:'\u2699',Shaman:'\u26F0',
 };
 const PNAME={s:'STR',a:'AGI',i:'INT'};
-
-// ── Command chain data ────────────────────────────────────────────────────────
-// Phase actions available:
-//   attack        – basic attack (target selection below)
-//   observe       – wait X rounds, build read on enemy
-//   intercept     – melee: close toward enemy melee at run/walk speed
-//   avoid         – melee: route around enemy melee to reach ranged/back
-//   throw         – (throwable weapons only) throw weapon at range
-// Target modes (when action=attack, after observe):
-//   random        – random enemy
-//   lowest_hp     – lowest HP enemy
-//   by_armor      – target specific armor type
-//   by_weapon     – target specific weapon type
-//   by_magic      – target magic users
-//   by_type       – target melee/ranged/magic role
-
-const PHASE_LABELS=null; // removed - now round-by-round
+const PHASE_LABELS=null;
 const MELEE_ACTIONS=['attack','intercept','avoid','observe'];
 const RANGED_ACTIONS=['attack','observe','throw'];
 const TARGET_BASE=['random','nearest','by_weapon','by_armor'];
 const TARGET_OBS2=['random','nearest','by_weapon','by_armor','by_magic','by_type'];
 const ROLE_TYPES=['Melee','Ranged','Magic'];
-
 function dfc_cmd(){return{action:'attack',speed:'walk',observeRounds:1,targetMode:'random',targetFilter:'',dmgTypeChoice:''}}
-
 function availableActions(wp){
   if(isRanged(wp)) return RANGED_ACTIONS;
   if(THROWABLE.has(wp)) return [...MELEE_ACTIONS,'throw'];
@@ -896,61 +671,66 @@ function availableActions(wp){
 }
 function targetModes(observeAccum){
   if(observeAccum>=2)return TARGET_OBS2;
-  if(observeAccum>=1)return TARGET_OBS1;
   return TARGET_BASE;
 }
-
-
-// Primary weapon options — Focus never appears here (offhand only)
-// Giant Slingshot filtered out unless species is Troll
 function wopt(cls,sp){
   const ranged=WR.filter(w=>wpAllowedForSpecies(w,sp||'Human'));
   return[...ranged,...WM];
 }
-function wpAllowedForSpecies(wp,sp){
-  if(wp==='Giant Slingshot') return sp==='Troll';
-  return true;
-}
-// Offhand options: Focus is available for any 1H primary (magic enabler, not a weapon)
 function offhandOpts(wp,cls){
   if(is2H(wp)) return [];
   return ['—','Shield',...WM1H,'Focus'];
 }
 
+// ── Derived stats — includes armor performance modifiers ─────────────────────
 function ds(c){
   const sp=SP[c.sp]||{s:2,a:2,i:2};const cl=CL[c.cl]||{s:2,a:2,i:2,p:'s',mn:10,mx:15};
   const S=sp.s+cl.s+(c.pts.s||0),A=sp.a+cl.a+(c.pts.a||0),I=sp.i+cl.i+(c.pts.i||0);
   const lv=c.lv||1;
   const hp=25*S+lv*19,hpr=+(S*.05).toFixed(2),mana=15*I+lv*10;
-
-  // ── Armor material ──────────────────────────────────────────────────────────
   const aMat=armMatObj(c.arm,c.armMat,lv);
-  const aMatMods=ARM_MODS[c.arm]||{dodge:0,block:0};
-  // Base armor: material base + AGI/6 (stat scaling via material mults)
+  // Copy mods so we can mutate for affinity scaling
+  let aMatMods=Object.assign({},ARM_MODS[c.arm]||{dodge:0,block:0,atkSpeedMult:1,movePenalty:0});
   const agiArmor=+(A/6).toFixed(1);
   const armBase=aMat?+(aMat.ba + agiArmor).toFixed(1):+(A/6).toFixed(1);
   const shieldBonus=(c&&c.offhand==='Shield')?SHIELD_BONUS:0;
   const armTotal=+(armBase+shieldBonus).toFixed(1);
   const mit=armTotal/(armTotal+7.5);
-
-  // ── Weapon material ─────────────────────────────────────────────────────────
   const wMat=wpMatObj(c.wp,c.wpMat,lv);
   const mS=wMat?wMat.mS:1, mA=wMat?wMat.mA:1, mI=wMat?wMat.mI:1;
-  // Damage = class base range + primary stat scaled by material multiplier
   const pStat=({s:S,a:A,i:I})[cl.p];
   const scaledPrimary=Math.round(pStat*(cl.p==='s'?mS:cl.p==='a'?mA:mI));
   const dmin=cl.mn+scaledPrimary, dmax=cl.mx+scaledPrimary;
 
-  const spd=+(1.75-A*.01).toFixed(2);
+  // ── Armor affinity — trained classes suffer reduced penalties ────────────────
+  // heavy: Knight/Berserker/Butcher/Bonker/Rocker — halve heavy armor penalties + dodge
+  // light: Marksman/Ranger/Archer/Rifleman/Slinger/Raider/Warlock — quarter light atkSpeed penalty
+  const armorAffinity=CLASS_ARMOR_AFFINITY[c.cl]||'none';
+  const armorKind=c.arm||'Unarmored';
+  let atkSpeedMult=aMatMods.atkSpeedMult||1.0;
+  let movePenalty=aMatMods.movePenalty||0;
+
+  if(armorKind==='Heavy Armor'&&armorAffinity==='heavy'){
+    // Heavy-trained: halve the speed penalty, halve move penalty, halve dodge penalty magnitude
+    atkSpeedMult=1+(atkSpeedMult-1)*0.5;
+    movePenalty*=0.5;
+    aMatMods={...aMatMods, dodge:Math.round(aMatMods.dodge*0.5)};
+  } else if(armorKind==='Light Armor'&&armorAffinity==='light'){
+    // Light-trained: quarter atkSpeed penalty (nearly negligible ~2.5% instead of 10%)
+    atkSpeedMult=1+(atkSpeedMult-1)*0.25;
+  }
+
+  const spdBase=+(1.75-A*.01).toFixed(2);
+  const spd=+(spdBase*atkSpeedMult).toFixed(2);
   const cr=+(A*.5).toFixed(1);
   const dgBase=+(A*.5).toFixed(1);
   const dg=Math.max(0,+(dgBase+aMatMods.dodge).toFixed(1));
   const blkBase=+(S*1.5).toFixed(1);
   const blk=Math.max(0,+(blkBase+aMatMods.block+(shieldBonus*4)).toFixed(1));
-
-  // Resistance table from material
   const matRes=aMat?armMatResTable(aMat):(ARM_RES[c.arm||'Unarmored']);
-  return{S,A,I,hp,hpr,mana,arm:armTotal,spd,cr,dg,blk,dmin,dmax,mit,p:cl.p,shieldBonus,armorType:c.arm||'Unarmored',matRes,aMat,wMat};
+  return{S,A,I,hp,hpr,mana,arm:armTotal,spd,cr,dg,blk,dmin,dmax,mit,p:cl.p,
+         shieldBonus,armorType:c.arm||'Unarmored',matRes,aMat,wMat,
+         movePenalty,atkSpeedMult};
 }
 
 const ST={a:[],b:[]};let szA=1,szB=1;
@@ -962,22 +742,17 @@ function renderCmd(team,i){
   const c=ST[team][i];
   if(!c.cmds||!c.cmds.length){c.cmds=[dfc_cmd()];}
   const wp=c.wp;
-  const oh=c.offhand||'—';
   const acts=availableActions(wp);
   const isMel=!isRanged(wp);
-
-  // Build a skip map: for each round index, how many following rounds it locks
-  // (observe N locks the next N-1 rounds)
   const skip=new Array(c.cmds.length).fill(0);
   let skipUntil=0;
   for(let ph=0;ph<c.cmds.length;ph++){
     if(ph<skipUntil){skip[ph]=1;continue;}
     if(c.cmds[ph].action==='observe'){
       const n=c.cmds[ph].observeRounds||1;
-      skipUntil=ph+n; // rounds ph+1 … ph+n-1 are locked
+      skipUntil=ph+n;
     }
   }
-
   let html=`<div style="margin-bottom:.4rem">
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.35rem">
   <div class="fl">Command Chain</div>
@@ -985,14 +760,10 @@ function renderCmd(team,i){
 </div>`;
   c.cmds.forEach((cmd,ph)=>{
     const isLocked=skip[ph];
-    const isLastFree=!isLocked&&(ph===c.cmds.length-1||(ph<c.cmds.length-1&&c.cmds.slice(ph+1).every((_,j)=>skip[ph+1+j])));
     const repeatLabel=ph===c.cmds.length-1&&ph>0?' <span style="color:rgba(200,168,100,.2);font-size:.55rem">· repeats for remaining rounds</span>'
       :ph===0&&c.cmds.length===1?' <span style="color:rgba(200,168,100,.2);font-size:.55rem">· repeats every round</span>':'';
-
     if(isLocked){
-      // Find the observe cmd that owns this slot
       let ownerPh=ph-1;while(ownerPh>=0&&skip[ownerPh])ownerPh--;
-      const ownerCmd=c.cmds[ownerPh];
       html+=`<div class="cmd-block" style="opacity:.35;pointer-events:none;border-color:rgba(200,168,100,.05);background:rgba(0,0,0,.15)">
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem">
   <div class="cmd-ph" style="color:rgba(200,168,100,.4)">Round ${ph+1} <span style="font-size:.55rem">· observing</span></div>
@@ -1003,13 +774,9 @@ function renderCmd(team,i){
 </div>`;
       return;
     }
-
-    // Get dual damage types for this weapon (if any)
     const wpTypes=WP_DMG_TYPE[wp];
     const dualTypes=Array.isArray(wpTypes)?wpTypes:null;
-    // Validate stored choice
     const curDmgChoice=(dualTypes&&dualTypes.includes(cmd.dmgTypeChoice))?cmd.dmgTypeChoice:'';
-
     html+=`<div class="cmd-block">
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem">
   <div class="cmd-ph">Round ${ph+1}${repeatLabel}</div>
@@ -1066,18 +833,49 @@ ${cmd.action==='attack'?`<div class="cmd-sub">
 }
 function setCmd(team,i,ph,key,val){
   if(!ST[team][i].cmds)ST[team][i].cmds=[dfc_cmd()];
-  ST[team][i].cmds[ph][key]=val;
-  rc(team);
+  ST[team][i].cmds[ph][key]=val;rc(team);
 }
 function addCmd(team,i){
   if(!ST[team][i].cmds)ST[team][i].cmds=[dfc_cmd()];
-  ST[team][i].cmds.push(dfc_cmd());
-  rc(team);
+  ST[team][i].cmds.push(dfc_cmd());rc(team);
 }
 function removeCmd(team,i,ph){
   if(ST[team][i].cmds.length<=1)return;
-  ST[team][i].cmds.splice(ph,1);
-  rc(team);
+  ST[team][i].cmds.splice(ph,1);rc(team);
+}
+
+// ── Armor performance summary for card display ────────────────────────────────
+function armPerfBadges(d, armorType, className){
+  const affinity=CLASS_ARMOR_AFFINITY[className]||'none';
+  const trained=(armorType==='Heavy Armor'&&affinity==='heavy')||(armorType==='Light Armor'&&affinity==='light');
+  const badges=[];
+  // Attack speed
+  if(d.atkSpeedMult>1.18)      badges.push({cls:'neg',t:'AtkSpd \u25bc\u25bc'});
+  else if(d.atkSpeedMult>1.04) badges.push({cls:'neg',t:'AtkSpd \u25bc'});
+  else                         badges.push({cls:'neu',t:'AtkSpd \u25a0'});
+  // Dodge — apply same affinity scaling used in ds()
+  const dodgeMod=(ARM_MODS[armorType]||{}).dodge||0;
+  let effectiveDodge=dodgeMod;
+  if(armorType==='Heavy Armor'&&affinity==='heavy') effectiveDodge=Math.round(dodgeMod*0.5);
+  // light armor dodge is already positive (+5); light-trained classes keep it as-is
+  if(effectiveDodge<-6)        badges.push({cls:'neg',t:'Dodge \u25bc\u25bc'});
+  else if(effectiveDodge<0)    badges.push({cls:'neg',t:'Dodge \u25bc'});
+  else if(effectiveDodge>6)    badges.push({cls:'pos',t:'Dodge \u25b2\u25b2'});
+  else if(effectiveDodge>0)    badges.push({cls:'pos',t:'Dodge \u25b2'});
+  else                         badges.push({cls:'neu',t:'Dodge \u25a0'});
+  // Move
+  if(d.movePenalty>0.4)        badges.push({cls:'neg',t:'Move \u25bc\u25bc'});
+  else if(d.movePenalty>0.1)   badges.push({cls:'neg',t:'Move \u25bc'});
+  else                         badges.push({cls:'neu',t:'Move \u25a0'});
+  // Block
+  const blockMod=(ARM_MODS[armorType]||{}).block||0;
+  if(blockMod>10)              badges.push({cls:'pos',t:'Block \u25b2\u25b2'});
+  else if(blockMod>0)          badges.push({cls:'pos',t:'Block \u25b2'});
+  else if(blockMod<-10)        badges.push({cls:'neg',t:'Block \u25bc\u25bc'});
+  else if(blockMod<0)          badges.push({cls:'neg',t:'Block \u25bc'});
+  else                         badges.push({cls:'neu',t:'Block \u25a0'});
+  if(trained) badges.push({cls:'pos',t:'\u2605 trained'});
+  return `<div class="arm-perf">${badges.map(b=>`<span class="arm-pip ${b.cls}">${b.t}</span>`).join('')}</div>`;
 }
 
 function rc(team){
@@ -1088,6 +886,12 @@ function rc(team){
     const d=ds(c);const us=pu(c),mx=pm(c);const ov=us>mx,ok=us===mx;
     const wo=wopt(c.cl,c.sp);const spB=SP[c.sp];const clB=CL[c.cl];
     const pnm=PNAME[clB.p];
+    // Attack speed color: orange if significantly slowed, amber if mildly
+    const spdColor=d.atkSpeedMult>1.18?'color:rgba(230,110,60,.95)':d.atkSpeedMult>1.04?'color:rgba(230,180,70,.9)':'';
+    const spdArrow=d.atkSpeedMult>1.18?' ▼▼':d.atkSpeedMult>1.04?' ▼':'';
+    const moveColor=d.movePenalty>0.4?'color:rgba(230,110,60,.95)':d.movePenalty>0.1?'color:rgba(230,180,70,.9)':'';
+    const moveTxt=d.movePenalty>0.4?'Slow':d.movePenalty>0.1?'Hindered':'Normal';
+
     el.innerHTML+=`<div class="cc ${i>=sz?'off':''}" id="c${team}${i}">
 <div class="cn">${i+1}</div><div class="pb ${ov?'ov':ok?'ok':''}">${us}/${mx}pts</div>
 <div style="margin:2px 0 5px"><div class="fl">Name</div>
@@ -1097,7 +901,6 @@ function rc(team){
 <div><div class="fl">Species</div><select onchange="sf('${team}',${i},'sp',this.value)">${Object.keys(SP).map(s=>`<option ${s===c.sp?'selected':''}>${s}</option>`).join('')}</select></div>
 <div><div class="fl">Class</div><select onchange="scf('${team}',${i},this.value)">${Object.keys(CL).map(s=>`<option ${s===c.cl?'selected':''}>${s}</option>`).join('')}</select></div>
 </div>
-<!-- Armor row -->
 <div style="margin-bottom:5px"><div class="fl">Armor</div>
 <select onchange="sf('${team}',${i},'arm',this.value)">${ARM.filter(a=>a!=='Natural'||c.sp==='Troll').map(a=>`<option ${a===c.arm?'selected':''}>${a}</option>`).join('')}</select>
 ${(()=>{
@@ -1106,12 +909,11 @@ ${(()=>{
   const cur=c.armMat&&mats.find(m=>m.name===c.armMat)?c.armMat:mats[mats.length-1].name;
   return `<select onchange="sf('${team}',${i},'armMat',this.value)" style="margin-top:2px;font-size:7.5px;color:rgba(200,168,100,.7)">${mats.map(m=>`<option ${m.name===cur?'selected':''}>${m.name}</option>`).join('')}</select>`;
 })()}
+${armPerfBadges(d, c.arm||'Unarmored', c.cl)}
 </div>
-<!-- Hands setup -->
 <div style="margin-bottom:5px">
 <div class="fl" style="margin-bottom:3px">Loadout</div>
 <div class="r2">
-  <!-- Main hand -->
   <div>
     <div class="fl" style="color:rgba(200,168,100,.5)">Main Hand</div>
     <select onchange="setWp('${team}',${i},this.value)">${wo.map(w=>`<option ${w===c.wp?'selected':''}>${w}</option>`).join('')}</select>
@@ -1128,7 +930,6 @@ ${(()=>{
       return `<select onchange="sf('${team}',${i},'wpMat',this.value)" style="margin-top:2px;font-size:7.5px;color:rgba(200,168,100,.7)">${mats.map(m=>`<option ${m.name===cur?'selected':''}>${m.name}</option>`).join('')}</select>`;
     })()}
   </div>
-  <!-- Off hand -->
   <div>
     <div class="fl" style="color:rgba(200,168,100,.5)">Off Hand</div>
     ${(()=>{
@@ -1146,7 +947,6 @@ ${(()=>{
   </div>
 </div>
 </div>
-<!-- Sidearm for ranged (melee fallback) -->
 ${isRanged(c.wp)?`<div style="margin-bottom:5px">
 <div class="fl" style="color:rgba(200,168,100,.4)">Sidearm <span style="color:rgba(200,168,100,.22)">(drawn when melee closes in — 1 turn)</span></div>
 <select onchange="sf('${team}',${i},'offhand',this.value)" style="border-color:rgba(200,168,100,.12)">${['—',...WM1H].map(w=>`<option ${w===(c.offhand||'—')?'selected':''}>${w}</option>`).join('')}</select>
@@ -1168,8 +968,9 @@ ${isRanged(c.wp)?`<div style="margin-bottom:5px">
 <div class="di"><div class="dv2">${d.cr}%</div><div class="dl">Crit</div></div>
 <div class="di"><div class="dv2">${d.dg}%</div><div class="dl">Dodge</div></div>
 <div class="di"><div class="dv2">${d.blk}%</div><div class="dl">Block</div></div>
-<div class="di"><div class="dv2">${d.spd}s</div><div class="dl">AtkSpd</div></div>
+<div class="di"><div class="dv2" style="${spdColor}">${d.spd}s${spdArrow}</div><div class="dl">AtkSpd</div></div>
 <div class="di"><div class="dv2" style="color:${isRanged(c.wp)?'var(--blue)':REACH_MELEE.has(c.wp)?'var(--gold)':'rgba(200,168,100,.5)'}">${isRanged(c.wp)?'Ranged':REACH_MELEE.has(c.wp)?isMagicWp(c.wp)?'Reach+Magic':'Reach':'Melee'}</div><div class="dl">Type</div></div>
+<div class="di"><div class="dv2" style="${moveColor}">${moveTxt}</div><div class="dl">MoveSpd</div></div>
 </div>
 <div style="margin:4px 0 6px">
 <div class="fl" style="margin-bottom:3px;font-size:.6rem">Damage Resistances &middot; ${c.arm||'Unarmored'}${d.aMat?' · '+d.aMat.name:''}</div>
@@ -1191,16 +992,13 @@ ${renderCmd(team,i)}
 }
 function sf(t,i,k,v){
   ST[t][i][k]=v;
-  // If species changed, validate weapon/armor
   if(k==='sp'){
     const c=ST[t][i];
     if(!wpAllowedForSpecies(c.wp,v)){
-      c.wp=wopt(c.cl,v).find(w=>wpAllowedForSpecies(w,v))||'Short Sword';
-      c.wpMat='';
+      c.wp=wopt(c.cl,v).find(w=>wpAllowedForSpecies(w,v))||'Short Sword';c.wpMat='';
     }
     if(v!=='Troll'&&c.arm==='Natural') c.arm='Unarmored';
   }
-  // Reset material selection if type changes or level drops below selected mat
   if(k==='arm') ST[t][i].armMat='';
   if(k==='lv'){
     const c=ST[t][i];
@@ -1210,8 +1008,7 @@ function sf(t,i,k,v){
   rc(t);
 }
 function setWp(t,i,wp){
-  ST[t][i].wp=wp;
-  ST[t][i].wpMat=''; // reset material when weapon changes
+  ST[t][i].wp=wp;ST[t][i].wpMat='';
   const opts=offhandOpts(wp,ST[t][i].cl);
   if(!opts.length){ST[t][i].offhand='—';}
   else if(!opts.includes(ST[t][i].offhand)){ST[t][i].offhand=opts[0];}
@@ -1233,7 +1030,6 @@ const rng=sRng(0xC0DE42);
 const TM=Array.from({length:TR},()=>Array.from({length:TC},()=>{const v=rng();return v<.30?0:v<.55?1:v<.70?2:v<.82?3:v<.93?4:5}));
 const TV=Array.from({length:TR},()=>Array.from({length:TC},()=>Math.floor(rng()*3)));
 const TP=[['#1a2612','#1e2c14','#222f16'],['#182213','#1c2716','#202d19'],['#141f0f','#17230f','#1a2710'],['#1e1a10','#221e12','#262214'],['#191919','#1d1d1d','#212121'],['#141414','#171717','#1a1a1a']];
-
 function gpos(sz,side){
   const cr2=Math.floor(TR/2);
   const ca=[2,1,3,1,3,2,1,3],cb=[27,28,26,28,26,27,28,26];
@@ -1243,32 +1039,20 @@ function gpos(sz,side){
     return{row,col:cols[i]};
   });
 }
-
-// Viewport: dynamic — show all fighters with padding
 const VH=TR*TS;
-
-function getViewport(cmb, round){
-  return{camCol:0,vpCols:TC};
-}
-
+function getViewport(cmb,round){return{camCol:0,vpCols:TC};}
 function drawMap(rd){
   const canvas=document.getElementById('tc');
   const {camCol,vpCols}=rd?getViewport(rd.cmb,rd.round):{camCol:0,vpCols:TC};
   const VW=vpCols*TS;
   canvas.width=VW;canvas.height=VH;
   const ctx=canvas.getContext('2d');
-
-  // Draw tiles (only visible columns)
   for(let r=0;r<TR;r++)for(let c=camCol;c<camCol+vpCols;c++){
     if(c<0||c>=TC)continue;
     const px=(c-camCol)*TS,py=r*TS;
-    ctx.fillStyle=TP[TM[r][c]][TV[r][c]];
-    ctx.fillRect(px,py,TS,TS);
-    ctx.strokeStyle='rgba(0,0,0,.38)';ctx.lineWidth=.5;
-    ctx.strokeRect(px+.25,py+.25,TS-.5,TS-.5);
+    ctx.fillStyle=TP[TM[r][c]][TV[r][c]];ctx.fillRect(px,py,TS,TS);
+    ctx.strokeStyle='rgba(0,0,0,.38)';ctx.lineWidth=.5;ctx.strokeRect(px+.25,py+.25,TS-.5,TS-.5);
   }
-
-  // Center divider line (world col 14/15 seam)
   const divWorldCol=Math.floor(TC/2);
   if(divWorldCol>=camCol && divWorldCol<camCol+vpCols){
     const dvx=(divWorldCol-camCol)*TS;
@@ -1276,13 +1060,9 @@ function drawMap(rd){
     ctx.beginPath();ctx.moveTo(dvx,0);ctx.lineTo(dvx,VH);ctx.stroke();
     ctx.setLineDash([]);ctx.restore();
   }
-
   if(!rd)return;
-
-  // Draw combatants
   for(const c of rd.cmb){
     const px=(c.col-camCol)*TS,py=c.row*TS;
-    // Skip if off-screen
     if(c.col<camCol||c.col>=camCol+vpCols)continue;
     const isA=c.side==='a';
     if(c.dead){
@@ -1291,23 +1071,16 @@ function drawMap(rd){
       ctx.fillStyle='#555';ctx.fillText('\u2620',px+TS/2,py+TS/2);ctx.globalAlpha=1;continue;
     }
     const hp=c.hp/c.mhp;
-    // Running tint — orange overlay if sprinting
-    if(c.running){
-      ctx.fillStyle='rgba(200,100,20,.18)';ctx.fillRect(px+1,py+1,TS-2,TS-2);
-    } else {
-      ctx.fillStyle=isA?'rgba(200,60,60,.16)':'rgba(60,120,220,.16)';ctx.fillRect(px+1,py+1,TS-2,TS-2);
-    }
+    if(c.running){ctx.fillStyle='rgba(200,100,20,.18)';ctx.fillRect(px+1,py+1,TS-2,TS-2);}
+    else{ctx.fillStyle=isA?'rgba(200,60,60,.16)':'rgba(60,120,220,.16)';ctx.fillRect(px+1,py+1,TS-2,TS-2);}
     ctx.beginPath();ctx.arc(px+TS/2,py+TS/2,TS/2-4,0,Math.PI*2);
     ctx.strokeStyle=hp>.5?'rgba(80,210,90,.52)':hp>.25?'rgba(210,150,30,.58)':'rgba(210,50,50,.62)';
     ctx.lineWidth=1.5;ctx.stroke();
-    // Range ring: faint box showing attack reach (only for reach/ranged fighters)
-    const rng=wpRange(c.activeWp||c.wp);
-    if(rng>=2&&!c.usingMelee){
+    const rng2=wpRange(c.activeWp||c.wp);
+    if(rng2>=2&&!c.usingMelee){
       ctx.strokeStyle=isRanged(c.activeWp||c.wp)?'rgba(100,160,240,.12)':'rgba(200,168,100,.12)';
       ctx.lineWidth=1;ctx.setLineDash([2,4]);
-      const rPx=rng*TS;
-      ctx.strokeRect(px+TS/2-rPx,py+TS/2-rPx,rPx*2,rPx*2);
-      ctx.setLineDash([]);
+      const rPx=rng2*TS;ctx.strokeRect(px+TS/2-rPx,py+TS/2-rPx,rPx*2,rPx*2);ctx.setLineDash([]);
     }
     ctx.font=`${TS*.38}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';
     ctx.fillStyle='rgba(255,255,255,.86)';ctx.fillText(c.icon,px+TS/2,py+TS/2-1);
@@ -1316,26 +1089,18 @@ function drawMap(rd){
     const bw=TS-8,bh=3,bx=px+4,by=py+TS-6;
     ctx.fillStyle='rgba(0,0,0,.5)';ctx.fillRect(bx,by,bw,bh);
     ctx.fillStyle=hp>.5?'#42b04a':hp>.25?'#c4801a':'#d04040';ctx.fillRect(bx,by,Math.round(bw*hp),bh);
-    // Top-right badge: weapon/loadout state
     ctx.font='8px serif';ctx.textAlign='right';ctx.textBaseline='top';
-    if(c.switchingWeapon){
-      ctx.fillStyle='rgba(200,100,240,.95)';ctx.fillText('\u2694',px+TS-3,py+2);
-    } else if(c.usingMelee&&c.sidearm){
-      ctx.fillStyle='rgba(220,160,60,.85)';ctx.fillText('\u2694',px+TS-3,py+2);
-    } else if(c.hasShield){
-      ctx.fillStyle='rgba(100,200,120,.85)';ctx.fillText('\u26E8',px+TS-3,py+2);
-    } else if(c.dualWield){
-      ctx.fillStyle='rgba(240,200,80,.85)';ctx.fillText('\u2718',px+TS-3,py+2);
-    } else if(c.running){
-      ctx.fillStyle='rgba(255,160,60,.9)';ctx.fillText('\u00bb',px+TS-3,py+2);
-    }
+    if(c.switchingWeapon){ctx.fillStyle='rgba(200,100,240,.95)';ctx.fillText('\u2694',px+TS-3,py+2);}
+    else if(c.usingMelee&&c.sidearm){ctx.fillStyle='rgba(220,160,60,.85)';ctx.fillText('\u2694',px+TS-3,py+2);}
+    else if(c.hasShield){ctx.fillStyle='rgba(100,200,120,.85)';ctx.fillText('\u26E8',px+TS-3,py+2);}
+    else if(c.dualWield){ctx.fillStyle='rgba(240,200,80,.85)';ctx.fillText('\u2718',px+TS-3,py+2);}
+    else if(c.running){ctx.fillStyle='rgba(255,160,60,.9)';ctx.fillText('\u00bb',px+TS-3,py+2);}
   }
   if(rd.auid!=null){
     const atk=rd.cmb.find(c=>c.uid===rd.auid&&!c.dead);
     if(atk&&atk.col>=camCol&&atk.col<camCol+vpCols){
       const px=(atk.col-camCol)*TS,py=atk.row*TS;
-      ctx.strokeStyle='rgba(240,208,60,.82)';ctx.lineWidth=2;
-      ctx.strokeRect(px+2,py+2,TS-4,TS-4);
+      ctx.strokeStyle='rgba(240,208,60,.82)';ctx.lineWidth=2;ctx.strokeRect(px+2,py+2,TS-4,TS-4);
     }
   }
 }
@@ -1343,6 +1108,18 @@ function drawMap(rd){
 // SIMULATION
 let rd=[],cr=0,pt=null;
 function rand2(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+
+// ── Effective movement steps after applying armor move penalty ────────────────
+// movePenalty: 0=no penalty, 0.5=half speed, 1=completely stopped.
+// Fractional remainder is resolved probabilistically each action.
+function effSteps(fighter,baseSteps){
+  const pen=fighter.movePenalty||0;
+  if(pen<=0)return baseSteps;
+  const eff=Math.max(0,baseSteps*(1-pen));
+  const whole=Math.floor(eff);
+  const frac=eff-whole;
+  return whole+(Math.random()<frac?1:0);
+}
 
 function applyHit(baseDmg, wp, atk, def, dmgMult, dmgTypeOverride){
   dmgMult=dmgMult||1;
@@ -1357,81 +1134,47 @@ function applyHit(baseDmg, wp, atk, def, dmgMult, dmgTypeOverride){
   return{dmg:final, blocked:false, resLabel:label, dmgType:dt};
 }
 
-// MELEE_SET replaced by WM array and REACH_MELEE set above
-// isRanged: weapon can engage from >2 tiles (not a reach melee weapon)
-function isRanged(wp){return wpRange(wp)>2&&!REACH_MELEE.has(wp);}
-
-// Chebyshev distance
 function dist(a,b){return Math.max(Math.abs(a.row-b.row),Math.abs(a.col-b.col))}
-
 function cellOccupied(all,row,col,excludeUid){
   return all.some(c=>!c.dead&&c.uid!==excludeUid&&c.row===row&&c.col===col);
 }
-
-// Try to move 1 step; returns true if moved
 function tryStep(all,mover,dr,dc){
   const nr=mover.row+dr,nc=mover.col+dc;
   if(nr<0||nr>=TR||nc<0||nc>=TC)return false;
   if(cellOccupied(all,nr,nc,mover.uid))return false;
   mover.row=nr;mover.col=nc;return true;
 }
-
-// Advance toward target (1 or 2 steps for run), stop at weapon range
-// Uses all 8 directions sorted by resulting distance to target, so fighters
-// properly navigate around each other instead of getting stuck
 function advanceToward(all,mover,tgt,steps,log){
   const stopAt=wpRange(mover.activeWp||mover.wp);
   for(let s=0;s<steps;s++){
     if(dist(mover,tgt)<=stopAt)break;
-    // Generate all 8 candidate moves, filter to valid (in bounds, unoccupied)
-    // sort by resulting Chebyshev distance to target (ascending)
     const DIRS=[[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
     const candidates=DIRS
       .map(([dr,dc])=>{
         const nr=mover.row+dr,nc=mover.col+dc;
         if(nr<0||nr>=TR||nc<0||nc>=TC)return null;
         if(cellOccupied(all,nr,nc,mover.uid))return null;
-        // Score: primary = Chebyshev dist to target, secondary = Manhattan dist (prefer direct path)
         const cd=Math.max(Math.abs(tgt.row-nr),Math.abs(tgt.col-nc));
         const md=Math.abs(tgt.row-nr)+Math.abs(tgt.col-nc);
         return{dr,dc,score:cd*100+md};
       })
-      .filter(Boolean)
-      .sort((a,b)=>a.score-b.score);
-    if(!candidates.length)break; // completely blocked
-    const best=candidates[0];
-    mover.row+=best.dr;mover.col+=best.dc;
+      .filter(Boolean).sort((a,b)=>a.score-b.score);
+    if(!candidates.length)break;
+    const best=candidates[0];mover.row+=best.dr;mover.col+=best.dc;
   }
 }
-
-// Retreat away from closest melee threat (ranged only)
-// Returns true if retreated
 function retreat(all,mover,log){
-  // Find closest enemy melee fighter alive
   const threats=all.filter(c=>c.side!==mover.side&&!c.dead&&!isRanged(c.activeWp||c.wp));
   if(!threats.length)return false;
   const closest=threats.reduce((t,c)=>dist(mover,c)<dist(mover,t)?c:t,threats[0]);
   const d=dist(mover,closest);
-  // Only retreat if melee threat is within 5 tiles
   if(d>5)return false;
-  // Step directly away (opposite direction)
   const dr=-Math.sign(closest.row-mover.row);
   const dc=-Math.sign(closest.col-mover.col);
-  // Try full retreat first, then axis-only
-  if(tryStep(all,mover,dr,dc)){
-    log.push({cls:'lmv',t:`${mover.nm} retreats from <b>${closest.nm}</b>`});
-    return true;
-  }
-  if(tryStep(all,mover,0,dc)){
-    log.push({cls:'lmv',t:`${mover.nm} retreats from <b>${closest.nm}</b>`});
-    return true;
-  }
-  if(tryStep(all,mover,dr,0)){
-    log.push({cls:'lmv',t:`${mover.nm} retreats from <b>${closest.nm}</b>`});
-    return true;
-  }
-  log.push({cls:'lmv',t:`${mover.nm} is cornered — cannot retreat`});
-  return false;
+  if(tryStep(all,mover,dr,dc)){log.push({cls:'lmv',t:`${mover.nm} retreats from <b>${closest.nm}</b>`});return true;}
+  if(tryStep(all,mover,0,dc)){log.push({cls:'lmv',t:`${mover.nm} retreats from <b>${closest.nm}</b>`});return true;}
+  if(tryStep(all,mover,dr,0)){log.push({cls:'lmv',t:`${mover.nm} retreats from <b>${closest.nm}</b>`});return true;}
+  log.push({cls:'lmv',t:`${mover.nm} is cornered — cannot retreat`});return false;
 }
 
 function runSim(){
@@ -1446,7 +1189,6 @@ function runSim(){
       const offhand=c.offhand||'—';
       const hasShield=(offhand==='Shield');
       const dualWield=is1H(offhand)&&offhand!=='—'&&offhand!=='Shield'&&offhand!=='Focus';
-      // Sidearm: ranged fighter's melee fallback — must be a real 1H melee weapon
       const sidearm=ranged&&is1H(offhand)&&offhand!=='Focus'?offhand:null;
       const cmds=(c.cmds&&c.cmds.length)?c.cmds:[dfc_cmd()];
       return{
@@ -1455,10 +1197,10 @@ function runSim(){
         sidearm,activeWp:c.wp,ranged,
         usingMelee:false,switchingWeapon:false,
         running:false,
-        armorType:c.arm||'Unarmored',  // for resistance lookup
-        cmds,                  // round-indexed command list; last entry repeats
-        observeAccum:0,        // rounds spent observing (accumulates)
-        observeLeft:0,
+        armorType:c.arm||'Unarmored',
+        movePenalty:d.movePenalty||0,  // armor + class affinity movement cost
+        cmds,
+        observeAccum:0,observeLeft:0,
         mhp:d.hp,hp:d.hp,stats:d,dead:false,
         row:pos[i].row,col:pos[i].col,
       };
@@ -1466,131 +1208,95 @@ function runSim(){
   }
   const cA=build(tA,'a',pA),cB=build(tB,'b',pB),all=[...cA,...cB];
   const cln=o=>JSON.parse(JSON.stringify(o));
-  rd=[];
-  rd.push({round:0,cmb:cln(all),log:[],auid:null,res:null});
+  rd=[];rd.push({round:0,cmb:cln(all),log:[],auid:null,res:null});
   function alive(side){return all.filter(c=>c.side===side&&!c.dead)}
-  function pick(atk){
-    const en=alive(atk.side==='a'?'b':'a');if(!en.length)return null;
-    if(atk.ranged)return en.reduce((t,c)=>c.hp<t.hp?c:t,en[0]);
-    return en.reduce((t,c)=>{const da=dist(atk,c),db=dist(atk,t);return da<db||(da===db&&c.hp<t.hp)?c:t;},en[0]);
-  }
   let round=0,cont=true;
   while(cont&&round<100){
     round++;const log=[];
     log.push({cls:'rh',t:`\u2014 Round ${round} \u2014`});
-
-    // Reset running flags
     for(const c of all)c.running=false;
-
     const to=all.filter(c=>!c.dead).sort((a,b)=>a.stats.spd-b.stats.spd);
     for(const atk of to){
       if(atk.dead)continue;
-
       atk.switchingWeapon=false;
-
-      // ── Pick command for this round (last entry repeats if round > chain length) ──
       const cmdIdx=Math.min(round-1, atk.cmds.length-1);
       const cmd=atk.cmds[cmdIdx];
-
-      // dmgTypeChoice: player-chosen type override for dual-type weapons ('' = random)
       const cmdDmgType=cmd.dmgTypeChoice||null;
-      // Speed from command (fall back to walk)
       const cmdSpeed=cmd.speed||'walk';
       atk.running=(cmdSpeed==='run');
 
-      // ── Helper: pick target obeying command's targetMode ────────────────
       function pickTarget(){
-        const en=alive(atk.side==='a'?'b':'a');
-        if(!en.length)return null;
-        if(cmd.targetMode==='nearest'){
-          return en.reduce((t,c)=>dist(atk,c)<dist(atk,t)?c:t,en[0]);
-        }
+        const en=alive(atk.side==='a'?'b':'a');if(!en.length)return null;
+        if(cmd.targetMode==='nearest'){return en.reduce((t,c)=>dist(atk,c)<dist(atk,t)?c:t,en[0]);}
         if(cmd.targetMode==='by_weapon'){
-          const wf=en.filter(e=>e.wp===cmd.targetFilter);
-          const pool=wf.length?wf:en;
+          const wf=en.filter(e=>e.wp===cmd.targetFilter);const pool=wf.length?wf:en;
           return pool.reduce((t,c)=>dist(atk,c)<dist(atk,t)?c:t,pool[0]);
         }
         if(cmd.targetMode==='by_armor'){
-          const af=en.filter(e=>e.armorType===cmd.targetFilter);
-          const pool=af.length?af:en;
+          const af=en.filter(e=>e.armorType===cmd.targetFilter);const pool=af.length?af:en;
           return pool.reduce((t,c)=>dist(atk,c)<dist(atk,t)?c:t,pool[0]);
         }
         if(cmd.targetMode==='by_magic'&&round>=2){
-          const mg=en.filter(e=>isMagicWp(e.wp));
-          const pool=mg.length?mg:en;
+          const mg=en.filter(e=>isMagicWp(e.wp));const pool=mg.length?mg:en;
           return pool.reduce((t,c)=>dist(atk,c)<dist(atk,t)?c:t,pool[0]);
         }
         if(cmd.targetMode==='by_type'&&round>=2){
           const tf=cmd.targetFilter;
           const rf=en.filter(e=>tf==='Magic'?isMagicWp(e.wp):tf==='Ranged'?isRangedWp(e.wp):!isRanged(e.wp)&&!isMagicWp(e.wp));
-          const pool=rf.length?rf:en;
-          return pool.reduce((t,c)=>dist(atk,c)<dist(atk,t)?c:t,pool[0]);
+          const pool=rf.length?rf:en;return pool.reduce((t,c)=>dist(atk,c)<dist(atk,t)?c:t,pool[0]);
         }
-        // random / fallback
         if(!atk.ranged){
           return en.reduce((t,c)=>{const da=dist(atk,c),db=dist(atk,t);return da<db||(da===db&&c.hp<t.hp)?c:t;},en[0]);
         }
         return en[Math.floor(Math.random()*en.length)];
       }
 
-      // ── OBSERVE action ────────────────────────────────────────────────────
+      // ── OBSERVE ─────────────────────────────────────────────────────────
       if(cmd.action==='observe'){
         if(atk.observeLeft<=0)atk.observeLeft=cmd.observeRounds||1;
-        atk.observeLeft--;
-        atk.observeAccum++;
+        atk.observeLeft--;atk.observeAccum++;
         log.push({cls:'lmv',t:`${atk.nm} observes the enemy (read: ${atk.observeAccum} round${atk.observeAccum!==1?'s':''})`});
-        if(atk.observeLeft<=0){
-          // Observation complete — advance phase
-          
-        }
         continue;
       }
 
-      // ── INTERCEPT action (melee only) ─────────────────────────────────────
+      // ── INTERCEPT ───────────────────────────────────────────────────────
       if(cmd.action==='intercept'&&!atk.ranged){
-        // Target closest enemy melee fighter specifically
         const en=alive(atk.side==='a'?'b':'a');
         const melTgts=en.filter(e=>!isRanged(e.wp));
         const tgt2=melTgts.length?melTgts.reduce((t,c)=>dist(atk,c)<dist(atk,t)?c:t,melTgts[0]):en[0];
-        if(!tgt2){continue;}
-        const steps=cmdSpeed==='run'?2:1;
+        if(!tgt2)continue;
+        const steps=effSteps(atk,cmdSpeed==='run'?2:1);
         const oldR=atk.row,oldC=atk.col;
         advanceToward(all,atk,tgt2,steps,log);
         const moved=atk.row!==oldR||atk.col!==oldC;
         const nd=dist(atk,tgt2);
         if(moved)log.push({cls:'lmv',t:`${atk.nm} intercepts <b>${tgt2.nm}</b> (${cmdSpeed}) \u2192 ${nd} tile${nd!==1?'s':''} away`});
         else log.push({cls:'lmv',t:`${atk.nm} blocked intercepting <b>${tgt2.nm}</b>`});
-        if(nd<=wpRange(atk.activeWp||atk.wp)){/* now in range, will attack next round */}
         continue;
       }
 
-      // ── AVOID action (melee routes around melee to hit ranged/back) ───────
+      // ── AVOID ───────────────────────────────────────────────────────────
       if(cmd.action==='avoid'&&!atk.ranged){
         const en=alive(atk.side==='a'?'b':'a');
-        // Target: prefer ranged/magic enemy, skip melee blockers
         const rngTgts=en.filter(e=>isRanged(e.wp)||isMagicWp(e.wp));
         const avoidTgt=rngTgts.length?rngTgts.reduce((t,c)=>dist(atk,c)<dist(atk,t)?c:t,rngTgts[0]):en[0];
         if(!avoidTgt)continue;
-        // Move around obstacles using normal pathfinding (8-dir already handles avoidance)
-        const steps=cmdSpeed==='run'?2:1;
+        const steps=effSteps(atk,cmdSpeed==='run'?2:1);
         const oldR=atk.row,oldC=atk.col;
         advanceToward(all,atk,avoidTgt,steps,log);
         const moved=atk.row!==oldR||atk.col!==oldC;
         const nd=dist(atk,avoidTgt);
         if(moved)log.push({cls:'lmv',t:`${atk.nm} avoids melee, routes toward <b>${avoidTgt.nm}</b> \u2192 ${nd} tile${nd!==1?'s':''} away`});
-        else log.push({cls:'lmv',t:`${atk.nm} is cut off — cannot avoid`});
+        else log.push({cls:'lmv',t:`${atk.nm} is cut off \u2014 cannot avoid`});
         continue;
       }
 
-      // ── THROW action (throwable weapons, ranged mode) ─────────────────────
+      // ── THROW ───────────────────────────────────────────────────────────
       if(cmd.action==='throw'&&THROWABLE.has(atk.wp)){
         const throwTgt=pickTarget();if(!throwTgt)continue;
         const throwRange=WP_RANGE[atk.wp]??2;
         const throwDist=dist(atk,throwTgt);
-        if(throwDist>throwRange){
-          log.push({cls:'lmv',t:`${atk.nm} out of throw range for <b>${throwTgt.nm}</b> (${throwDist}/${throwRange})`});
-          continue;
-        }
+        if(throwDist>throwRange){log.push({cls:'lmv',t:`${atk.nm} out of throw range for <b>${throwTgt.nm}</b> (${throwDist}/${throwRange})`});continue;}
         if(Math.random()*100<throwTgt.stats.dg){log.push({cls:'lm',t:`${atk.nm} throws ${atk.wp} at <b>${throwTgt.nm}</b> \u2014 <i>dodged</i>`});continue;}
         const throwS=atk.stats;
         let throwRaw=rand2(throwS.dmin,throwS.dmax);const throwIc=Math.random()*100<throwS.cr;if(throwIc)throwRaw=Math.floor(throwRaw*2);
@@ -1604,7 +1310,7 @@ function runSim(){
         continue;
       }
 
-      // ── ATTACK action (main path) ─────────────────────────────────────────
+      // ── ATTACK ──────────────────────────────────────────────────────────
       const tgt=pickTarget();if(!tgt)continue;
       const s=atk.stats;
       let d=dist(atk,tgt);
@@ -1616,8 +1322,7 @@ function runSim(){
         const threatDist=closestThreat?dist(atk,closestThreat):99;
         if(threatDist<=2&&atk.sidearm&&atk.sidearm!=='—'){
           atk.usingMelee=true;atk.activeWp=atk.sidearm;atk.switchingWeapon=true;
-          log.push({cls:'lswp',t:`${atk.nm} draws ${atk.sidearm} \u2014 switching to melee! (turn lost)`});
-          continue;
+          log.push({cls:'lswp',t:`${atk.nm} draws ${atk.sidearm} \u2014 switching to melee! (turn lost)`});continue;
         }
         retreat(all,atk,log);
         d=dist(atk,tgt);
@@ -1632,7 +1337,7 @@ function runSim(){
         log.push({cls:ic?'lc':'lh',t:`${atk.nm} ${verb} ${atk.wp} <span style="font-size:.7em;opacity:.5">(${dmgType})</span> \u2192 <b>${tgt.nm}</b> \u00b7 <span class="dm">${dmg}</span>${ct}${rl} \u00b7 ${tgt.hp}/${tgt.mhp}hp`});
         if(tgt.hp<=0){tgt.dead=true;log.push({cls:'ld',t:`\u2620 ${tgt.nm} has fallen`});}
       } else if(atk.usingMelee){
-        // === SWITCHED TO SIDEARM (ranged fighter in melee) ===
+        // === SIDEARM MELEE ===
         const meleeTgt=pickTarget();if(!meleeTgt)continue;
         const md=dist(atk,meleeTgt);
         if(md<=wpRange(atk.activeWp||atk.wp)){
@@ -1647,7 +1352,7 @@ function runSim(){
           log.push({cls:ic?'lc':'lh',t:`${atk.nm} slashes with ${atk.activeWp} <span style="font-size:.7em;opacity:.5">(${dmgType})</span> \u2192 <b>${meleeTgt.nm}</b> \u00b7 <span class="dm">${dmg}</span>${ct}${rl} \u00b7 ${meleeTgt.hp}/${meleeTgt.mhp}hp`});
           if(meleeTgt.hp<=0){meleeTgt.dead=true;log.push({cls:'ld',t:`\u2620 ${meleeTgt.nm} has fallen`});}
         } else {
-          const steps=cmdSpeed==='run'?2:1;
+          const steps=effSteps(atk,cmdSpeed==='run'?2:1);
           const oldRow=atk.row,oldCol=atk.col;
           advanceToward(all,atk,meleeTgt,steps,log);
           const moved=(atk.row!==oldRow||atk.col!==oldCol);
@@ -1668,7 +1373,6 @@ function runSim(){
           const rl=resLabel?` <span style="font-size:.7em;opacity:.7">[${resLabel}]</span>`:'';
           log.push({cls:ic?'lc':'lh',t:`${atk.nm} strikes <b>${tgt.nm}</b> with ${atk.wp} <span style="font-size:.7em;opacity:.5">(${dmgType})</span> \u00b7 <span class="dm">${dmg}</span>${ct}${rl} \u00b7 ${tgt.hp}/${tgt.mhp}hp`});
           if(tgt.hp<=0){tgt.dead=true;log.push({cls:'ld',t:`\u2620 ${tgt.nm} has fallen`});}
-          // Dual-wield offhand
           if(!tgt.dead&&atk.dualWield&&atk.dualWp){
             if(Math.random()*100>=tgt.stats.dg){
               let oRaw=rand2(Math.round(s.dmin*0.6),Math.round(s.dmax*0.6));
@@ -1683,13 +1387,13 @@ function runSim(){
             } else log.push({cls:'lm',t:`&nbsp;&nbsp;&#8627; offhand ${atk.dualWp} \u2014 <i>dodged</i>`});
           }
         } else {
-          const steps=cmdSpeed==='run'?2:1;
+          const steps=effSteps(atk,cmdSpeed==='run'?2:1);
           const oldRow=atk.row,oldCol=atk.col;
           advanceToward(all,atk,tgt,steps,log);
           const moved=(atk.row!==oldRow||atk.col!==oldCol);
           const newD=dist(atk,tgt);
           if(moved){
-            if(steps===2){atk.running=true;log.push({cls:'lrun',t:`${atk.nm} runs toward <b>${tgt.nm}</b> \u00bb ${newD} tile${newD!==1?'s':''} away`});}
+            if(cmdSpeed==='run'){atk.running=true;log.push({cls:'lrun',t:`${atk.nm} runs toward <b>${tgt.nm}</b> \u00bb ${newD} tile${newD!==1?'s':''} away`});}
             else log.push({cls:'lmv',t:`${atk.nm} walks toward <b>${tgt.nm}</b> \u2192 ${newD} tile${newD!==1?'s':''} away`});
           } else log.push({cls:'lmv',t:`${atk.nm} blocked \u2014 cannot advance on <b>${tgt.nm}</b> (${cmdSpeed})`});
         }
@@ -1701,7 +1405,6 @@ function runSim(){
       c.hp=Math.max(1,c.hp-penalty);
       log.push({cls:'lrun',t:`${c.nm} sprinting \u2014 exposed (-${penalty} hp)`});
     }
-
     for(const c of all.filter(x=>!x.dead)){const rg=Math.round(c.stats.hpr*5);if(rg>0){c.hp=Math.min(c.mhp,c.hp+rg);}}
     const aA=alive('a').length,aB=alive('b').length;let res=null;
     if(aA===0&&aB===0){res='draw';cont=false;log.push({cls:'lres wd',t:'\u2694 Draw \u2014 both parties fallen!'});}
@@ -1709,7 +1412,6 @@ function runSim(){
     else if(aB===0){res='win-a';cont=false;log.push({cls:'lres wa',t:'\u2694 Party A is victorious!'});}
     rd.push({round,cmb:cln(all),log,auid:null,res});
   }
-  // Show battle section and auto-play
   document.getElementById('bs2').style.display='block';
   document.getElementById('rtot').textContent=rd.length-1;
   document.getElementById('bs2').scrollIntoView({behavior:'smooth',block:'start'});
@@ -1718,26 +1420,17 @@ function runSim(){
   rbars(rd[0].cmb.filter(c=>c.side==='a'),'ba');
   rbars(rd[0].cmb.filter(c=>c.side==='b'),'bb');
   const lg=document.getElementById('lg');lg.innerHTML='';
-  ale(lg,'rh','Battle begins\u2026');
-  lg.scrollTop=lg.scrollHeight;
-  // Auto-advance: 600ms per round
+  ale(lg,'rh','Battle begins\u2026');lg.scrollTop=lg.scrollHeight;
   if(pt)clearInterval(pt);
-  pt=setInterval(()=>{
-    cr++;
-    if(cr>=rd.length){clearInterval(pt);pt=null;return;}
-    goR(cr);
-  },600);
+  pt=setInterval(()=>{cr++;if(cr>=rd.length){clearInterval(pt);pt=null;return;}goR(cr);},600);
 }
-
 function goR(idx){
-  if(!rd.length)return;
-  cr=Math.max(0,Math.min(rd.length-1,idx));
+  if(!rd.length)return;cr=Math.max(0,Math.min(rd.length-1,idx));
   const r=rd[cr];
   document.getElementById('rdsp').textContent=cr===0?'–':cr;
   drawMap(r);
   rbars(r.cmb.filter(c=>c.side==='a'),'ba');
   rbars(r.cmb.filter(c=>c.side==='b'),'bb');
-  // Append this round's log entries only (don't rebuild from scratch for perf)
   const lg=document.getElementById('lg');
   if(cr>0){for(const e of r.log)ale(lg,e.cls,e.t);}
   lg.scrollTop=lg.scrollHeight;
@@ -1755,10 +1448,8 @@ function resetB(){if(pt){clearInterval(pt);pt=null;}rd=[];cr=0;document.getEleme
 
 // INIT
 ST.a.push(dfc(0));ST.b.push(dfc(0));rc('a');rc('b');
-// Draw preview tilemap (show full battlefield)
 (function(){
   const pA=gpos(1,'a'),pB=gpos(1,'b');
-  // Include marker cols at both ends so viewport shows full map
   const prev={round:0,cmb:[
     {uid:0,nm:'',side:'a',idx:0,cl:'Knight',icon:CI['Knight'],mhp:100,hp:100,stats:{},dead:false,running:false,row:pA[0].row,col:pA[0].col},
     {uid:1,nm:'',side:'b',idx:0,cl:'Knight',icon:CI['Knight'],mhp:100,hp:100,stats:{},dead:false,running:false,row:pB[0].row,col:pB[0].col}
