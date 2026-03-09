@@ -174,6 +174,40 @@ select option{background:#0a0800}
 .cmd-sub{display:flex;gap:.3rem;align-items:center;flex-wrap:wrap;margin-top:.25rem;padding-left:.5rem;border-left:1px solid rgba(200,168,100,.12)}
 .cmd-note{font-size:.6rem;color:rgba(200,168,100,.3);letter-spacing:.08em;font-style:italic}
 
+/* ── Magic / Spell system ── */
+.sp-block{border:1px solid rgba(120,100,220,.22);background:rgba(10,8,28,.55);
+  padding:.4rem .5rem;margin-bottom:.4rem;position:relative}
+.sp-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem}
+.sp-name{font-family:'Cinzel Decorative',serif;font-size:.62rem;letter-spacing:.08em;
+  color:rgba(160,140,240,.9)}
+.sp-badge{font-size:.52rem;padding:.1em .35em;border:1px solid rgba(120,100,220,.3);
+  color:rgba(160,140,240,.6);letter-spacing:.1em}
+.sp-tier{font-size:.5rem;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(120,100,220,.5)}
+.sp-row{display:grid;grid-template-columns:1fr 1fr;gap:.3rem;margin-bottom:.25rem}
+.sp-desc{font-size:.58rem;color:rgba(200,168,100,.3);letter-spacing:.04em;
+  font-style:italic;line-height:1.4;margin-top:.2rem}
+.sp-stats{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.25rem}
+.sp-stat{font-size:.52rem;padding:.08em .3em;background:rgba(120,100,220,.08);
+  border:1px solid rgba(120,100,220,.18);color:rgba(160,140,240,.65)}
+.sp-mana{color:rgba(80,160,240,.8)}
+.sp-add-btn{font-size:.58rem;padding:.25em .55em;letter-spacing:.12em;
+  background:transparent;border:1px solid rgba(120,100,220,.25);
+  color:rgba(160,140,240,.55);cursor:pointer;font-family:'Cinzel',serif;
+  transition:all .18s;width:100%;margin-top:.3rem}
+.sp-add-btn:hover{border-color:rgba(160,140,240,.5);color:rgba(200,180,255,.85)}
+.sp-sect-hd{font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;
+  color:rgba(120,100,220,.45);margin-bottom:.35rem;
+  border-bottom:1px solid rgba(120,100,220,.12);padding-bottom:.2rem}
+/* in-log spell entries */
+.lsp{color:rgba(180,160,255,.85);font-style:italic}
+.lsp-heal{color:rgba(100,220,140,.8);font-style:italic}
+.lsp-buf{color:rgba(100,200,255,.75);font-style:italic}
+.lsp-deb{color:rgba(220,140,80,.75);font-style:italic}
+.lsp-cast{color:rgba(200,180,255,.55);font-style:italic}
+.lsp-aoe{color:rgba(255,160,100,.8);font-style:italic}
+/* mana bar in HP panel */
+.hf-mana{background:linear-gradient(90deg,#1a2a6c,#4060d0)}
 /* ── Armor performance badge ── */
 .arm-perf{display:flex;gap:3px;flex-wrap:wrap;margin-top:3px}
 .arm-pip{font-size:6px;letter-spacing:.06em;padding:1px 4px;border:1px solid;border-radius:1px}
@@ -332,6 +366,811 @@ const CLASS_ARMOR_AFFINITY={
   Raider:   'light',
   Warlock:  'light',
   // No affinity: Mage, Witch, Cleric, Druid, Assassin, Shaman — full penalties
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ── MAGIC SYSTEM ───────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Mana cost baseline per tier
+const SPELL_MANA=[0,14,22,34,50,72,100];
+
+// Which classes can equip spells (Focus or Staff offhand unlocks casting for any class,
+// but these classes start with magic knowledge and can use all schools)
+const MAGIC_CLASSES=new Set(['Mage','Witch','Cleric','Druid','Warlock','Shaman']);
+
+// Min character level to unlock each spell tier
+const TIER_MIN_LV=[0,1,5,10,15,20,25];
+
+// ── Helper — rand between two ints ─────────────────────────────────────────
+function rand2(a,b){return a+Math.floor(Math.random()*(b-a+1));}
+
+// ── Active effect manager ──────────────────────────────────────────────────
+function addEffect(target,id,rounds,params){
+  if(!target||!target.effects)return;
+  const ex=target.effects.find(e=>e.id===id);
+  if(ex){ex.rounds=Math.max(ex.rounds,rounds);if(params)Object.assign(ex,params);return;}
+  target.effects.push(Object.assign({id,rounds},params||{}));
+}
+
+// ── Deal magic damage (bypasses weapon system) ─────────────────────────────
+function dealSpellDmg(csr,tgt,rawDmg,log,label){
+  if(!tgt||tgt.dead)return;
+  // Death-mark amplifier
+  const dm=(tgt.effects||[]).find(e=>e.id==='deathmark');
+  const final=Math.max(1,Math.round(rawDmg*(dm?dm.amp:1)));
+  tgt.hp=Math.max(0,tgt.hp-final);
+  const mkTxt=dm?` <span style="font-size:.7em;color:rgba(220,80,80,.7)">[Marked ×${dm.amp.toFixed(1)}]</span>`:'';
+  log.push({cls:'lsp',t:`${label} — <span class="dm">${final}</span>${mkTxt} · ${tgt.hp}/${tgt.mhp}hp`});
+  if(tgt.hp<=0){tgt.dead=true;log.push({cls:'ld',t:`☠ ${tgt.nm} has fallen`});}
+}
+
+// ── Pick spell targets from all[] based on targetType ──────────────────────
+function pickSpellTargets(csr,spell,all){
+  const allies=all.filter(c=>c.side===csr.side&&!c.dead);
+  const enemies=all.filter(c=>c.side!==csr.side&&!c.dead);
+  switch(spell.targetType){
+    case'self':    return[csr];
+    case'ally':    return allies.length?[allies.reduce((a,b)=>a.hp/a.mhp<b.hp/b.mhp?a:b)]:[csr];
+    case'enemy':   return enemies.length?[enemies.reduce((a,b)=>dist(csr,a)<dist(csr,b)?a:b)]:[null];
+    case'aoe_enemy': return enemies;
+    case'aoe_ally':  return allies;
+    case'aoe_all':   return all.filter(c=>!c.dead&&c!==csr);
+    case'any':       return enemies.length?[enemies[0]]:[];
+    default: return enemies.length?[enemies[0]]:[];
+  }
+}
+
+// ── Remove all summons owned by caster ─────────────────────────────────────
+function removeSummons(csr,all){
+  all.forEach(c=>{if(c.summonOwner===csr.uid)c.dead=true;});
+}
+
+// ── Spawn a summon combatant ───────────────────────────────────────────────
+function spawnSummon(csr,all,cfg,log){
+  let col=csr.col+(csr.side==='a'?1:-1);
+  col=Math.max(0,Math.min(29,col));
+  if(all.some(c=>!c.dead&&c.row===csr.row&&c.col===col))
+    col=Math.max(0,Math.min(29,col+(csr.side==='a'?1:-1)));
+  const su={
+    uid:8000+all.length, nm:cfg.nm, side:csr.side, idx:all.filter(c=>c.side===csr.side).length,
+    cl:'Summon', icon:cfg.icon||'◈',
+    wp:cfg.ranged?'Short Bow':'Short Sword', offhand:'—',
+    hasShield:false, dualWield:false, dualWp:null, sidearm:null,
+    activeWp:cfg.ranged?'Short Bow':'Short Sword', ranged:!!cfg.ranged,
+    usingMelee:false, switchingWeapon:false, running:false,
+    armorType:'Natural', movePenalty:0,
+    cmds:[{action:'attack',speed:'walk',observeRounds:1,targetMode:'nearest',targetFilter:'',dmgTypeChoice:''}],
+    observeAccum:0, observeLeft:0,
+    mhp:cfg.hp, hp:cfg.hp, maxMana:0, mana:0,
+    stats:{spd:cfg.spd||1.8,cr:cfg.cr||5,dg:cfg.dg||5,blk:cfg.blk||5,
+           dmin:cfg.dmin||10,dmax:cfg.dmax||18,arm:cfg.arm||5,hpr:0,mana:0,I:0,S:0,A:0,matRes:{}},
+    dead:false, row:csr.row, col,
+    effects:[], cooldowns:{}, castCharge:null,
+    summonOwner:csr.uid, summonTTL:cfg.ttl||10, aura:cfg.aura||null,
+  };
+  all.push(su);
+  log.push({cls:'lsp-buf',t:`⬡ ${cfg.nm} appears on the field! (${cfg.hp} HP)`});
+}
+
+// ── Tick ongoing effects at start of each round ────────────────────────────
+function tickEffects(all,log){
+  for(const c of all){
+    if(c.dead||!c.effects||!c.effects.length)continue;
+    const expired=[];
+    for(const ef of c.effects){
+      // Burn / DoT
+      if(ef.burnDmg!=null){
+        const d=Math.max(1,Math.round(ef.burnDmg));
+        c.hp=Math.max(0,c.hp-d);
+        if(ef.burnDecay)ef.burnDmg=Math.round(ef.burnDmg*ef.burnDecay);
+        log.push({cls:'lsp-deb',t:`🔥 ${c.nm} burns — ${d} dmg (${c.hp}/${c.mhp}hp)`});
+        if(c.hp<=0){c.dead=true;log.push({cls:'ld',t:`☠ ${c.nm} has fallen`});break;}
+      }
+      // Drain
+      if(ef.drainDmg!=null){
+        const d=Math.max(1,Math.round(ef.drainDmg));
+        c.hp=Math.max(0,c.hp-d);
+        log.push({cls:'lsp-deb',t:`🌿 ${c.nm} drained — ${d} dmg (${c.hp}/${c.mhp}hp)`});
+        if(c.hp<=0){c.dead=true;log.push({cls:'ld',t:`☠ ${c.nm} has fallen`});break;}
+        const src=all.find(x=>x.uid===ef.srcUid&&!x.dead);
+        if(src){const h=Math.round(d*0.5);src.hp=Math.min(src.mhp,src.hp+h);
+          log.push({cls:'lsp-heal',t:`  ↳ ${src.nm} absorbs ${h} HP`});}
+        if(ef.healTarget!=null){
+          const ht=all.find(x=>x.uid===ef.healTarget&&!x.dead);
+          if(ht){ht.hp=Math.min(ht.mhp,ht.hp+d);}}
+      }
+      // % current-HP damage (Incineration)
+      if(ef.pctCurDmg!=null){
+        const d=Math.max(1,Math.round(c.hp*ef.pctCurDmg));
+        c.hp=Math.max(0,c.hp-d);
+        log.push({cls:'lsp-deb',t:`🔥 Incineration: ${c.nm} −${d} HP (${c.hp}/${c.mhp})`});
+        if(c.hp<=0){c.dead=true;log.push({cls:'ld',t:`☠ ${c.nm} has fallen`});break;}
+      }
+      // % max-HP damage (Sinkhole)
+      if(ef.pctMaxDmg!=null){
+        const d=Math.max(1,Math.round(c.mhp*ef.pctMaxDmg));
+        c.hp=Math.max(0,c.hp-d);
+        log.push({cls:'lsp-deb',t:`🕳 Sinkhole: ${c.nm} −${d} HP (${c.hp}/${c.mhp})`});
+        if(c.hp<=0){c.dead=true;log.push({cls:'ld',t:`☠ ${c.nm} has fallen`});break;}
+      }
+      // HP regen boost
+      if(ef.regenBonus!=null){
+        c.hp=Math.min(c.mhp,c.hp+ef.regenBonus);
+        log.push({cls:'lsp-heal',t:`🌿 ${c.nm} regenerates ${ef.regenBonus} HP (${c.hp}/${c.mhp})`});}
+      // Bleed from Nature's Pact
+      if(ef.bleed!=null){
+        c.hp=Math.max(0,c.hp-ef.bleed);
+        if(c.hp<=0){c.dead=true;log.push({cls:'ld',t:`☠ ${c.nm} has fallen`});break;}}
+      // Vacuum — builds up, KOs on final tick
+      if(ef.id==='vacuum'){
+        ef.vacTick=(ef.vacTick||0)+1;
+        if(ef.vacTick>=ef.vacTotal){
+          c.hp=1;addEffect(c,'stun',2,{stun:true});
+          log.push({cls:'lsp-deb',t:`💨 Vacuum implodes — ${c.nm} collapses to 1 HP!`});}
+        else log.push({cls:'lsp-deb',t:`💨 ${c.nm} suffocates (${ef.vacTick}/${ef.vacTotal})`});}
+      // Freeze — thaws 20%/round
+      if(ef.id==='freeze'){
+        ef.freezeRound=(ef.freezeRound||0)+1;
+        const pct=Math.min(100,ef.freezeRound*20);
+        log.push({cls:'lsp-deb',t:`❄ ${c.nm} thaws — ${pct}% movement restored`});}
+      // Immolation aura — damage nearby enemies
+      if(ef.id==='immolation'){
+        const near=all.filter(x=>x.side!==c.side&&!x.dead&&dist(c,x)<=1);
+        near.forEach(en=>{dealSpellDmg(c,en,ef.auraDmg,log,`🔥 Immolation scorches <b>${en.nm}</b>`);});}
+      // Shock aura — logged only; checked during attack resolution
+      // Summon TTL
+      if(c.summonOwner!=null){
+        c.summonTTL=(c.summonTTL||1)-1;
+        if(c.summonTTL<=0){c.dead=true;log.push({cls:'lsp-deb',t:`⬡ ${c.nm} dissipates`});break;}}
+      ef.rounds--;
+      if(ef.rounds<=0)expired.push(ef);
+    }
+    c.effects=c.effects.filter(e=>!expired.includes(e));
+  }
+}
+
+// ── Build effect overlay for this round (mods applied at resolution time) ──
+function effOvl(c){
+  const o={
+    armAdd:0, spdMul:1, movePenAdd:0, moveBonusAdd:0,
+    dgAdd:0, dgPen:0, blkPen:0, crPen:0,
+    accPen:0, accBonus:0, dmgAdd:0, dmgReduce:0, fireDmgAdd:0,
+    noRegen:false, stun:false, sleep:false,
+    blind:false, confused:false, invisible:false, flying:false,
+    shockAura:false, immolAura:false, sparkRet:0,
+  };
+  for(const ef of (c.effects||[])){
+    if(ef.armAdd)   o.armAdd+=ef.armAdd;
+    if(ef.spdMul)   o.spdMul*=ef.spdMul;
+    if(ef.movePen)  o.movePenAdd=Math.max(o.movePenAdd,ef.movePen);
+    if(ef.moveBonus)o.moveBonusAdd+=ef.moveBonus;
+    if(ef.dgAdd)    o.dgAdd+=ef.dgAdd;
+    if(ef.dgPen)    o.dgPen+=ef.dgPen;
+    if(ef.blkPen)   o.blkPen+=ef.blkPen;
+    if(ef.crPen)    o.crPen+=ef.crPen;
+    if(ef.accPen)   o.accPen+=ef.accPen;
+    if(ef.accBonus) o.accBonus+=ef.accBonus;
+    if(ef.dmgAdd)   o.dmgAdd+=ef.dmgAdd;
+    if(ef.fireDmgAdd)o.fireDmgAdd+=ef.fireDmgAdd;
+    if(ef.dmgReduce)o.dmgReduce=Math.min(0.75,o.dmgReduce+ef.dmgReduce);
+    if(ef.noRegen)  o.noRegen=true;
+    if(ef.stun)     o.stun=true;
+    if(ef.sleep)    o.sleep=true;
+    if(ef.blind)    o.blind=true;
+    if(ef.confused) o.confused=true;
+    if(ef.invisible)o.invisible=true;
+    if(ef.flying)   o.flying=true;
+    if(ef.id==='shockaura') o.shockAura=true;
+    if(ef.id==='immolation')o.immolAura=true;
+    if(ef.sparkRet) o.sparkRet=Math.max(o.sparkRet,ef.sparkRet);
+  }
+  return o;
+}
+
+// ── Execute a spell (called after castTime rounds of charging) ──────────────
+function castSpell(csr,spell,all,log,sk){
+  const tgts=pickSpellTargets(csr,spell,all).filter(Boolean);
+  if(!tgts.length){log.push({cls:'lsp-cast',t:`✦ ${csr.nm}'s ${spell.name} — no valid targets`});return;}
+
+  switch(spell.id){
+    // ── Tier 1 ──────────────────────────────────────────────────────────────
+    case'eartharmor':tgts.forEach(t=>{
+      const b=Math.round(0.5+0.5*sk);
+      addEffect(t,'eartharmor',2,{armAdd:b});
+      log.push({cls:'lsp-buf',t:`✦ ${csr.nm} casts Eartharmor on <b>${t.nm}</b> — +${b} armor for 2 rounds`});});break;
+
+    case'haste':tgts.forEach(t=>{
+      const spd=Math.max(0.1,0.05*sk),mv=Math.floor(0.5*sk);
+      addEffect(t,'haste',2,{spdMul:Math.max(0.6,1-spd),moveBonus:mv});
+      log.push({cls:'lsp-buf',t:`✦ ${csr.nm} casts Haste on <b>${t.nm}</b> — faster attacks & movement for 2 rounds`});});break;
+
+    case'firebolt':tgts.forEach(t=>{
+      dealSpellDmg(csr,t,rand2(25,30)+sk*3,log,`🔥 ${csr.nm} hurls Firebolt at <b>${t.nm}</b>`);});break;
+
+    case'wetwhip':tgts.forEach(t=>{
+      dealSpellDmg(csr,t,rand2(10,15)+sk*2,log,`💧 ${csr.nm}'s Wet Whip lashes <b>${t.nm}</b>`);
+      if(!t.dead)dealSpellDmg(csr,t,rand2(8,12)+sk,log,`  ↳ second strike`);});break;
+
+    // ── Tier 2 ──────────────────────────────────────────────────────────────
+    case'gust':{
+      const en=all.filter(c=>c.side!==csr.side&&!c.dead).sort((a,b)=>dist(csr,a)-dist(csr,b));
+      en.slice(0,3).forEach(t=>{
+        dealSpellDmg(csr,t,rand2(8,12)+sk*2,log,`💨 ${csr.nm}'s Gust batters <b>${t.nm}</b>`);
+        if(!t.dead&&Math.random()<0.005*sk){
+          const dc=t.side==='a'?-1:1;
+          if(t.col+dc>=0&&t.col+dc<30&&!all.some(x=>!x.dead&&x!==t&&x.row===t.row&&x.col===t.col+dc)){
+            t.col+=dc;log.push({cls:'lsp-deb',t:`  ↩ Gust pushes <b>${t.nm}</b> back`});}
+        }});break;}
+
+    case'immolation':
+      addEffect(csr,'immolation',3,{auraDmg:Math.round(5+sk*0.5)});
+      log.push({cls:'lsp-buf',t:`✦ ${csr.nm} ignites — Immolation aura active for 3 rounds`});break;
+
+    case'rockfall':tgts.forEach(t=>{
+      dealSpellDmg(csr,t,rand2(5,10)+sk*2,log,`🪨 ${csr.nm}'s Rockfall crushes <b>${t.nm}</b>`);});break;
+
+    case'slow':tgts.forEach(t=>{
+      const pen=Math.min(0.8,0.1*sk);
+      addEffect(t,'slow',2,{spdMul:1+pen*0.4,movePen:pen,isDebuff:true});
+      log.push({cls:'lsp-deb',t:`✦ ${csr.nm} casts Slow on <b>${t.nm}</b> — attacks & movement reduced for 2 rounds`});});break;
+
+    case'sharpness':tgts.forEach(t=>{
+      const b=Math.round(3+sk*1.5);
+      addEffect(t,'sharpness',3,{dmgAdd:b});
+      log.push({cls:'lsp-buf',t:`✦ ${csr.nm} sharpens <b>${t.nm}</b>'s weapon — +${b} dmg for 3 rounds`});});break;
+
+    case'wigglyknees':tgts.forEach(t=>{
+      addEffect(t,'wigglyknees',3,{movePen:Math.min(0.7,0.15*sk),dgPen:sk*2,accPen:sk*2,isDebuff:true});
+      log.push({cls:'lsp-deb',t:`✦ ${csr.nm} tangles <b>${t.nm}</b>'s feet — dodge, accuracy & movement reduced for 3 rounds`});});break;
+
+    case'mudthrow':tgts.forEach(t=>{
+      dealSpellDmg(csr,t,25+sk*2,log,`🟫 ${csr.nm} hurls mud at <b>${t.nm}</b>`);
+      if(!t.dead){addEffect(t,'mudblind',1,{accPen:30,isDebuff:true});
+        log.push({cls:'lsp-deb',t:`  ↳ Mud blinds <b>${t.nm}</b> — −30% accuracy for 1 round`});}});break;
+
+    case'shockaura':
+      addEffect(csr,'shockaura',3,{shockDmg:Math.round(8+sk*3)});
+      log.push({cls:'lsp-buf',t:`✦ ${csr.nm} crackles with Shock Aura — attackers will be interrupted for 3 rounds`});break;
+
+    case'shoulderimp':tgts.forEach(t=>{
+      const b=Math.round(5*sk);
+      addEffect(t,'shoulderimp',3,{fireDmgAdd:b});
+      log.push({cls:'lsp-buf',t:`✦ ${csr.nm} sends a fire imp to <b>${t.nm}</b> — +${b} fire damage on attacks for 3 rounds`});});break;
+
+    case'bless':tgts.forEach(t=>{
+      const b=Math.min(5,Math.round(sk*0.9));
+      addEffect(t,'bless',4,{dmgAdd:b*2,dgAdd:b,armAdd:b});
+      log.push({cls:'lsp-buf',t:`✦ ${csr.nm} Blesses <b>${t.nm}</b> — +${b} to combat stats for 4 rounds`});});break;
+
+    case'inspire':tgts.forEach(t=>{
+      addEffect(t,'inspire_up',1,{accBonus:999});
+      addEffect(t,'inspire_drain',3,{accPen:Math.round(10+sk*2),isDebuff:true});});
+      log.push({cls:'lsp-buf',t:`✦ ${csr.nm} Inspires allies — all attacks hit this round, then accuracy drains`});break;
+
+    case'waterguard':tgts.forEach(t=>{
+      const dg=Math.round(sk*3);
+      addEffect(t,'waterguard',3,{dgAdd:dg,dmgReduce:0.1});
+      log.push({cls:'lsp-buf',t:`✦ ${csr.nm} wraps <b>${t.nm}</b> in Water Guard — +${dg}% dodge, −10% dmg taken for 3 rounds`});});break;
+
+    case'sparkshield':tgts.forEach(t=>{
+      const r=Math.round(4+sk*2);
+      addEffect(t,'sparkshield',3,{sparkRet:r});
+      log.push({cls:'lsp-buf',t:`✦ ${csr.nm} gives <b>${t.nm}</b> Spark Shield — ${r} shock dmg returned to first attacker/round`});});break;
+
+    case'mudwall':tgts.forEach(t=>{
+      addEffect(t,'mudwall',3,{movePen:Math.min(0.8,0.4+sk*0.04),isDebuff:true});});
+      log.push({cls:'lsp-deb',t:`✦ ${csr.nm} raises Mudwall — enemy movement mired for 3 rounds`});break;
+
+    // ── Tier 3 ──────────────────────────────────────────────────────────────
+    case'curse':tgts.forEach(t=>{
+      const pen=Math.round(5+sk);
+      addEffect(t,'curse',2,{accPen:pen,dgPen:pen,isDebuff:true});
+      log.push({cls:'lsp-deb',t:`✦ ${csr.nm} Curses <b>${t.nm}</b> — −${pen}% accuracy & dodge for 2 rounds`});});break;
+
+    case'flash':{
+      const hit=all.filter(c=>c!==csr&&!c.dead);
+      hit.forEach(t=>{addEffect(t,'blind',2,{blind:true,isDebuff:t.side!==csr.side});});
+      log.push({cls:'lsp-aoe',t:`⚡ ${csr.nm} detonates Flash — everyone blinded for 2 rounds!`});break;}
+
+    case'freeze':tgts.forEach(t=>{
+      addEffect(t,'freeze',5,{movePen:1,freezeRound:0,isDebuff:true});
+      log.push({cls:'lsp-deb',t:`❄ ${csr.nm} Freezes <b>${t.nm}</b> — movement halted, thaws 20%/round over 5 rounds`});});break;
+
+    case'inferno':tgts.forEach(t=>{
+      dealSpellDmg(csr,t,120+sk*10,log,`🔥 ${csr.nm}'s Inferno engulfs <b>${t.nm}</b>`);
+      if(!t.dead)addEffect(t,'inferno_burn',3,{burnDmg:30+sk*4,burnDecay:0.5,isDebuff:true});
+      all.filter(x=>x!==t&&!x.dead&&dist(x,t)<=1).forEach(x=>{
+        dealSpellDmg(csr,x,Math.round(30+sk*3),log,`  ↳ Inferno splashes <b>${x.nm}</b>`);});});break;
+
+    case'landslide':{
+      const total=500+sk*30;const each=tgts.length?Math.round(total/tgts.length):0;
+      tgts.forEach(t=>{dealSpellDmg(csr,t,each,log,`🪨 ${csr.nm}'s Landslide buries <b>${t.nm}</b>`);});
+      log.push({cls:'lsp-aoe',t:`  ↳ ${total} total split across ${tgts.length} target${tgts.length!==1?'s':''}`});break;}
+
+    case'lifedrain':tgts.forEach(t=>{
+      addEffect(t,'lifedrain',spell.lasting,{drainDmg:25+10*sk,srcUid:csr.uid,isDebuff:true});
+      log.push({cls:'lsp-deb',t:`✦ ${csr.nm} binds Lifedrain to <b>${t.nm}</b> — ${25+10*sk} dmg/round for ${spell.lasting} rounds`});});break;
+
+    case'minor_restoration':tgts.forEach(t=>{
+      const h=rand2(25,30)+10*sk;t.hp=Math.min(t.mhp,t.hp+h);
+      log.push({cls:'lsp-heal',t:`✦ ${csr.nm} casts Minor Restoration on <b>${t.nm}</b> — +${h} HP (${t.hp}/${t.mhp})`});});break;
+
+    case'tornado':{
+      const dmg=50+sk*5,pen=Math.round(sk);
+      tgts.forEach(t=>{
+        dealSpellDmg(csr,t,dmg,log,`🌪 Tornado strikes <b>${t.nm}</b>`);
+        if(!t.dead){addEffect(t,'tornado_hinder',4,{spdMul:1+pen*0.01,dgPen:pen,isDebuff:true});}});
+      log.push({cls:'lsp-aoe',t:`🌪 ${csr.nm} summons a Tornado — rampaging for 4 rounds!`});break;}
+
+    case'airslash':{
+      const dmg=Math.round(15+sk*5);
+      tgts.forEach(t=>{dealSpellDmg(csr,t,dmg,log,`💨 ${csr.nm}'s Air Slash cuts <b>${t.nm}</b>`);});break;}
+
+    case'earthwall':
+      addEffect(csr,'earthwall',15,{earthwall:true});
+      log.push({cls:'lsp-buf',t:`✦ ${csr.nm} raises Earthwall — blocks enemy advance for 15 rounds`});break;
+
+    case'lightningcage':tgts.forEach(t=>{
+      addEffect(t,'lcage',4,{lcage:true,cageDmg:Math.round(20+sk*5),isDebuff:true});
+      log.push({cls:'lsp-deb',t:`⚡ ${csr.nm} traps <b>${t.nm}</b> in a Lightning Cage — movement deals ${Math.round(20+sk*5)} dmg`});});break;
+
+    case'burn':tgts.forEach(t=>{
+      const b=Math.round(8+sk*4);
+      addEffect(t,'burn_buff',3,{fireDmgAdd:b});
+      log.push({cls:'lsp-buf',t:`✦ ${csr.nm} imbues <b>${t.nm}</b>'s attacks with Burn — +${b} fire dmg for 3 rounds`});});break;
+
+    case'whipofflames':{
+      const ends=Math.min(9,Math.max(1,sk));
+      tgts.forEach(t=>{
+        for(let e=0;e<ends;e++){
+          if(t.dead)break;
+          dealSpellDmg(csr,t,rand2(6,12)+sk*2,log,`🔥 Whip of Flames end ${e+1}/${ends} lashes <b>${t.nm}</b>`);
+        }});break;}
+
+    case'holystrike':tgts.forEach(t=>{
+      addEffect(t,'holystrike',10,{holyMult:2});
+      log.push({cls:'lsp-buf',t:`✦ ${csr.nm} blesses <b>${t.nm}</b>'s weapon — double dmg vs undead for 10 rounds`});});break;
+
+    case'intervention':{
+      const hit=all.filter(c=>c.side!==csr.side&&!c.dead);
+      hit.forEach(t=>{addEffect(t,'stun',1,{stun:true,isDebuff:true});});
+      log.push({cls:'lsp-aoe',t:`✦ ${csr.nm} calls Intervention — all enemies skip this round!`});break;}
+
+    case'fatebonding':{
+      const en=all.filter(c=>c.side!==csr.side&&!c.dead);
+      const ally=all.filter(c=>c.side===csr.side&&!c.dead&&c!==csr);
+      if(en.length&&ally.length){
+        const [ea,al]=[en[0],ally[0]];
+        const b=Math.round(sk*3);
+        addEffect(ea,'fatebond',6,{bondUid:al.uid,accAdd:b,deathShare:true});
+        addEffect(al,'fatebond',6,{bondUid:ea.uid,accAdd:b,deathShare:true});
+        log.push({cls:'lsp-deb',t:`✦ ${csr.nm} Fate-bonds <b>${ea.nm}</b> ↔ <b>${al.nm}</b> — linked for 6 rounds`});}
+      break;}
+
+    case'lifelink':tgts.forEach(t=>{
+      addEffect(t,'lifelink',6,{lifelinkSrc:csr.uid,shareRatio:Math.min(0.5,0.3+sk*0.04)});
+      log.push({cls:'lsp-buf',t:`✦ ${csr.nm} Lifelinks with <b>${t.nm}</b> — ${Math.round((0.3+sk*0.04)*100)}% dmg shared for 6 rounds`});});break;
+
+    case'naturegrowth':tgts.forEach(t=>{
+      const r=Math.round(10+sk*5);
+      addEffect(t,'naturegrowth',4,{regenBonus:r});
+      log.push({cls:'lsp-buf',t:`✦ ${csr.nm} channels Nature's Growth on <b>${t.nm}</b> — +${r} HP/round for 4 rounds`});});break;
+
+    // ── Tier 4 ──────────────────────────────────────────────────────────────
+    case'golem':
+      removeSummons(csr,all);
+      spawnSummon(csr,all,{nm:`${csr.nm}'s Golem`,hp:Math.round(150+sk*30),
+        dmin:Math.round(15+sk*5),dmax:Math.round(25+sk*8),arm:sk*8,spd:1.9,cr:5,dg:2,blk:20,
+        ttl:10,icon:'⬡'},log);break;
+
+    case'ice_elemental':
+      removeSummons(csr,all);
+      spawnSummon(csr,all,{nm:`${csr.nm}'s Ice Elemental`,hp:Math.round(100+sk*20),
+        dmin:Math.round(10+sk*4),dmax:Math.round(18+sk*6),arm:sk*5,spd:1.7,cr:8,dg:8,blk:5,
+        ttl:10,icon:'❄',aura:'slow_aura'},log);break;
+
+    case'incineration':tgts.forEach(t=>{
+      addEffect(t,'incineration',5,{pctCurDmg:0.25+sk*0.01,noRegen:true,isDebuff:true});
+      log.push({cls:'lsp-deb',t:`🔥 ${csr.nm} incinerates <b>${t.nm}</b> — 25%+${sk}% HP/round for 5 rounds, regen disabled`});});break;
+
+    case'lightning_strike':{
+      const base=100+15*sk;const mults=[1,.8,.6,.4,.2];
+      const en=all.filter(c=>c.side!==csr.side&&!c.dead).sort((a,b)=>dist(csr,a)-dist(csr,b));
+      en.slice(0,5).forEach((t,idx)=>{
+        dealSpellDmg(csr,t,Math.round(base*mults[idx]),log,
+          `⚡ ${csr.nm}'s Lightning Strike hits <b>${t.nm}</b> (${Math.round(mults[idx]*100)}%)`);});break;}
+
+    case'major_restoration':tgts.forEach(t=>{
+      const h=rand2(50,75)+15*sk;t.hp=Math.min(t.mhp,t.hp+h);
+      log.push({cls:'lsp-heal',t:`✦ ${csr.nm} casts Major Restoration on <b>${t.nm}</b> — +${h} HP (${t.hp}/${t.mhp})`});});break;
+
+    case'overgrow':tgts.forEach(t=>{
+      addEffect(t,'overgrow',10,{movePen:0.5,isDebuff:true});});
+      log.push({cls:'lsp-deb',t:`✦ ${csr.nm} triggers Overgrow — enemy side entangled for 10 rounds`});break;
+
+    case'sleep':tgts.forEach(t=>{
+      addEffect(t,'sleep',6,{sleep:true,isDebuff:true});
+      log.push({cls:'lsp-deb',t:`✦ ${csr.nm} casts Sleep on <b>${t.nm}</b> — unconscious for 6 rounds`});});break;
+
+    case'vacuum':tgts.forEach(t=>{
+      addEffect(t,'vacuum',5,{vacTick:0,vacTotal:5,noRegen:true,stun:true,isDebuff:true});
+      log.push({cls:'lsp-deb',t:`💨 ${csr.nm} casts Vacuum on <b>${t.nm}</b> — suffocating…`});});break;
+
+    case'quicksand':tgts.forEach(t=>{
+      addEffect(t,'quicksand',5,{movePen:Math.min(0.95,0.75-sk*0.02),isDebuff:true});});
+      log.push({cls:'lsp-deb',t:`🪨 ${csr.nm} opens Quicksand — enemies mired for 5 rounds`});break;
+
+    case'oblwing':{
+      const dmg=rand2(40,60)+sk*8;
+      tgts.forEach(t=>{dealSpellDmg(csr,t,dmg,log,`🖤 ${csr.nm}'s Oblivion's Wing sweeps <b>${t.nm}</b>`);});break;}
+
+    case'deathmark':tgts.forEach(t=>{
+      const amp=1.25+sk*0.05;
+      addEffect(t,'deathmark',5,{amp,isDebuff:true});
+      log.push({cls:'lsp-deb',t:`✦ ${csr.nm} marks <b>${t.nm}</b> for Death — ×${amp.toFixed(2)} damage taken for 5 rounds`});});break;
+
+    case'stoneskin':tgts.forEach(t=>{
+      const b=Math.round(15+sk*5);
+      addEffect(t,'stoneskin',5,{armAdd:b,movePen:0.2});
+      log.push({cls:'lsp-buf',t:`✦ ${csr.nm} hardens <b>${t.nm}</b> with Stoneskin — +${b} armor, slightly slowed for 5 rounds`});});break;
+
+    // ── Tier 5 ──────────────────────────────────────────────────────────────
+    case'air_elemental':
+      removeSummons(csr,all);
+      spawnSummon(csr,all,{nm:`${csr.nm}'s Air Elemental`,hp:Math.round(80+sk*15),
+        dmin:Math.round(20+sk*6),dmax:Math.round(35+sk*10),arm:sk*4,spd:1.5,cr:12,dg:15,blk:2,
+        ttl:15,icon:'🌪',ranged:true},log);break;
+
+    case'avalanche':{
+      tgts.forEach(t=>{
+        dealSpellDmg(csr,t,1000+sk*50,log,`🧊 ${csr.nm}'s Avalanche crushes <b>${t.nm}</b>`);
+        if(!t.dead){
+          addEffect(t,'stun',1,{stun:true,isDebuff:true});
+          addEffect(t,'aval_daze',2,{accPen:50,spdMul:1.5,isDebuff:true});}});
+      log.push({cls:'lsp-aoe',t:`❄ AVALANCHE! The enemy side is devastated`});break;}
+
+    case'chain_lightning':{
+      const base=250+Math.round(0.25*sk*10);
+      let last=tgts[0];const hit=new Set([last.uid]);
+      dealSpellDmg(csr,last,base,log,`⚡ ${csr.nm}'s Chain Lightning strikes <b>${last.nm}</b>`);
+      for(let i=0;i<4;i++){
+        const nxt=all.filter(c=>c.side!==csr.side&&!c.dead&&!hit.has(c.uid)&&dist(last,c)<=5)
+          .sort((a,b)=>dist(last,a)-dist(last,b))[0];
+        if(!nxt)break;
+        hit.add(nxt.uid);
+        dealSpellDmg(csr,nxt,base,log,`  ↳ Chain bounces to <b>${nxt.nm}</b>`);
+        last=nxt;}break;}
+
+    case'cleansing_light':{
+      all.filter(c=>c.side===csr.side&&!c.dead).forEach(t=>{
+        const before=t.effects.length;
+        t.effects=t.effects.filter(e=>!e.isDebuff);
+        const removed=before-t.effects.length;
+        if(removed)log.push({cls:'lsp-heal',t:`✦ Cleansing Light purifies <b>${t.nm}</b> — ${removed} debuff${removed!==1?'s':''} removed`});});
+      log.push({cls:'lsp-aoe',t:`✦ ${csr.nm} calls Cleansing Light — all ally debuffs cleansed!`});break;}
+
+    case'confusion':tgts.forEach(t=>{
+      addEffect(t,'confusion',4,{confused:true,isDebuff:true});});
+      log.push({cls:'lsp-deb',t:`✦ ${csr.nm} spreads Confusion — enemies attack randomly for 4 rounds!`});break;
+
+    case'fire_elemental':
+      removeSummons(csr,all);
+      spawnSummon(csr,all,{nm:`${csr.nm}'s Fire Elemental`,hp:Math.round(120+sk*20),
+        dmin:Math.round(25+sk*7),dmax:Math.round(40+sk*12),arm:sk*6,spd:1.6,cr:10,dg:5,blk:5,
+        ttl:15,icon:'🔥',aura:'noregenAura'},log);break;
+
+    case'lifetransfer':{
+      const en=all.filter(c=>c.side!==csr.side&&!c.dead);
+      const allyPool=all.filter(c=>c.side===csr.side&&!c.dead&&c!==csr);
+      if(en.length&&allyPool.length){
+        const enemy=en.sort((a,b)=>a.hp/a.mhp-b.hp/b.mhp)[0];
+        const ally=allyPool.sort((a,b)=>a.hp/a.mhp-b.hp/b.mhp)[0];
+        const perRound=50+10*sk;
+        addEffect(enemy,'lifetransfer',12,{drainDmg:perRound,srcUid:csr.uid,healTarget:ally.uid,isDebuff:true});
+        log.push({cls:'lsp-buf',t:`✦ ${csr.nm} creates Lifetransfer: <b>${enemy.nm}</b>→<b>${ally.nm}</b> — ${perRound}/round for 12 rounds`});}
+      break;}
+
+    case'sinkhole':tgts.forEach(t=>{
+      addEffect(t,'sinkhole',3,{pctMaxDmg:0.05,noRegen:true,isDebuff:true});
+      log.push({cls:'lsp-deb',t:`🕳 ${csr.nm} opens Sinkhole under <b>${t.nm}</b> — 5% max HP/round for 3 rounds`});});break;
+
+    case'boulderthrow':{
+      const lv=csr.stats&&csr.stats.lv?csr.stats.lv:1;
+      const dmg=10*sk+15*lv;
+      tgts.slice(0,4).forEach(t=>{dealSpellDmg(csr,t,dmg,log,`🪨 ${csr.nm}'s Boulderthrow crushes <b>${t.nm}</b>`);});break;}
+
+    case'stormwall':tgts.forEach(t=>{
+      addEffect(t,'stormwall',5,{burnDmg:40+sk*5,dgPen:sk*3,isDebuff:true});});
+      log.push({cls:'lsp-aoe',t:`💨 ${csr.nm} erects a Stormwall — enemies battered for 5 rounds`});break;
+
+    case'naturespact':tgts.forEach(t=>{
+      addEffect(t,'naturespact',8,{regenBonus:Math.round(20+sk*6),dmgAdd:Math.round(5+sk*2),bleed:Math.round(sk*2)});
+      log.push({cls:'lsp-buf',t:`✦ ${csr.nm} seals Nature's Pact with <b>${t.nm}</b> — regen+dmg boost for 8 rounds`});});break;
+
+    case'wildfury':tgts.forEach(t=>{
+      addEffect(t,'wildfury',5,{dmgAdd:Math.round(20+sk*6),accPen:Math.round(10+sk)});
+      log.push({cls:'lsp-buf',t:`✦ ${csr.nm} unleashes Wild Fury on <b>${t.nm}</b> — massive dmg boost, −accuracy for 5 rounds`});});break;
+
+    // ── Tier 6 ──────────────────────────────────────────────────────────────
+    case'disintegration':tgts.forEach(t=>{
+      const chance=50+sk;
+      if(Math.random()*100<chance){t.hp=1;
+        log.push({cls:'lsp-aoe',t:`✦ ${csr.nm}'s Disintegration obliterates <b>${t.nm}</b> — reduced to 1 HP! (${chance}%)`});}
+      else log.push({cls:'lsp-cast',t:`✦ ${csr.nm}'s Disintegration fizzles on <b>${t.nm}</b>`});});break;
+
+    case'earthquake':{
+      all.filter(c=>c!==csr&&!c.dead).forEach(t=>{
+        addEffect(t,'earthquake',5,{burnDmg:50+sk*5,spdMul:1.5,dgPen:50,blkPen:50,crPen:50,movePen:1,isDebuff:true});});
+      log.push({cls:'lsp-aoe',t:`🌍 ${csr.nm} triggers EARTHQUAKE — the earth shatters for 5 rounds!`});break;}
+
+    case'fly':
+      addEffect(csr,'fly',25,{flying:true,spdMul:0.7,moveBonus:1});
+      log.push({cls:'lsp-buf',t:`✦ ${csr.nm} takes Flight — untouchable by melee for 25 rounds!`});break;
+
+    case'invisibility':tgts.forEach(t=>{
+      addEffect(t,'invisible',8,{invisible:true});
+      log.push({cls:'lsp-buf',t:`✦ ${csr.nm} cloaks <b>${t.nm}</b> in Invisibility — cannot be targeted for 8 rounds`});});break;
+
+    case'revitalization':tgts.forEach(t=>{
+      const h=t.mhp-t.hp;t.hp=t.mhp;
+      log.push({cls:'lsp-heal',t:`✦ ${csr.nm} casts Revitalization on <b>${t.nm}</b> — fully restored! (+${h} HP)`});});break;
+
+    case'tsunami':{
+      all.filter(c=>c!==csr&&!c.dead).forEach(t=>{
+        const push=t.armorType==='Heavy Armor'?3:t.armorType==='Light Armor'?2:1;
+        const dc=t.side==='a'?-push:push;
+        const nc=Math.max(0,Math.min(29,t.col+dc));
+        if(!all.some(x=>x!==t&&!x.dead&&x.row===t.row&&x.col===nc))t.col=nc;
+        addEffect(t,'tsunami',2,{spdMul:1.5,dgPen:50,blkPen:50,movePen:1,isDebuff:true});
+        log.push({cls:'lsp-deb',t:`  ↳ Tsunami sweeps <b>${t.nm}</b> back ${push} tile${push>1?'s':''}`});});
+      log.push({cls:'lsp-aoe',t:`🌊 ${csr.nm} unleashes TSUNAMI — the field is flooded!`});break;}
+
+    case'volcano':{
+      const dmgPer=350+50*sk;
+      for(let r=0;r<Math.min(6,spell.lasting);r++){
+        const pieces=2+r*2;const randEn=all.filter(c=>c.side!==csr.side&&!c.dead);
+        if(!randEn.length)break;
+        const hit=new Set();for(let p=0;p<pieces;p++){
+          const t=randEn[Math.floor(Math.random()*randEn.length)];
+          if(!hit.has(t.uid)){hit.add(t.uid);
+            addEffect(t,'vol_stun',1,{stun:true,isDebuff:true});
+            addEffect(t,'volcano_dmg',(spell.lasting-r),{burnDmg:dmgPer,isDebuff:true});}}
+      }
+      log.push({cls:'lsp-aoe',t:`🌋 ${csr.nm} erupts a VOLCANO — lava raining for ${spell.lasting} rounds! (${dmgPer}+dmg/hit)`});break;}
+
+    case'wither':{
+      tgts.forEach(t=>{
+        const mult=['Druid','Shaman','Warlock'].includes(t.cl)?2:1;
+        dealSpellDmg(csr,t,(1000+sk*50)*mult,log,`🌿 ${csr.nm}'s Wither ${mult>1?'(×2) ':''}devastates <b>${t.nm}</b>`);
+        if(!t.dead)addEffect(t,'wither_dot',3,{noRegen:true,isDebuff:true});});
+      log.push({cls:'lsp-aoe',t:`✦ ${csr.nm} casts WITHER — enemy life force drained!`});break;}
+
+    default:
+      log.push({cls:'lsp-cast',t:`✦ ${csr.nm} casts ${spell.name}`});
+  }
+}
+
+// ── Master spell list (from CSV + filled blanks) ───────────────────────────
+const SPELLS=[
+  // Tier 1
+  {id:'eartharmor',name:'Eartharmor',tier:1,el:'Earth',school:'Restoration',
+   castTime:0,cool:1,lasting:2,targetType:'ally',
+   desc:'Raise armor on self or ally for 2 rounds.'},
+  {id:'haste',name:'Haste',tier:1,el:'Air',school:'Alteration',
+   castTime:0,cool:2,lasting:2,targetType:'ally',
+   desc:'Faster attacks and movement on self or ally for 2 rounds.'},
+  {id:'firebolt',name:'Firebolt',tier:1,el:'Fire',school:'Destruction',
+   castTime:0,cool:0,lasting:0,targetType:'enemy',
+   desc:'A searing bolt of fire — instant, single target.'},
+  {id:'wetwhip',name:'Wet Whip',tier:1,el:'Water',school:'Conjuration',
+   castTime:0,cool:0,lasting:0,targetType:'enemy',
+   desc:'A conjured water whip — 2 strikes, 3-tile reach.'},
+  // Tier 2
+  {id:'gust',name:'Gust',tier:2,el:'Air',school:'Destruction',
+   castTime:1,cool:1,lasting:0,targetType:'aoe_enemy',
+   desc:'Wave of air hits 3 enemies in a line — chance to push back.'},
+  {id:'immolation',name:'Immolation',tier:2,el:'Fire',school:'Alteration',
+   castTime:1,cool:0,lasting:3,targetType:'self',
+   desc:'Self-ignite — burns enemies within 1 tile each round for 3 rounds.'},
+  {id:'rockfall',name:'Rockfall',tier:2,el:'Earth',school:'Conjuration',
+   castTime:1,cool:1,lasting:0,targetType:'aoe_enemy',
+   desc:'Boulders rain on 6-tile area — AoE bludgeoning damage.'},
+  {id:'slow',name:'Slow',tier:2,el:'Water',school:'Restoration',
+   castTime:1,cool:0,lasting:2,targetType:'enemy',
+   desc:'Water coils slowing attacks and movement for 2 rounds.'},
+  {id:'sharpness',name:'Sharpness',tier:2,el:'Air',school:'Alteration',
+   castTime:1,cool:1,lasting:3,targetType:'ally',
+   desc:'Sharpen weapon edges — +damage for 3 rounds.'},
+  {id:'wigglyknees',name:'Wiggly Knees',tier:2,el:'Air',school:'Alteration',
+   castTime:1,cool:1,lasting:3,targetType:'enemy',
+   desc:'Wind tangles feet — slower, worse dodge & accuracy.'},
+  {id:'mudthrow',name:'Mudthrow',tier:2,el:'Earth',school:'Conjuration',
+   castTime:0,cool:1,lasting:1,targetType:'enemy',
+   desc:'Mud hits for flat damage and blinds accuracy for 1 round.'},
+  {id:'shockaura',name:'Shock Aura',tier:2,el:'Electricity',school:'Conjuration',
+   castTime:0,cool:2,lasting:3,targetType:'self',
+   desc:'Crackling aura — interrupts attackers for 3 rounds.'},
+  {id:'shoulderimp',name:'Shoulder Imp',tier:2,el:'Fire',school:'Conjuration',
+   castTime:0,cool:2,lasting:3,targetType:'ally',
+   desc:'Tiny fire imp ignites ranged attacks — bonus fire damage.'},
+  {id:'bless',name:'Bless',tier:2,el:'Holy',school:'Alteration',
+   castTime:0,cool:2,lasting:4,targetType:'ally',
+   desc:'Divine light raises an ally\'s combat stats for 4 rounds.'},
+  {id:'inspire',name:'Inspire',tier:2,el:'Wild',school:'Alteration',
+   castTime:0,cool:3,lasting:3,targetType:'aoe_ally',
+   desc:'All allies hit for 1 round, then suffer accuracy drain for 2.'},
+  {id:'waterguard',name:'Water Guard',tier:2,el:'Water',school:'Restoration',
+   castTime:0,cool:2,lasting:3,targetType:'ally',
+   desc:'Flowing barrier — boosts dodge and reduces damage taken.'},
+  {id:'sparkshield',name:'Spark Shield',tier:2,el:'Electricity',school:'Alteration',
+   castTime:0,cool:2,lasting:3,targetType:'ally',
+   desc:'Electric sparks return damage to the next attacker.'},
+  {id:'mudwall',name:'Mudwall',tier:2,el:'Water',school:'Conjuration',
+   castTime:1,cool:4,lasting:3,targetType:'aoe_enemy',
+   desc:'A wall of thick mud severely slows enemy movement.'},
+  // Tier 3
+  {id:'curse',name:'Curse',tier:3,el:'Wild',school:'Alteration',
+   castTime:1,cool:0,lasting:2,targetType:'enemy',
+   desc:'Dark hex — reduces accuracy and dodge for 2 rounds.'},
+  {id:'flash',name:'Flash',tier:3,el:'Electricity',school:'Alteration',
+   castTime:1,cool:2,lasting:2,targetType:'aoe_all',
+   desc:'Blinding flash — all but caster miss for 2 rounds.'},
+  {id:'freeze',name:'Freeze',tier:3,el:'Water',school:'Restoration',
+   castTime:0,cool:3,lasting:5,targetType:'enemy',
+   desc:'Fully halts movement; thaws 20% per round over 5 rounds.'},
+  {id:'inferno',name:'Inferno',tier:3,el:'Fire',school:'Destruction',
+   castTime:3,cool:4,lasting:3,targetType:'enemy',
+   desc:'Pillar of fire — massive hit + burn DoT halving each round.'},
+  {id:'landslide',name:'Landslide',tier:3,el:'Earth',school:'Conjuration',
+   castTime:3,cool:5,lasting:0,targetType:'aoe_enemy',
+   desc:'5-round cast: 500 dmg split across the entire enemy side.'},
+  {id:'lifedrain',name:'Lifedrain',tier:3,el:'Nature',school:'Restoration',
+   castTime:1,cool:0,lasting:10,targetType:'enemy',
+   desc:'Drain life each round — half restored to caster.'},
+  {id:'minor_restoration',name:'Minor Restoration',tier:3,el:'Holy',school:'Restoration',
+   castTime:0,cool:0,lasting:0,targetType:'ally',
+   desc:'Instant heal on one ally.'},
+  {id:'tornado',name:'Tornado',tier:3,el:'Air',school:'Conjuration',
+   castTime:2,cool:2,lasting:4,targetType:'aoe_enemy',
+   desc:'Wandering tornado deals 50 dmg/round and hinders for 4 rounds.'},
+  {id:'airslash',name:'Air Slash',tier:3,el:'Air',school:'Destruction',
+   castTime:0,cool:0,lasting:0,targetType:'aoe_enemy',
+   desc:'Blade of air slices through entire enemy line.'},
+  {id:'earthwall',name:'Earthwall',tier:3,el:'Earth',school:'Alteration',
+   castTime:0,cool:3,lasting:15,targetType:'self',
+   desc:'Stone wall blocks enemy advance for 15 rounds.'},
+  {id:'lightningcage',name:'Lightning Cage',tier:3,el:'Electricity',school:'Alteration',
+   castTime:0,cool:3,lasting:4,targetType:'enemy',
+   desc:'Cage of lightning — movement triggers stun and damage.'},
+  {id:'burn',name:'Burn',tier:3,el:'Fire',school:'Alteration',
+   castTime:0,cool:0,lasting:3,targetType:'ally',
+   desc:'Imbue melee attacks with fire damage for 3 rounds.'},
+  {id:'whipofflames',name:'Whip of Flames',tier:3,el:'Fire',school:'Conjuration',
+   castTime:0,cool:2,lasting:3,targetType:'enemy',
+   desc:'Multi-ended fire whip — ends and damage scale with skill.'},
+  {id:'holystrike',name:'Holy Strike',tier:3,el:'Holy',school:'Alteration',
+   castTime:0,cool:2,lasting:10,targetType:'ally',
+   desc:'Double damage against undead for 10 rounds.'},
+  {id:'intervention',name:'Intervention',tier:3,el:'Holy',school:'Alteration',
+   castTime:0,cool:4,lasting:1,targetType:'aoe_enemy',
+   desc:'Divine intervention — all enemies skip their action this round.'},
+  {id:'fatebonding',name:'Fate Bonding',tier:3,el:'Wild',school:'Alteration',
+   castTime:0,cool:4,lasting:6,targetType:'aoe_enemy',
+   desc:'Links foe & ally — accuracy bonus when attacking each other.'},
+  {id:'lifelink',name:'Lifelink',tier:3,el:'Nature',school:'Restoration',
+   castTime:0,cool:3,lasting:6,targetType:'ally',
+   desc:'Link damage — portion of ally\'s damage shared back to caster.'},
+  {id:'naturegrowth',name:'Nature\'s Growth',tier:3,el:'Nature',school:'Restoration',
+   castTime:1,cool:3,lasting:4,targetType:'ally',
+   desc:'Accelerate HP regen on an ally for 4 rounds.'},
+  // Tier 4
+  {id:'golem',name:'Golem',tier:4,el:'Earth',school:'Conjuration',
+   castTime:4,cool:4,lasting:10,targetType:'self',
+   desc:'Conjure a stone golem — HP & dmg scale with Earth skill.'},
+  {id:'ice_elemental',name:'Ice Elemental',tier:4,el:'Water',school:'Conjuration',
+   castTime:4,cool:4,lasting:10,targetType:'self',
+   desc:'Summon Ice Elemental with slow aura — at half caster level.'},
+  {id:'incineration',name:'Incineration',tier:4,el:'Fire',school:'Destruction',
+   castTime:5,cool:2,lasting:5,targetType:'enemy',
+   desc:'25%+skill% current HP per round for 5 rounds; no regen.'},
+  {id:'lightning_strike',name:'Lightning Strike',tier:4,el:'Electricity',school:'Destruction',
+   castTime:3,cool:5,lasting:3,targetType:'enemy',
+   desc:'Chain hits up to 5 enemies: 100%/80%/60%/40%/20%.'},
+  {id:'major_restoration',name:'Major Restoration',tier:4,el:'Holy',school:'Restoration',
+   castTime:0,cool:0,lasting:0,targetType:'ally',
+   desc:'Large instant heal on one ally.'},
+  {id:'overgrow',name:'Overgrow',tier:4,el:'Nature',school:'Conjuration',
+   castTime:1,cool:5,lasting:10,targetType:'aoe_enemy',
+   desc:'Plants erupt — 50% movement penalty in affected tiles.'},
+  {id:'sleep',name:'Sleep',tier:4,el:'Wild',school:'Alteration',
+   castTime:3,cool:6,lasting:6,targetType:'enemy',
+   desc:'Magically sleep one enemy — no actions for 6 rounds.'},
+  {id:'vacuum',name:'Vacuum',tier:4,el:'Air',school:'Alteration',
+   castTime:2,cool:1,lasting:5,targetType:'enemy',
+   desc:'Stops casting; round 5 — target collapses to 1 HP.'},
+  {id:'quicksand',name:'Quicksand',tier:4,el:'Earth',school:'Alteration',
+   castTime:0,cool:3,lasting:5,targetType:'aoe_enemy',
+   desc:'3×3 tile trap — 75% movement reduction for 5 rounds.'},
+  {id:'oblwing',name:"Oblivion's Wing",tier:4,el:'Air',school:'Conjuration',
+   castTime:2,cool:4,lasting:0,targetType:'aoe_enemy',
+   desc:'A massive black wing sweeps across the field.'},
+  {id:'deathmark',name:'Death Mark',tier:4,el:'Wild',school:'Alteration',
+   castTime:1,cool:5,lasting:5,targetType:'enemy',
+   desc:'All damage taken amplified by 25%+skill% for 5 rounds.'},
+  {id:'stoneskin',name:'Stoneskin',tier:4,el:'Earth',school:'Restoration',
+   castTime:1,cool:3,lasting:5,targetType:'ally',
+   desc:'Massive armor boost — slightly slowed for 5 rounds.'},
+  // Tier 5
+  {id:'air_elemental',name:'Air Elemental',tier:5,el:'Air',school:'Conjuration',
+   castTime:3,cool:3,lasting:15,targetType:'self',
+   desc:'Summon Air Elemental ranged unit — one elemental at a time.'},
+  {id:'avalanche',name:'Avalanche',tier:5,el:'Water',school:'Alteration',
+   castTime:4,cool:6,lasting:2,targetType:'aoe_enemy',
+   desc:'1000 dmg each; round 1 stun; round 2 — 50% penalties.'},
+  {id:'chain_lightning',name:'Chain Lightning',tier:5,el:'Electricity',school:'Destruction',
+   castTime:5,cool:6,lasting:0,targetType:'enemy',
+   desc:'250+scaling flat dmg bouncing up to 5 targets within 5 tiles.'},
+  {id:'cleansing_light',name:'Cleansing Light',tier:5,el:'Holy',school:'Restoration',
+   castTime:1,cool:2,lasting:3,targetType:'aoe_ally',
+   desc:'All ally debuffs removed instantly — whole map affected.'},
+  {id:'confusion',name:'Confusion',tier:5,el:'Wild',school:'Alteration',
+   castTime:2,cool:4,lasting:4,targetType:'aoe_enemy',
+   desc:'3×3 confusion cloud — enemies attack nearest unit for 4 rounds.'},
+  {id:'fire_elemental',name:'Fire Elemental',tier:5,el:'Fire',school:'Conjuration',
+   castTime:4,cool:4,lasting:15,targetType:'self',
+   desc:'Summon Fire Elemental — aura disables HP regen within 1 tile.'},
+  {id:'lifetransfer',name:'Lifetransfer',tier:5,el:'Nature',school:'Restoration',
+   castTime:4,cool:2,lasting:12,targetType:'aoe_enemy',
+   desc:'Links enemy → ally: drains foe, heals ally for 12 rounds.'},
+  {id:'sinkhole',name:'Sinkhole',tier:5,el:'Earth',school:'Destruction',
+   castTime:3,cool:1,lasting:3,targetType:'enemy',
+   desc:'Target sinks — 5% max HP damage per round for 3 rounds.'},
+  {id:'boulderthrow',name:'Boulderthrow',tier:5,el:'Earth',school:'Conjuration',
+   castTime:2,cool:1,lasting:0,targetType:'aoe_enemy',
+   desc:'Conjure & hurl a boulder — hits 4 tiles, scales with level.'},
+  {id:'stormwall',name:'Stormwall',tier:5,el:'Air',school:'Conjuration',
+   castTime:2,cool:4,lasting:5,targetType:'aoe_enemy',
+   desc:'Wall of wind & debris — 40+/round dmg and −dodge for 5 rounds.'},
+  {id:'naturespact',name:"Nature's Pact",tier:5,el:'Nature',school:'Restoration',
+   castTime:2,cool:4,lasting:8,targetType:'ally',
+   desc:'Strong regen + dmg bonus but minor bleed each round.'},
+  {id:'wildfury',name:'Wild Fury',tier:5,el:'Wild',school:'Alteration',
+   castTime:2,cool:5,lasting:5,targetType:'ally',
+   desc:'Wild energy: massive dmg boost but −accuracy for 5 rounds.'},
+  // Tier 6
+  {id:'disintegration',name:'Disintegration',tier:6,el:'Fire',school:'Destruction',
+   castTime:8,cool:0,lasting:0,targetType:'enemy',
+   desc:'50%+1%/skill chance to drop target to 1 HP instantly.'},
+  {id:'earthquake',name:'Earthquake',tier:6,el:'Earth',school:'Destruction',
+   castTime:4,cool:1,lasting:5,targetType:'aoe_all',
+   desc:'Whole map shakes — 50+ dmg/round, 50% all combat penalties, move 0.'},
+  {id:'fly',name:'Fly',tier:6,el:'Air',school:'Alteration',
+   castTime:3,cool:4,lasting:25,targetType:'self',
+   desc:'Take flight — move & attack at run speed, immune to melee.'},
+  {id:'invisibility',name:'Invisibility',tier:6,el:'Wild',school:'Alteration',
+   castTime:0,cool:8,lasting:8,targetType:'ally',
+   desc:'Cannot be targeted until unit takes offensive action.'},
+  {id:'revitalization',name:'Revitalization',tier:6,el:'Holy',school:'Restoration',
+   castTime:1,cool:7,lasting:0,targetType:'ally',
+   desc:'Full HP restoration for one ally instantly.'},
+  {id:'tsunami',name:'Tsunami',tier:6,el:'Water',school:'Conjuration',
+   castTime:4,cool:2,lasting:8,targetType:'aoe_all',
+   desc:'Flood pushes all back 1-3 tiles by armor; 50% all penalties.'},
+  {id:'volcano',name:'Volcano',tier:6,el:'Fire',school:'Conjuration',
+   castTime:6,cool:3,lasting:6,targetType:'aoe_enemy',
+   desc:'Volcano erupts — 2/4/6/8 lava chunks/round, 350+50×skill dmg.'},
+  {id:'wither',name:'Wither',tier:6,el:'Nature',school:'Restoration',
+   castTime:5,cool:2,lasting:0,targetType:'aoe_enemy',
+   desc:'1000 flat dmg, ×2 vs nature/conjuration classes; no regen.'},
+];
+const SPELL_BY_ID=Object.fromEntries(SPELLS.map(s=>[s.id,s]));
+
+// ── Element color lookup ───────────────────────────────────────────────────
+const EL_COL={
+  Fire:'rgba(255,120,40,.85)',Water:'rgba(80,160,255,.85)',Earth:'rgba(160,120,60,.85)',
+  Air:'rgba(180,220,255,.8)',Electricity:'rgba(255,240,60,.9)',Holy:'rgba(255,230,120,.85)',
+  Nature:'rgba(80,200,100,.8)',Wild:'rgba(200,100,220,.8)',
 };
 
 const DMG_TYPES=['slashing','piercing','bludgeoning','stabbing','magic'];
@@ -663,11 +1502,17 @@ const RANGED_ACTIONS=['attack','observe','throw'];
 const TARGET_BASE=['random','nearest','by_weapon','by_armor'];
 const TARGET_OBS2=['random','nearest','by_weapon','by_armor','by_magic','by_type'];
 const ROLE_TYPES=['Melee','Ranged','Magic'];
-function dfc_cmd(){return{action:'attack',speed:'walk',observeRounds:1,targetMode:'random',targetFilter:'',dmgTypeChoice:''}}
+function dfc_cmd(){return{action:'attack',speed:'walk',observeRounds:1,targetMode:'random',targetFilter:'',dmgTypeChoice:'',spellId:''}}
 function availableActions(wp){
   if(isRanged(wp)) return RANGED_ACTIONS;
   if(THROWABLE.has(wp)) return [...MELEE_ACTIONS,'throw'];
   return MELEE_ACTIONS;
+}
+function availableActionsForChar(c){
+  const base=availableActions(c.wp);
+  // Any class with Focus offhand OR a magic weapon can cast
+  if(c.offhand==='Focus'||isMagicWp(c.wp)) return [...base,'cast'];
+  return base;
 }
 function targetModes(observeAccum){
   if(observeAccum>=2)return TARGET_OBS2;
@@ -734,7 +1579,7 @@ function ds(c){
 }
 
 const ST={a:[],b:[]};let szA=1,szB=1;
-function dfc(i){return{nm:`Fighter ${i+1}`,sp:'Human',cl:'Knight',lv:1,arm:'Unarmored',wp:'Short Sword',offhand:'Shield',wpMat:'',armMat:'',cmds:[dfc_cmd(),dfc_cmd(),dfc_cmd()],pts:{s:0,a:0,i:0}}}
+function dfc(i){return{nm:`Fighter ${i+1}`,sp:'Human',cl:'Knight',lv:1,arm:'Unarmored',wp:'Short Sword',offhand:'Shield',wpMat:'',armMat:'',cmds:[dfc_cmd(),dfc_cmd(),dfc_cmd()],pts:{s:0,a:0,i:0},spells:[]}}
 function pu(c){return(c.pts.s||0)+(c.pts.a||0)+(c.pts.i||0)}
 function pm(c){return c.lv||1}
 
@@ -742,7 +1587,7 @@ function renderCmd(team,i){
   const c=ST[team][i];
   if(!c.cmds||!c.cmds.length){c.cmds=[dfc_cmd()];}
   const wp=c.wp;
-  const acts=availableActions(wp);
+  const acts=availableActionsForChar(c);
   const isMel=!isRanged(wp);
   const skip=new Array(c.cmds.length).fill(0);
   let skipUntil=0;
@@ -801,6 +1646,22 @@ function renderCmd(team,i){
     <option value=""${!curDmgChoice?' selected':''}>Random</option>
     ${dualTypes.map(t=>`<option value="${t}"${t===curDmgChoice?' selected':''}>${t.charAt(0).toUpperCase()+t.slice(1)}</option>`).join('')}
   </select></div>`:''}
+  ${cmd.action==='cast'?(()=>{
+    const lv=c.lv||1;
+    const avail=SPELLS.filter(s=>s.tier<=Math.floor((lv+4)/5)&&s.tier>=1);
+    const cur=cmd.spellId||'';
+    const spell=SPELL_BY_ID[cur];
+    return `<div class="cmd-sel" style="min-width:120px"><div class="fl">Spell</div>
+    <select onchange="setCmd('${team}',${i},${ph},'spellId',this.value)" style="border-color:rgba(160,140,240,.3);color:rgba(200,180,255,.9)">
+      <option value="">— choose —</option>
+      ${[1,2,3,4,5,6].map(tier=>{
+        const ts=avail.filter(s=>s.tier===tier);
+        if(!ts.length)return'';
+        return`<optgroup label="Tier ${tier}">${ts.map(s=>`<option value="${s.id}"${s.id===cur?' selected':''}>${s.name} [${s.el}]</option>`).join('')}</optgroup>`;
+      }).join('')}
+    </select></div>
+    ${spell?`<div style="font-size:.55rem;color:rgba(160,140,240,.5);padding-top:.4rem;line-height:1.35;max-width:160px">${spell.desc}<br><span style="color:rgba(160,140,240,.35)">⏱ cast ${spell.castTime===0?'instant':spell.castTime+'r'} · cd ${spell.cool}r${spell.lasting?` · lasts ${spell.lasting}r`:''}</span></div>`:''}`;
+  })():''}
 </div>
 ${cmd.action==='attack'?`<div class="cmd-sub">
   <div class="cmd-sel"><div class="fl">Target</div>
@@ -842,6 +1703,11 @@ function addCmd(team,i){
 function removeCmd(team,i,ph){
   if(ST[team][i].cmds.length<=1)return;
   ST[team][i].cmds.splice(ph,1);rc(team);
+}
+function setSp(team,i,si,key,val){
+  const c=ST[team][i];if(!c.spells)c.spells=[];
+  while(c.spells.length<=si)c.spells.push({id:'',sk:1});
+  c.spells[si][key]=(key==='sk'?+val:val);rc(team);
 }
 
 // ── Armor performance summary for card display ────────────────────────────────
@@ -986,6 +1852,48 @@ ${DMG_TYPES.map(dt=>{
 }).join('')}
 </div>
 </div>
+${(()=>{
+  const hasMagic=c.offhand==='Focus'||isMagicWp(c.wp);
+  if(!hasMagic)return'';
+  const lv=c.lv||1;
+  const maxTier=Math.min(6,Math.floor((lv+4)/5));
+  const avail=SPELLS.filter(s=>s.tier<=maxTier);
+  const slots=c.spells||[];
+  let out=`<div style="margin-bottom:5px"><div class="fl sp-sect-hd">✦ Spell Loadout <span style="font-size:.5rem;color:rgba(120,100,220,.3)">· tier 1–${maxTier} available · Focus/Staff required</span></div>`;
+  for(let si=0;si<3;si++){
+    const slot=slots[si]||{id:'',sk:1};
+    const sp=SPELL_BY_ID[slot.id||''];
+    const elCol=sp?EL_COL[sp.el]||'rgba(160,140,240,.85)':'rgba(120,100,220,.4)';
+    out+=`<div class="sp-block" style="border-color:${sp?elCol.replace('.85','.18').replace('.9','.18'):''}" >
+<div class="sp-hd">
+  <span class="sp-name">${sp?sp.name:'<span style="color:rgba(120,100,220,.3)">— empty slot —</span>'}</span>
+  ${sp?`<span class="sp-badge" style="border-color:${elCol.replace('.85','.3')};color:${elCol}">${sp.el} · T${sp.tier}</span>`:''}
+</div>
+<div class="sp-row">
+  <div><div class="fl">Spell</div>
+  <select onchange="setSp('${team}',${i},${si},'id',this.value)" style="border-color:rgba(120,100,220,.25);color:rgba(200,180,255,.85);font-size:8px">
+    <option value="">— none —</option>
+    ${[1,2,3,4,5,6].map(tier=>{const ts=avail.filter(s=>s.tier===tier);if(!ts.length)return'';
+      return`<optgroup label="Tier ${tier}">${ts.map(s=>`<option value="${s.id}"${s.id===slot.id?' selected':''}>${s.name}</option>`).join('')}</optgroup>`;}).join('')}
+  </select></div>
+  <div><div class="fl">Skill Tier</div>
+  <select onchange="setSp('${team}',${i},${si},'sk',+this.value)" style="border-color:rgba(120,100,220,.25);color:rgba(200,180,255,.7);font-size:8px">
+    ${[1,2,3,4,5,6].map(n=>`<option value="${n}"${n===(slot.sk||1)?' selected':''}>Tier ${n}</option>`).join('')}
+  </select></div>
+</div>
+${sp?`<div class="sp-stats">
+  <span class="sp-stat">${sp.el} · ${sp.school}</span>
+  <span class="sp-stat">⏱ ${sp.castTime===0?'instant':sp.castTime+'r cast'}</span>
+  <span class="sp-stat">cd ${sp.cool}r</span>
+  ${sp.lasting?`<span class="sp-stat">lasts ${sp.lasting}r</span>`:''}
+  <span class="sp-mana sp-stat">⬡ ${Math.max(4,SPELL_MANA[sp.tier]||20)} mana</span>
+</div>
+<div class="sp-desc">${sp.desc}</div>`:''}
+</div>`;
+  }
+  out+=`</div>`;
+  return out;
+})()}
 ${renderCmd(team,i)}
 </div>`;
   });
@@ -1107,7 +2015,7 @@ function drawMap(rd){
 
 // SIMULATION
 let rd=[],cr=0,pt=null;
-function rand2(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+// ── RNG / Damage utilities ────────────────────────────────────────────────
 
 // ── Effective movement steps after applying armor move penalty ────────────────
 // movePenalty: 0=no penalty, 0.5=half speed, 1=completely stopped.
@@ -1198,10 +2106,14 @@ function runSim(){
         usingMelee:false,switchingWeapon:false,
         running:false,
         armorType:c.arm||'Unarmored',
-        movePenalty:d.movePenalty||0,  // armor + class affinity movement cost
+        movePenalty:d.movePenalty||0,
         cmds,
         observeAccum:0,observeLeft:0,
-        mhp:d.hp,hp:d.hp,stats:d,dead:false,
+        mhp:d.hp,hp:d.hp,
+        maxMana:d.mana,mana:d.mana,
+        effects:[],cooldowns:{},castCharge:null,
+        spellLoadout:(c.spells||[]).filter(s=>s&&s.id),
+        stats:d,dead:false,
         row:pos[i].row,col:pos[i].col,
       };
     });
@@ -1215,6 +2127,12 @@ function runSim(){
     round++;const log=[];
     log.push({cls:'rh',t:`\u2014 Round ${round} \u2014`});
     for(const c of all)c.running=false;
+    // ── Tick ongoing spell effects ─────────────────────────────────────────
+    tickEffects(all,log);
+    // ── Mana regeneration (INT/10 per round) ──────────────────────────────
+    for(const c of all.filter(x=>!x.dead)){
+      const regen=Math.max(1,Math.round((c.stats.I||2)/10*c.maxMana*0.05));
+      c.mana=Math.min(c.maxMana,c.mana+regen);}
     const to=all.filter(c=>!c.dead).sort((a,b)=>a.stats.spd-b.stats.spd);
     for(const atk of to){
       if(atk.dead)continue;
@@ -1257,6 +2175,74 @@ function runSim(){
         atk.observeLeft--;atk.observeAccum++;
         log.push({cls:'lmv',t:`${atk.nm} observes the enemy (read: ${atk.observeAccum} round${atk.observeAccum!==1?'s':''})`});
         continue;
+      }
+
+      // ── EFFECT OVERLAYS — computed once per turn ─────────────────────────
+      const ovl=effOvl(atk);
+      // Stun / sleep — skip turn (also cancels any in-progress cast)
+      if(ovl.stun||ovl.sleep){
+        if(atk.castCharge)log.push({cls:'lsp-deb',t:`${atk.nm}'s ${SPELL_BY_ID[atk.castCharge.id]?.name||'spell'} interrupted — ${ovl.sleep?'asleep':'stunned'}!`});
+        atk.castCharge=null;
+        log.push({cls:'lsp-deb',t:`${atk.nm} is ${ovl.sleep?'asleep':'stunned'} — skips turn`});
+        continue;}
+      // If mid-cast, override the command action so we always continue the active charge
+      if(atk.castCharge){cmd={...cmd,action:'cast',spellId:atk.castCharge.id};}
+      // Confusion — attack nearest unit regardless of side
+      let confusionTarget=null;
+      if(ovl.confused){
+        const nearest=all.filter(c=>c!==atk&&!c.dead).sort((a,b)=>dist(atk,a)-dist(atk,b));
+        confusionTarget=nearest[0]||null;}
+
+      // ── CAST ─────────────────────────────────────────────────────────────
+      if(cmd.action==='cast'){
+        // If already mid-cast on a different spell, continue that cast instead
+        const activeCharge=atk.castCharge;
+        const cmdSpell=SPELL_BY_ID[cmd.spellId||''];
+        // Determine which spell we're actually casting
+        const spell=activeCharge?SPELL_BY_ID[activeCharge.id]:cmdSpell;
+        if(!spell){log.push({cls:'lsp-cast',t:`${atk.nm} concentrates but has no spell assigned`});continue;}
+        const cdLeft=atk.cooldowns[spell.id]||0;
+        if(cdLeft>0){
+          log.push({cls:'lsp-cast',t:`${atk.nm}: ${spell.name} on cooldown (${cdLeft} round${cdLeft!==1?'s':''} left) — attacks instead`});
+          // fall through to attack below by not continuing — instead just attack
+        } else {
+          const manaCost=Math.max(4,SPELL_MANA[spell.tier]||20);
+          if(!activeCharge&&atk.mana<manaCost){
+            log.push({cls:'lsp-cast',t:`${atk.nm}: not enough mana for ${spell.name} (${atk.mana}/${manaCost}) — attacks instead`});
+          } else {
+            // Charging multi-round spells
+            if(spell.castTime>0){
+              if(!activeCharge){
+                atk.castCharge={id:spell.id,round:1,total:spell.castTime};
+                log.push({cls:'lsp-cast',t:`${atk.nm} begins casting <b>${spell.name}</b> (${spell.castTime} rounds to complete)`});
+              } else {
+                atk.castCharge.round++;
+                const remaining=spell.castTime-atk.castCharge.round;
+                if(remaining>0){
+                  log.push({cls:'lsp-cast',t:`${atk.nm} channels <b>${spell.name}</b> — round ${atk.castCharge.round}/${spell.castTime} (${remaining} more to go)`});
+                } else {
+                  log.push({cls:'lsp-cast',t:`${atk.nm} finishes casting <b>${spell.name}</b>!`});
+                  atk.mana-=manaCost;
+                  const spellCfg2=(atk.spellLoadout||[]).find(sl=>sl.id===spell.id);
+                  const sk=spellCfg2?Math.max(1,Math.min(6,spellCfg2.sk)):spell.tier;
+                  castSpell(atk,spell,all,log,sk);
+                  atk.cooldowns[spell.id]=spell.cool;
+                  atk.castCharge=null;
+                }
+              }
+              continue;
+            }
+            // Instant cast
+            atk.mana-=manaCost;
+            // Skill level from loadout config (default to spell tier)
+            const spellCfg=(atk.spellLoadout||[]).find(sl=>sl.id===spell.id);
+            const sk=spellCfg?Math.max(1,Math.min(6,spellCfg.sk)):spell.tier;
+            castSpell(atk,spell,all,log,sk);
+            atk.cooldowns[spell.id]=spell.cool;
+            atk.castCharge=null;
+            continue;
+          }
+        }
       }
 
       // ── INTERCEPT ───────────────────────────────────────────────────────
@@ -1324,32 +2310,56 @@ function runSim(){
           atk.usingMelee=true;atk.activeWp=atk.sidearm;atk.switchingWeapon=true;
           log.push({cls:'lswp',t:`${atk.nm} draws ${atk.sidearm} \u2014 switching to melee! (turn lost)`});continue;
         }
-        retreat(all,atk,log);
+        // Flying — skip melee retreat
+        if(!ovl.flying)retreat(all,atk,log);
+        // Invisibility — target can't hit us
+        if(effOvl(tgt).invisible){log.push({cls:'lm',t:`${atk.nm} fires at <b>${tgt.nm}</b> \u2014 <i>invisible, cannot target</i>`});continue;}
         d=dist(atk,tgt);
-        if(Math.random()*100<tgt.stats.dg){log.push({cls:'lm',t:`${atk.nm} fires at <b>${tgt.nm}</b> \u2014 <i>dodged</i>`});continue;}
-        let rawDmg=rand2(s.dmin,s.dmax);const ic=Math.random()*100<s.cr;if(ic)rawDmg=Math.floor(rawDmg*2);
+        // Blind = 100% miss for attacker; accPen reduces hit chance
+        const atkMiss=ovl.blind||Math.random()*100<ovl.accPen;
+        if(atkMiss){log.push({cls:'lm',t:`${atk.nm} fires at <b>${tgt.nm}</b> \u2014 <i>${ovl.blind?'blinded — miss':'accuracy penalty — miss'}</i>`});continue;}
+        // Effective dodge
+        const tgtOvl=effOvl(tgt);
+        const effDg=Math.max(0,tgt.stats.dg+tgtOvl.dgAdd-tgtOvl.dgPen-(ovl.blind?0:0));
+        if(Math.random()*100<effDg){log.push({cls:'lm',t:`${atk.nm} fires at <b>${tgt.nm}</b> \u2014 <i>dodged</i>`});continue;}
+        let rawDmg=rand2(s.dmin+ovl.dmgAdd,s.dmax+ovl.dmgAdd)+ovl.fireDmgAdd;
+        rawDmg=Math.max(1,rawDmg);
+        const ic=Math.random()*100<Math.max(0,s.cr-tgtOvl.crPen);if(ic)rawDmg=Math.floor(rawDmg*2);
         const {dmg,blocked,resLabel,dmgType}=applyHit(rawDmg,atk.activeWp||atk.wp,atk,tgt,1,cmdDmgType);
         if(blocked){log.push({cls:'lm',t:`${atk.nm} fires at <b>${tgt.nm}</b> \u2014 <i>blocked</i>`});continue;}
-        tgt.hp=Math.max(0,tgt.hp-dmg);
+        const finalDmg=Math.max(1,Math.round(dmg*(1-tgtOvl.dmgReduce)));
+        tgt.hp=Math.max(0,tgt.hp-finalDmg);
         const ct=ic?` <span class="ct">\u2756 CRIT</span>`:'';
         const rl=resLabel?` <span style="font-size:.7em;opacity:.7">[${resLabel}]</span>`:'';
         const verb=isMagicWp(atk.wp)?'casts':'fires';
-        log.push({cls:ic?'lc':'lh',t:`${atk.nm} ${verb} ${atk.wp} <span style="font-size:.7em;opacity:.5">(${dmgType})</span> \u2192 <b>${tgt.nm}</b> \u00b7 <span class="dm">${dmg}</span>${ct}${rl} \u00b7 ${tgt.hp}/${tgt.mhp}hp`});
+        log.push({cls:ic?'lc':'lh',t:`${atk.nm} ${verb} ${atk.wp} <span style="font-size:.7em;opacity:.5">(${dmgType})</span> \u2192 <b>${tgt.nm}</b> \u00b7 <span class="dm">${finalDmg}</span>${ct}${rl} \u00b7 ${tgt.hp}/${tgt.mhp}hp`});
         if(tgt.hp<=0){tgt.dead=true;log.push({cls:'ld',t:`\u2620 ${tgt.nm} has fallen`});}
+        // Shock aura / spark shield retaliation
+        if(!tgt.dead){
+          const tov=effOvl(tgt);
+          if(tov.shockAura||tov.sparkRet>0){
+            const retDmg=tov.sparkRet||8;
+            dealSpellDmg(tgt,atk,retDmg,log,`⚡ Shock return hits <b>${atk.nm}</b>`);}}
       } else if(atk.usingMelee){
         // === SIDEARM MELEE ===
-        const meleeTgt=pickTarget();if(!meleeTgt)continue;
+        const meleeTgt=confusionTarget||pickTarget();if(!meleeTgt)continue;
         const md=dist(atk,meleeTgt);
         if(md<=wpRange(atk.activeWp||atk.wp)){
-          if(Math.random()*100<meleeTgt.stats.dg){log.push({cls:'lm',t:`${atk.nm} swings ${atk.activeWp} at <b>${meleeTgt.nm}</b> \u2014 <i>dodged</i>`});continue;}
-          let rawDmg=rand2(Math.round(s.dmin*0.7),Math.round(s.dmax*0.7));
+          if(effOvl(meleeTgt).invisible){log.push({cls:'lm',t:`${atk.nm} swings at <b>${meleeTgt.nm}</b> — invisible, cannot target`});continue;}
+          const atkMiss2=ovl.blind||Math.random()*100<ovl.accPen;
+          if(atkMiss2){log.push({cls:'lm',t:`${atk.nm} swings ${atk.activeWp} \u2014 <i>miss</i>`});continue;}
+          const tgtOvl2=effOvl(meleeTgt);
+          const effDg2=Math.max(0,meleeTgt.stats.dg+tgtOvl2.dgAdd-tgtOvl2.dgPen);
+          if(Math.random()*100<effDg2){log.push({cls:'lm',t:`${atk.nm} swings ${atk.activeWp} at <b>${meleeTgt.nm}</b> \u2014 <i>dodged</i>`});continue;}
+          let rawDmg=rand2(Math.round(s.dmin*0.7)+ovl.dmgAdd,Math.round(s.dmax*0.7)+ovl.dmgAdd);rawDmg=Math.max(1,rawDmg);
           const ic=Math.random()*100<s.cr;if(ic)rawDmg=Math.floor(rawDmg*2);
           const {dmg,blocked,resLabel,dmgType}=applyHit(rawDmg,atk.activeWp,atk,meleeTgt,1,cmdDmgType);
           if(blocked){log.push({cls:'lm',t:`${atk.nm} swings sidearm at <b>${meleeTgt.nm}</b> \u2014 <i>blocked</i>`});continue;}
-          meleeTgt.hp=Math.max(0,meleeTgt.hp-dmg);
+          const fd2=Math.max(1,Math.round(dmg*(1-tgtOvl2.dmgReduce)));
+          meleeTgt.hp=Math.max(0,meleeTgt.hp-fd2);
           const ct=ic?` <span class="ct">\u2756 CRIT</span>`:'';
           const rl=resLabel?` <span style="font-size:.7em;opacity:.7">[${resLabel}]</span>`:'';
-          log.push({cls:ic?'lc':'lh',t:`${atk.nm} slashes with ${atk.activeWp} <span style="font-size:.7em;opacity:.5">(${dmgType})</span> \u2192 <b>${meleeTgt.nm}</b> \u00b7 <span class="dm">${dmg}</span>${ct}${rl} \u00b7 ${meleeTgt.hp}/${meleeTgt.mhp}hp`});
+          log.push({cls:ic?'lc':'lh',t:`${atk.nm} slashes with ${atk.activeWp} <span style="font-size:.7em;opacity:.5">(${dmgType})</span> \u2192 <b>${meleeTgt.nm}</b> \u00b7 <span class="dm">${fd2}</span>${ct}${rl} \u00b7 ${meleeTgt.hp}/${meleeTgt.mhp}hp`});
           if(meleeTgt.hp<=0){meleeTgt.dead=true;log.push({cls:'ld',t:`\u2620 ${meleeTgt.nm} has fallen`});}
         } else {
           const steps=effSteps(atk,cmdSpeed==='run'?2:1);
@@ -1362,27 +2372,47 @@ function runSim(){
         }
       } else {
         // === MELEE ATTACK ===
+        const mTgt=confusionTarget||tgt;
         if(d<=wpRange(atk.activeWp||atk.wp)){
-          if(Math.random()*100<tgt.stats.dg){log.push({cls:'lm',t:`${atk.nm} swings at <b>${tgt.nm}</b> \u2014 <i>dodged</i>`});continue;}
-          let rawDmg=rand2(s.dmin,s.dmax);const ic=Math.random()*100<s.cr;if(ic)rawDmg=Math.floor(rawDmg*2);
+          // Flying units are untouchable by melee
+          if(effOvl(mTgt).flying){log.push({cls:'lm',t:`${atk.nm} swings at <b>${mTgt.nm}</b> \u2014 <i>airborne, untouchable</i>`});continue;}
+          if(effOvl(mTgt).invisible){log.push({cls:'lm',t:`${atk.nm} swings at <b>${mTgt.nm}</b> \u2014 <i>invisible</i>`});continue;}
+          const atkMiss3=ovl.blind||Math.random()*100<ovl.accPen;
+          if(atkMiss3){log.push({cls:'lm',t:`${atk.nm} swings at <b>${mTgt.nm}</b> \u2014 <i>miss</i>`});continue;}
+          const tgtOvl3=effOvl(mTgt);
+          const effDg3=Math.max(0,mTgt.stats.dg+tgtOvl3.dgAdd-tgtOvl3.dgPen);
+          if(Math.random()*100<effDg3){log.push({cls:'lm',t:`${atk.nm} swings at <b>${mTgt.nm}</b> \u2014 <i>dodged</i>`});continue;}
+          // Shock aura interrupt check (before dmg)
+          if(effOvl(mTgt).shockAura){
+            const shk=(mTgt.effects||[]).find(e=>e.id==='shockaura');
+            const shDmg=shk?shk.shockDmg:8;
+            dealSpellDmg(mTgt,atk,shDmg,log,`⚡ Shock Aura shocks <b>${atk.nm}</b>`);
+            if(atk.dead)continue;}
+          let rawDmg=rand2(s.dmin+ovl.dmgAdd,s.dmax+ovl.dmgAdd)+ovl.fireDmgAdd;rawDmg=Math.max(1,rawDmg);
+          const ic=Math.random()*100<Math.max(0,s.cr-tgtOvl3.crPen);if(ic)rawDmg=Math.floor(rawDmg*2);
           const runMult=atk.running?0.9:1;
-          const {dmg,blocked,resLabel,dmgType}=applyHit(rawDmg,atk.wp,atk,tgt,runMult,cmdDmgType);
-          if(blocked){log.push({cls:'lm',t:`${atk.nm} swings at <b>${tgt.nm}</b> \u2014 <i>blocked</i>`});continue;}
-          tgt.hp=Math.max(0,tgt.hp-dmg);
+          const {dmg,blocked,resLabel,dmgType}=applyHit(rawDmg,atk.wp,atk,mTgt,runMult,cmdDmgType);
+          if(blocked){log.push({cls:'lm',t:`${atk.nm} swings at <b>${mTgt.nm}</b> \u2014 <i>blocked</i>`});continue;}
+          const effBlk=Math.max(0,mTgt.stats.blk-tgtOvl3.blkPen);
+          const fd3=Math.max(1,Math.round(dmg*(1-tgtOvl3.dmgReduce)));
+          mTgt.hp=Math.max(0,mTgt.hp-fd3);
           const ct=ic?` <span class="ct">\u2756 CRIT</span>`:'';
           const rl=resLabel?` <span style="font-size:.7em;opacity:.7">[${resLabel}]</span>`:'';
-          log.push({cls:ic?'lc':'lh',t:`${atk.nm} strikes <b>${tgt.nm}</b> with ${atk.wp} <span style="font-size:.7em;opacity:.5">(${dmgType})</span> \u00b7 <span class="dm">${dmg}</span>${ct}${rl} \u00b7 ${tgt.hp}/${tgt.mhp}hp`});
-          if(tgt.hp<=0){tgt.dead=true;log.push({cls:'ld',t:`\u2620 ${tgt.nm} has fallen`});}
-          if(!tgt.dead&&atk.dualWield&&atk.dualWp){
-            if(Math.random()*100>=tgt.stats.dg){
-              let oRaw=rand2(Math.round(s.dmin*0.6),Math.round(s.dmax*0.6));
-              const {dmg:odm,blocked:oblk,resLabel:orl,dmgType:odt}=applyHit(oRaw,atk.dualWp,atk,tgt);
+          log.push({cls:ic?'lc':'lh',t:`${atk.nm} strikes <b>${mTgt.nm}</b> with ${atk.wp} <span style="font-size:.7em;opacity:.5">(${dmgType})</span> \u00b7 <span class="dm">${fd3}</span>${ct}${rl} \u00b7 ${mTgt.hp}/${mTgt.mhp}hp`});
+          if(mTgt.hp<=0){mTgt.dead=true;log.push({cls:'ld',t:`\u2620 ${mTgt.nm} has fallen`});}
+          // Spark shield retaliation
+          if(!mTgt.dead){const tov3=effOvl(mTgt);if(tov3.sparkRet>0){dealSpellDmg(mTgt,atk,tov3.sparkRet,log,`⚡ Spark Shield shocks <b>${atk.nm}</b>`);}}
+          if(!mTgt.dead&&atk.dualWield&&atk.dualWp){
+            if(Math.random()*100>=effDg3){
+              let oRaw=rand2(Math.round(s.dmin*0.6)+ovl.dmgAdd,Math.round(s.dmax*0.6)+ovl.dmgAdd);oRaw=Math.max(1,oRaw);
+              const {dmg:odm,blocked:oblk,resLabel:orl,dmgType:odt}=applyHit(oRaw,atk.dualWp,atk,mTgt);
               if(oblk){log.push({cls:'lm',t:`&nbsp;&nbsp;&#8627; offhand ${atk.dualWp} \u2014 <i>blocked</i>`});}
               else{
-                tgt.hp=Math.max(0,tgt.hp-odm);
+                const ofd=Math.max(1,Math.round(odm*(1-tgtOvl3.dmgReduce)));
+                mTgt.hp=Math.max(0,mTgt.hp-ofd);
                 const orlLabel=orl?` <span style="font-size:.7em;opacity:.7">[${orl}]</span>`:'';
-                log.push({cls:'lh',t:`&nbsp;&nbsp;&#8627; offhand ${atk.dualWp} <span style="font-size:.7em;opacity:.5">(${odt})</span> \u00b7 <span class="dm">${odm}</span>${orlLabel} \u00b7 ${tgt.hp}/${tgt.mhp}hp`});
-                if(tgt.hp<=0){tgt.dead=true;log.push({cls:'ld',t:`\u2620 ${tgt.nm} has fallen`});}
+                log.push({cls:'lh',t:`&nbsp;&nbsp;&#8627; offhand ${atk.dualWp} <span style="font-size:.7em;opacity:.5">(${odt})</span> \u00b7 <span class="dm">${ofd}</span>${orlLabel} \u00b7 ${mTgt.hp}/${mTgt.mhp}hp`});
+                if(mTgt.hp<=0){mTgt.dead=true;log.push({cls:'ld',t:`\u2620 ${mTgt.nm} has fallen`});}
               }
             } else log.push({cls:'lm',t:`&nbsp;&nbsp;&#8627; offhand ${atk.dualWp} \u2014 <i>dodged</i>`});
           }
@@ -1405,7 +2435,14 @@ function runSim(){
       c.hp=Math.max(1,c.hp-penalty);
       log.push({cls:'lrun',t:`${c.nm} sprinting \u2014 exposed (-${penalty} hp)`});
     }
-    for(const c of all.filter(x=>!x.dead)){const rg=Math.round(c.stats.hpr*5);if(rg>0){c.hp=Math.min(c.mhp,c.hp+rg);}}
+    // ── Cooldown tick ────────────────────────────────────────────────────
+    for(const c of all.filter(x=>!x.dead)){
+      for(const k in c.cooldowns){if(c.cooldowns[k]>0)c.cooldowns[k]--;}}
+    // ── HP regen (suppressed by noRegen effect) ───────────────────────────
+    for(const c of all.filter(x=>!x.dead)){
+      const ov=effOvl(c);
+      if(!ov.noRegen){const rg=Math.round(c.stats.hpr*5);if(rg>0){c.hp=Math.min(c.mhp,c.hp+rg);}}
+    }
     const aA=alive('a').length,aB=alive('b').length;let res=null;
     if(aA===0&&aB===0){res='draw';cont=false;log.push({cls:'lres wd',t:'\u2694 Draw \u2014 both parties fallen!'});}
     else if(aA===0){res='win-b';cont=false;log.push({cls:'lres wb',t:'\u2694 Party B is victorious!'});}
