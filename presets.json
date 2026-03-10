@@ -1,0 +1,156 @@
+{
+  "levels": {
+    "1": {
+      "name": "Peasant Rabble",
+      "desc": "Poorly armed villagers and bandits. A warm-up.",
+      "teams": [
+        {
+          "name": "Bandit Gang",
+          "fighters": [
+            {"nm":"Cutpurse","sp":"Human","cl":"Raider","lv":2,"wp":"Dagger","wpMat":"Simple Bronze","offhand":"","arm":"Unarmored","armMat":"","pts":{"s":0,"a":1,"i":0},"magicEls":[{"el":"Fire","skill":1}],"magicSchools":[{"school":"Destruction","skill":1}],"cmds":[{"action":"attack","speed":"walk","targetMode":"random","targetFilter":"","dmgTypeChoice":"","spellId":"","observeRounds":1}]},
+            {"nm":"Thug","sp":"Human","cl":"Butcher","lv":2,"wp":"Short Axe","wpMat":"Simple Bronze","offhand":"","arm":"Unarmored","armMat":"","pts":{"s":1,"a":0,"i":0},"magicEls":[{"el":"Fire","skill":1}],"magicSchools":[{"school":"Destruction","skill":1}],"cmds":[{"action":"attack","speed":"walk","targetMode":"nearest","targetFilter":"","dmgTypeChoice":"","spellId":"","observeRounds":1}]}
+          ]
+        },
+        {
+          "name": "Goblin Scouts",
+          "fighters": [
+            {"nm":"Scout","sp":"Goblinoid","cl":"Ranger","lv":2,"wp":"Short Bow","wpMat":"Simple Bronze","offhand":"","arm":"Unarmored","armMat":"","pts":{"s":0,"a":1,"i":0},"magicEls":[{"el":"Air","skill":1}],"magicSchools":[{"school":"Alteration","skill":1}],"cmds":[{"action":"attack","speed":"walk","targetMode":"random","targetFilter":"","dmgTypeChoice":"","spellId":"","observeRounds":1}]},
+            {"nm":"Brawler","sp":"Goblinoid","cl":"Berserker","lv":2,"wp":"Short Sword","wpMat":"Simple Bronze","offhand":"","arm":"Unarmored","armMat":"","pts":{"s":1,"a":0,"i":0},"magicEls":[{"el":"Fire","skill":1}],"magicSchools":[{"school":"Destruction","skill":1}],"cmds":[{"action":"attack","speed":"run","targetMode":"nearest","targetFilter":"","dmgTypeChoice":"","spellId":"","observeRounds":1}]}
+          ]
+        },
+        {
+          "name": "Village Militia",
+          "fighters": [
+            {"nm":"Farmer","sp":"Human","cl":"Knight","lv":2,"wp":"Hammer","wpMat":"Simple Bronze","offhand":"Shield","arm":"Light Armor","armMat":"","pts":{"s":1,"a":0,"i":0},"magicEls":[{"el":"Earth","skill":1}],"magicSchools":[{"school":"Restoration","skill":1}],"cmds":[{"action":"attack","speed":"walk","targetMode":"random","targetFilter":"","dmgTypeChoice":"","spellId":"","observeRounds":1}]},
+            {"nm":"Guard","sp":"Human","cl":"Slinger","lv":2,"wp":"Slingshot","wpMat":"Simple Bronze","offhand":"","arm":"Unarmored","armMat":"","pts":{"s":0,"a":1,"i":0},"magicEls":[{"el":"Air","skill":1}],"magicSchools":[{"school":"Alteration","skill":1}],"cmds":[{"action":"attack","speed":"walk","targetMode":"random","targetFilter":"","dmgTypeChoice":"","spellId":"","observeRounds":1}]}
+          ]
+        }
+      ]
+    },
+    "2": {
+      "name": "Hardened Warriors",
+      "desc": "Seasoned fighters with decent gear and tactics.",
+      "teams": [
+        {
+          "name": "Orc Warband",
+          "fighters": [
+            {"nm":"Warchief","sp":"Orc","cl":"Berserker","lv":5,"wp":"Big Axe","wpMat":"Iron","offhand":"","arm":"Light Armor","armMat":"","pts":{"s":2,"a":0,"i":0},"magicEls":[{"el":"Fire","skill":1}],"magicSchools":[{"school":"Destruction","skill":1}],"cmds":[{"action":"attack","speed":"run","targetMode":"nearest","targetFilter":"","dmgTypeChoice":"","spellId":"","observeRounds":1}]},
+            {"nm":"Archer","sp":"Orc","cl":"Archer","lv":5,"wp":"Short Bow","wpMat":"Iron","offhand":"","arm":"Unarmored","armMat":"","pts":{"s":0,"a":2,"i":0},"magicEls":[{"el":"Air","skill":1}],"magicSchools":[{"school":"Alteration","skill":1}],"cmds":[{"action":"attack","speed":"walk","targetMode":"weakest","targetFilter":"","dmgTypeChoice":"","spellId":"","observeRounds":1}]},
+            {"nm":"Grunt","sp":"Orc","cl":"Raider","lv":5,"wp":"Short Sword","wpMat":"Iron","offhand":"Shield","arm":"Heavy Armor","armMat":"","pts":{"s":1,"a":1,"i":0},"magicEls":[{"el":"Fire","skill":1}],"magicSchools":[{"school":"Destruction","skill":1}],"cmds":[{"action":"attack","speed":"walk","targetMode":"nearest","targetFilter":"","dmgTypeChoice":"","spellId":"","observeRounds":1}]}
+          ]
+        },
+        {
+          "name": "Dwarven Vanguard",
+          "fighters": [
+            {"nm":"Ironguard","sp":"Dwarf","cl":"Knight","lv":5,"wp":"War Hammer","wpMat":"Iron","offhand":"","arm":"Heavy Armor","armMat":"","pts":{"s":2,"a":0,"i":0},"magicEls":[{"el":"Earth","skill":1}],"magicSchools":[{"school":"Restoration","skill":1}],"cmds":[{"action":"attack","speed":"walk","targetMode":"nearest","targetFilter":"","dmgTypeChoice":"","spellId":"","observeRounds":1}]},
+            {"nm":"Crossbowman","sp":"Dwarf","cl":"Rifleman","lv":5,"wp":"Heavy Crossbow","wpMat":"Iron","offhand":"","arm":"Light Armor","armMat":"","pts":{"s":0,"a":1,"i":1},"magicEls":[{"el":"Air","skill":1}],"magicSchools":[{"school":"Alteration","skill":1}],"cmds":[{"action":"attack","speed":"walk","targetMode":"random","targetFilter":"","dmgTypeChoice":"","spellId":"","observeRounds":1}]},
+            {"nm":"Cleric","sp":"Dwarf","cl":"Cleric","lv":5,"wp":"Hammer","wpMat":"Iron","offhand":"Shield","arm":"Light Armor","armMat":"","pts":{"s":0,"a":0,"i":2},"magicEls":[{"el":"Holy","skill":2}],"magicSchools":[{"school":"Restoration","skill":2}],"cmds":[{"action":"cast","speed":"walk","targetMode":"ally_weakest","targetFilter":"","dmgTypeChoice":"","spellId":"minor_restoration","observeRounds":1}]}
+          ]
+        },
+        {
+          "name": "Elven Patrol",
+          "fighters": [
+            {"nm":"Ranger","sp":"Elf","cl":"Ranger","lv":5,"wp":"Long Bow","wpMat":"Iron","offhand":"","arm":"Light Armor","armMat":"","pts":{"s":0,"a":2,"i":0},"magicEls":[{"el":"Air","skill":2}],"magicSchools":[{"school":"Alteration","skill":1}],"cmds":[{"action":"attack","speed":"walk","targetMode":"weakest","targetFilter":"","dmgTypeChoice":"","spellId":"","observeRounds":1}]},
+            {"nm":"Blade","sp":"Elf","cl":"Assassin","lv":5,"wp":"Dagger","wpMat":"Iron","offhand":"Dagger","arm":"Unarmored","armMat":"","pts":{"s":0,"a":2,"i":0},"magicEls":[{"el":"Air","skill":1}],"magicSchools":[{"school":"Alteration","skill":1}],"cmds":[{"action":"attack","speed":"walk","targetMode":"random","targetFilter":"","dmgTypeChoice":"","spellId":"","observeRounds":1}]},
+            {"nm":"Scout","sp":"Elf","cl":"Marksman","lv":5,"wp":"Short Bow","wpMat":"Iron","offhand":"","arm":"Unarmored","armMat":"","pts":{"s":0,"a":1,"i":1},"magicEls":[{"el":"Air","skill":1}],"magicSchools":[{"school":"Alteration","skill":1}],"cmds":[{"action":"attack","speed":"walk","targetMode":"random","targetFilter":"","dmgTypeChoice":"","spellId":"","observeRounds":1}]}
+          ]
+        }
+      ]
+    },
+    "3": {
+      "name": "Elite Forces",
+      "desc": "Veteran soldiers with quality equipment and magic support.",
+      "teams": [
+        {
+          "name": "Imperial Guard",
+          "fighters": [
+            {"nm":"Captain","sp":"Human","cl":"Knight","lv":9,"wp":"Long Sword","wpMat":"Steel","offhand":"","arm":"Heavy Armor","armMat":"","pts":{"s":2,"a":1,"i":0},"magicEls":[{"el":"Holy","skill":2}],"magicSchools":[{"school":"Restoration","skill":2}],"cmds":[{"action":"attack","speed":"walk","targetMode":"nearest","targetFilter":"","dmgTypeChoice":"","spellId":"","observeRounds":1}]},
+            {"nm":"Warmage","sp":"Human","cl":"Mage","lv":9,"wp":"Staff","wpMat":"Steel","offhand":"Focus","arm":"Unarmored","armMat":"","pts":{"s":0,"a":0,"i":3},"magicEls":[{"el":"Fire","skill":3}],"magicSchools":[{"school":"Destruction","skill":3}],"cmds":[{"action":"cast","speed":"walk","targetMode":"random","targetFilter":"","dmgTypeChoice":"","spellId":"inferno","observeRounds":1}]},
+            {"nm":"Crossbow","sp":"Human","cl":"Rifleman","lv":9,"wp":"Heavy Crossbow","wpMat":"Steel","offhand":"","arm":"Light Armor","armMat":"","pts":{"s":0,"a":2,"i":1},"magicEls":[{"el":"Air","skill":1}],"magicSchools":[{"school":"Alteration","skill":1}],"cmds":[{"action":"attack","speed":"walk","targetMode":"weakest","targetFilter":"","dmgTypeChoice":"","spellId":"","observeRounds":1}]},
+            {"nm":"Shield","sp":"Human","cl":"Knight","lv":9,"wp":"Short Sword","wpMat":"Steel","offhand":"Shield","arm":"Heavy Armor","armMat":"","pts":{"s":3,"a":0,"i":0},"magicEls":[{"el":"Earth","skill":1}],"magicSchools":[{"school":"Restoration","skill":1}],"cmds":[{"action":"attack","speed":"walk","targetMode":"nearest","targetFilter":"","dmgTypeChoice":"","spellId":"","observeRounds":1}]}
+          ]
+        },
+        {
+          "name": "Troll Raiders",
+          "fighters": [
+            {"nm":"Troll Chief","sp":"Troll","cl":"Bonker","lv":9,"wp":"Giant Slingshot","wpMat":"Iron","offhand":"","arm":"Natural","armMat":"","pts":{"s":3,"a":0,"i":0},"magicEls":[{"el":"Earth","skill":1}],"magicSchools":[{"school":"Destruction","skill":1}],"cmds":[{"action":"attack","speed":"walk","targetMode":"random","targetFilter":"","dmgTypeChoice":"","spellId":"","observeRounds":1}]},
+            {"nm":"Shaman","sp":"Troll","cl":"Shaman","lv":9,"wp":"Staff","wpMat":"Iron","offhand":"Focus","arm":"Unarmored","armMat":"","pts":{"s":0,"a":0,"i":3},"magicEls":[{"el":"Earth","skill":3},{"el":"Water","skill":2}],"magicSchools":[{"school":"Restoration","skill":3}],"cmds":[{"action":"cast","speed":"walk","targetMode":"ally_weakest","targetFilter":"","dmgTypeChoice":"","spellId":"stoneskin","observeRounds":1}]},
+            {"nm":"Bruiser","sp":"Troll","cl":"Berserker","lv":9,"wp":"War Hammer","wpMat":"Iron","offhand":"","arm":"Natural","armMat":"","pts":{"s":2,"a":1,"i":0},"magicEls":[{"el":"Fire","skill":1}],"magicSchools":[{"school":"Destruction","skill":1}],"cmds":[{"action":"attack","speed":"run","targetMode":"nearest","targetFilter":"","dmgTypeChoice":"","spellId":"","observeRounds":1}]}
+          ]
+        },
+        {
+          "name": "Witch Coven",
+          "fighters": [
+            {"nm":"High Witch","sp":"Elf","cl":"Witch","lv":9,"wp":"Staff","wpMat":"Steel","offhand":"Focus","arm":"Unarmored","armMat":"","pts":{"s":0,"a":0,"i":3},"magicEls":[{"el":"Wild","skill":3},{"el":"Water","skill":2}],"magicSchools":[{"school":"Alteration","skill":3}],"cmds":[{"action":"cast","speed":"walk","targetMode":"random","targetFilter":"","dmgTypeChoice":"","spellId":"sleep","observeRounds":1}]},
+            {"nm":"Witch","sp":"Human","cl":"Witch","lv":9,"wp":"Dagger","wpMat":"Steel","offhand":"Focus","arm":"Unarmored","armMat":"","pts":{"s":0,"a":0,"i":3},"magicEls":[{"el":"Wild","skill":2}],"magicSchools":[{"school":"Alteration","skill":2}],"cmds":[{"action":"cast","speed":"walk","targetMode":"random","targetFilter":"","dmgTypeChoice":"","spellId":"curse","observeRounds":1}]},
+            {"nm":"Warlock","sp":"Human","cl":"Warlock","lv":9,"wp":"Staff","wpMat":"Steel","offhand":"Focus","arm":"Unarmored","armMat":"","pts":{"s":0,"a":0,"i":3},"magicEls":[{"el":"Fire","skill":3}],"magicSchools":[{"school":"Destruction","skill":3}],"cmds":[{"action":"cast","speed":"walk","targetMode":"random","targetFilter":"","dmgTypeChoice":"","spellId":"inferno","observeRounds":1}]}
+          ]
+        }
+      ]
+    },
+    "4": {
+      "name": "Champions",
+      "desc": "Legendary warriors and powerful spellcasters. Victory is not guaranteed.",
+      "teams": [
+        {
+          "name": "Dragon Cult",
+          "fighters": [
+            {"nm":"Cult Champion","sp":"Human","cl":"Knight","lv":13,"wp":"Halberd","wpMat":"Fine Steel","offhand":"","arm":"Heavy Armor","armMat":"","pts":{"s":3,"a":2,"i":0},"magicEls":[{"el":"Fire","skill":3}],"magicSchools":[{"school":"Destruction","skill":2}],"cmds":[{"action":"attack","speed":"walk","targetMode":"nearest","targetFilter":"","dmgTypeChoice":"","spellId":"","observeRounds":1}]},
+            {"nm":"Fire Mage","sp":"Elf","cl":"Mage","lv":13,"wp":"Staff","wpMat":"Fine Steel","offhand":"Focus","arm":"Unarmored","armMat":"","pts":{"s":0,"a":0,"i":4},"magicEls":[{"el":"Fire","skill":5}],"magicSchools":[{"school":"Destruction","skill":5}],"cmds":[{"action":"cast","speed":"walk","targetMode":"random","targetFilter":"","dmgTypeChoice":"","spellId":"incineration","observeRounds":1}]},
+            {"nm":"Cultist","sp":"Human","cl":"Warlock","lv":13,"wp":"Dagger","wpMat":"Fine Steel","offhand":"Focus","arm":"Unarmored","armMat":"","pts":{"s":0,"a":1,"i":3},"magicEls":[{"el":"Fire","skill":3},{"el":"Wild","skill":3}],"magicSchools":[{"school":"Alteration","skill":3}],"cmds":[{"action":"cast","speed":"walk","targetMode":"random","targetFilter":"","dmgTypeChoice":"","spellId":"deathmark","observeRounds":1}]},
+            {"nm":"Sorcerer","sp":"Human","cl":"Witch","lv":13,"wp":"Staff","wpMat":"Fine Steel","offhand":"Focus","arm":"Unarmored","armMat":"","pts":{"s":0,"a":0,"i":4},"magicEls":[{"el":"Electricity","skill":4},{"el":"Air","skill":3},{"el":"Fire","skill":3}],"magicSchools":[{"school":"Destruction","skill":4}],"cmds":[{"action":"cast","speed":"walk","targetMode":"random","targetFilter":"","dmgTypeChoice":"","spellId":"lightning_strike","observeRounds":1}]}
+          ]
+        },
+        {
+          "name": "Undead Legion",
+          "fighters": [
+            {"nm":"Death Knight","sp":"Human","cl":"Knight","lv":13,"wp":"Long Sword","wpMat":"Fine Steel","offhand":"Shield","arm":"Heavy Armor","armMat":"","pts":{"s":3,"a":1,"i":1},"magicEls":[{"el":"Wild","skill":3}],"magicSchools":[{"school":"Alteration","skill":3}],"cmds":[{"action":"attack","speed":"walk","targetMode":"nearest","targetFilter":"","dmgTypeChoice":"","spellId":"","observeRounds":1}]},
+            {"nm":"Necromancer","sp":"Elf","cl":"Witch","lv":13,"wp":"Staff","wpMat":"Fine Steel","offhand":"Focus","arm":"Unarmored","armMat":"","pts":{"s":0,"a":0,"i":4},"magicEls":[{"el":"Nature","skill":4},{"el":"Earth","skill":3},{"el":"Water","skill":3}],"magicSchools":[{"school":"Conjuration","skill":4}],"cmds":[{"action":"cast","speed":"walk","targetMode":"random","targetFilter":"","dmgTypeChoice":"","spellId":"wither","observeRounds":1}]},
+            {"nm":"Wraith","sp":"Elf","cl":"Assassin","lv":13,"wp":"Dagger","wpMat":"Fine Steel","offhand":"Dagger","arm":"Unarmored","armMat":"","pts":{"s":0,"a":3,"i":2},"magicEls":[{"el":"Wild","skill":3}],"magicSchools":[{"school":"Alteration","skill":3}],"cmds":[{"action":"attack","speed":"walk","targetMode":"weakest","targetFilter":"","dmgTypeChoice":"","spellId":"","observeRounds":1}]},
+            {"nm":"Bone Archer","sp":"Human","cl":"Archer","lv":13,"wp":"Long Bow","wpMat":"Fine Steel","offhand":"","arm":"Light Armor","armMat":"","pts":{"s":0,"a":4,"i":0},"magicEls":[{"el":"Air","skill":1}],"magicSchools":[{"school":"Alteration","skill":1}],"cmds":[{"action":"attack","speed":"walk","targetMode":"weakest","targetFilter":"","dmgTypeChoice":"","spellId":"","observeRounds":1}]}
+          ]
+        },
+        {
+          "name": "Storm Giants",
+          "fighters": [
+            {"nm":"Storm Lord","sp":"Troll","cl":"Bonker","lv":13,"wp":"Giant Slingshot","wpMat":"Fine Steel","offhand":"","arm":"Natural","armMat":"","pts":{"s":3,"a":2,"i":0},"magicEls":[{"el":"Air","skill":3},{"el":"Electricity","skill":3},{"el":"Fire","skill":2}],"magicSchools":[{"school":"Destruction","skill":3}],"cmds":[{"action":"attack","speed":"walk","targetMode":"random","targetFilter":"","dmgTypeChoice":"","spellId":"","observeRounds":1}]},
+            {"nm":"Wind Mage","sp":"Elf","cl":"Mage","lv":13,"wp":"Staff","wpMat":"Fine Steel","offhand":"Focus","arm":"Unarmored","armMat":"","pts":{"s":0,"a":0,"i":4},"magicEls":[{"el":"Air","skill":5},{"el":"Electricity","skill":4}],"magicSchools":[{"school":"Conjuration","skill":4}],"cmds":[{"action":"cast","speed":"walk","targetMode":"random","targetFilter":"","dmgTypeChoice":"","spellId":"tornado","observeRounds":1}]},
+            {"nm":"Thundermage","sp":"Human","cl":"Witch","lv":13,"wp":"Staff","wpMat":"Fine Steel","offhand":"Focus","arm":"Unarmored","armMat":"","pts":{"s":0,"a":0,"i":4},"magicEls":[{"el":"Electricity","skill":5},{"el":"Air","skill":3},{"el":"Fire","skill":2}],"magicSchools":[{"school":"Destruction","skill":5}],"cmds":[{"action":"cast","speed":"walk","targetMode":"random","targetFilter":"","dmgTypeChoice":"","spellId":"chain_lightning","observeRounds":1}]}
+          ]
+        }
+      ]
+    },
+    "5": {
+      "name": "World Enders",
+      "desc": "Ancient powers and catastrophic magic. Only the greatest survive.",
+      "teams": [
+        {
+          "name": "Archmages of Ruin",
+          "fighters": [
+            {"nm":"Archmage","sp":"Elf","cl":"Witch","lv":20,"wp":"Staff","wpMat":"Hardened Steel","offhand":"Focus","arm":"Unarmored","armMat":"","pts":{"s":0,"a":0,"i":5},"magicEls":[{"el":"Fire","skill":6},{"el":"Wild","skill":5}],"magicSchools":[{"school":"Destruction","skill":6},{"school":"Alteration","skill":5}],"cmds":[{"action":"cast","speed":"walk","targetMode":"random","targetFilter":"","dmgTypeChoice":"","spellId":"disintegration","observeRounds":1}]},
+            {"nm":"Void Walker","sp":"Elf","cl":"Mage","lv":20,"wp":"Staff","wpMat":"Hardened Steel","offhand":"Focus","arm":"Unarmored","armMat":"","pts":{"s":0,"a":0,"i":5},"magicEls":[{"el":"Air","skill":6},{"el":"Electricity","skill":6},{"el":"Fire","skill":4}],"magicSchools":[{"school":"Destruction","skill":6},{"school":"Conjuration","skill":5}],"cmds":[{"action":"cast","speed":"walk","targetMode":"random","targetFilter":"","dmgTypeChoice":"","spellId":"earthquake","observeRounds":1}]},
+            {"nm":"Soul Reaper","sp":"Elf","cl":"Warlock","lv":20,"wp":"Dagger","wpMat":"Hardened Steel","offhand":"Focus","arm":"Unarmored","armMat":"","pts":{"s":0,"a":1,"i":4},"magicEls":[{"el":"Nature","skill":6},{"el":"Earth","skill":5},{"el":"Water","skill":5}],"magicSchools":[{"school":"Restoration","skill":6},{"school":"Conjuration","skill":5}],"cmds":[{"action":"cast","speed":"walk","targetMode":"random","targetFilter":"","dmgTypeChoice":"","spellId":"wither","observeRounds":1}]},
+            {"nm":"Battle Witch","sp":"Human","cl":"Witch","lv":20,"wp":"Staff","wpMat":"Hardened Steel","offhand":"Focus","arm":"Unarmored","armMat":"","pts":{"s":0,"a":0,"i":5},"magicEls":[{"el":"Water","skill":6},{"el":"Wild","skill":5}],"magicSchools":[{"school":"Alteration","skill":6},{"school":"Destruction","skill":5}],"cmds":[{"action":"cast","speed":"walk","targetMode":"random","targetFilter":"","dmgTypeChoice":"","spellId":"avalanche","observeRounds":1}]}
+          ]
+        },
+        {
+          "name": "The Eternal Host",
+          "fighters": [
+            {"nm":"Immortal Knight","sp":"Human","cl":"Knight","lv":20,"wp":"Halberd","wpMat":"Hardened Steel","offhand":"","arm":"Heavy Armor","armMat":"","pts":{"s":5,"a":3,"i":2},"magicEls":[{"el":"Holy","skill":4},{"el":"Earth","skill":4},{"el":"Air","skill":4}],"magicSchools":[{"school":"Restoration","skill":4}],"cmds":[{"action":"attack","speed":"walk","targetMode":"nearest","targetFilter":"","dmgTypeChoice":"","spellId":"","observeRounds":1}]},
+            {"nm":"High Priest","sp":"Elf","cl":"Cleric","lv":20,"wp":"Staff","wpMat":"Hardened Steel","offhand":"Focus","arm":"Light Armor","armMat":"","pts":{"s":0,"a":0,"i":5},"magicEls":[{"el":"Holy","skill":6},{"el":"Earth","skill":5},{"el":"Air","skill":5}],"magicSchools":[{"school":"Restoration","skill":6},{"school":"Alteration","skill":5}],"cmds":[{"action":"cast","speed":"walk","targetMode":"ally_weakest","targetFilter":"","dmgTypeChoice":"","spellId":"revitalization","observeRounds":1}]},
+            {"nm":"Berserker Lord","sp":"Orc","cl":"Berserker","lv":20,"wp":"Big Axe","wpMat":"Hardened Steel","offhand":"","arm":"Light Armor","armMat":"","pts":{"s":5,"a":3,"i":0},"magicEls":[{"el":"Fire","skill":2}],"magicSchools":[{"school":"Destruction","skill":2}],"cmds":[{"action":"attack","speed":"run","targetMode":"nearest","targetFilter":"","dmgTypeChoice":"","spellId":"","observeRounds":1}]},
+            {"nm":"Grand Witch","sp":"Elf","cl":"Witch","lv":20,"wp":"Staff","wpMat":"Hardened Steel","offhand":"Focus","arm":"Unarmored","armMat":"","pts":{"s":0,"a":0,"i":5},"magicEls":[{"el":"Fire","skill":6},{"el":"Electricity","skill":6},{"el":"Air","skill":5},{"el":"Fire","skill":6}],"magicSchools":[{"school":"Destruction","skill":6},{"school":"Alteration","skill":5}],"cmds":[{"action":"cast","speed":"walk","targetMode":"random","targetFilter":"","dmgTypeChoice":"","spellId":"disintegration","observeRounds":1}]}
+          ]
+        },
+        {
+          "name": "The Primordial Three",
+          "fighters": [
+            {"nm":"Primordial Titan","sp":"Troll","cl":"Bonker","lv":20,"wp":"Giant Slingshot","wpMat":"Hardened Steel","offhand":"","arm":"Natural","armMat":"","pts":{"s":5,"a":5,"i":0},"magicEls":[{"el":"Earth","skill":4},{"el":"Fire","skill":4}],"magicSchools":[{"school":"Destruction","skill":4}],"cmds":[{"action":"attack","speed":"walk","targetMode":"random","targetFilter":"","dmgTypeChoice":"","spellId":"","observeRounds":1}]},
+            {"nm":"Ancient Druid","sp":"Elf","cl":"Druid","lv":20,"wp":"Staff","wpMat":"Hardened Steel","offhand":"Focus","arm":"Unarmored","armMat":"","pts":{"s":0,"a":0,"i":5},"magicEls":[{"el":"Nature","skill":6},{"el":"Earth","skill":6},{"el":"Water","skill":6}],"magicSchools":[{"school":"Restoration","skill":6},{"school":"Conjuration","skill":6}],"cmds":[{"action":"cast","speed":"walk","targetMode":"random","targetFilter":"","dmgTypeChoice":"","spellId":"wither","observeRounds":1}]},
+            {"nm":"Storm Archon","sp":"Elf","cl":"Mage","lv":20,"wp":"Staff","wpMat":"Hardened Steel","offhand":"Focus","arm":"Unarmored","armMat":"","pts":{"s":0,"a":0,"i":5},"magicEls":[{"el":"Air","skill":6},{"el":"Electricity","skill":6},{"el":"Fire","skill":5},{"el":"Water","skill":5}],"magicSchools":[{"school":"Destruction","skill":6},{"school":"Conjuration","skill":6}],"cmds":[{"action":"cast","speed":"walk","targetMode":"random","targetFilter":"","dmgTypeChoice":"","spellId":"volcano","observeRounds":1}]}
+          ]
+        }
+      ]
+    }
+  }
+}

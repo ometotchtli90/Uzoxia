@@ -1,0 +1,61 @@
+Tier,Element,El. Type,Unlock Req.,School,Spell Name,Mana Cost,Cast Time,Cooldown,Duration,Target,Scale Primary,Scale Secondary,Description
+1,Air,Base,—,Alteration,Haste,14,Instant,2r,2r,Single ally,—,—,Faster attacks and movement on self or ally for 2 rounds.
+2,Air,Base,—,Alteration,Sharpness,22,1r,1r,3r,Single ally,—,—,Sharpen weapon edges — +damage for 3 rounds.
+2,Fire,Base,—,Alteration,Fierce Blood,22,Instant,3r,4r,Single ally,lv,elSkill,+attack speed and +flat damage for 4 rounds.
+2,Fire,Base,—,Alteration,Immolation,22,1r,—,3r,Self,—,—,Self-ignite — burns enemies within 1 tile each round for 3 rounds.
+2,Holy,Derived,Earth elSk≥2 + Air elSk≥2  OR  Restoration schoolSk≥2,Alteration,Bless,22,Instant,2r,4r,Single ally,—,—,Divine light raises an ally's combat stats for 4 rounds.
+3,Electricity,Derived,Air elSk≥2 + Fire elSk≥2  OR  Destruction schoolSk≥2,Alteration,Lightning Cage,34,Instant,3r,4r,Single enemy,—,—,Cage of lightning — movement triggers stun and damage.
+3,Electricity,Derived,Air elSk≥2 + Fire elSk≥2  OR  Destruction schoolSk≥2,Alteration,Thunderstep,34,Instant,3r,3r,Single ally,schoolSkill,elSkill,"Charge an ally — +attack speed, +move speed for 3 rounds."
+3,Fire,Base,—,Alteration,Burn,34,Instant,—,3r,Single ally,—,—,Imbue melee attacks with fire damage for 3 rounds.
+3,Holy,Derived,Earth elSk≥2 + Air elSk≥2  OR  Restoration schoolSk≥2,Alteration,Holy Strike,34,Instant,2r,10r,Single ally,—,—,Double damage against undead for 10 rounds.
+3,Holy,Derived,Earth elSk≥2 + Air elSk≥2  OR  Restoration schoolSk≥2,Alteration,Intervention,34,Instant,4r,1r,All enemies,—,—,All enemies skip their action this round.
+3,Water,Base,—,Alteration,Murky Depths,34,1r,3r,4r,Single enemy,schoolSkill,elSkill,"−dodge%, −crit% and −accuracy on enemy for 4 rounds."
+3,Wild,Derived,Fire elSk≥2 + Water elSk≥2  OR  Alteration schoolSk≥2,Alteration,Curse,34,1r,—,2r,Single enemy,—,—,Dark hex — reduces accuracy and dodge for 2 rounds.
+4,Wild,Derived,Fire elSk≥2 + Water elSk≥2  OR  Alteration schoolSk≥2,Alteration,Sleep,50,3r,6r,6r,Single enemy,—,—,Magically sleep one enemy — no actions for 6 rounds.
+5,Wild,Derived,Fire elSk≥2 + Water elSk≥2  OR  Alteration schoolSk≥2,Alteration,Confusion,72,2r,4r,4r,All enemies,—,—,3×3 confusion cloud — enemies attack nearest unit for 4 rounds.
+5,Wild,Derived,Fire elSk≥2 + Water elSk≥2  OR  Alteration schoolSk≥2,Alteration,Wild Fury,72,2r,5r,5r,Single ally,—,—,Massive dmg boost but −accuracy for 5 rounds.
+1,Water,Base,—,Conjuration,Wet Whip,14,Instant,—,—,Single enemy,—,—,"A conjured water whip — 2 strikes, 3-tile reach."
+2,Earth,Base,—,Conjuration,Rockfall,22,1r,1r,—,All enemies,—,—,Boulders rain on 6-tile area — AoE bludgeoning damage.
+2,Electricity,Derived,Air elSk≥2 + Fire elSk≥2  OR  Destruction schoolSk≥2,Conjuration,Spark Shield,22,Instant,2r,3r,Single ally,—,—,Conjure an electric barrier — retaliates against the next attacker.
+2,Fire,Base,—,Conjuration,Shoulder Imp,22,Instant,2r,3r,Single ally,—,—,Tiny fire imp ignites ranged attacks — bonus fire damage per hit.
+2,Nature,Derived,Earth elSk≥2 + Water elSk≥2  OR  Conjuration schoolSk≥2,Conjuration,Thornwall,22,1r,4r,6r,All enemies,schoolSkill,elSkill,Wall of thorns — damage + move speed penalty for 6 rounds.
+3,Air,Base,—,Conjuration,Tornado,34,2r,2r,4r,All enemies,—,—,Conjure a wandering tornado — 50 dmg/round and hinders for 4 rounds.
+3,Earth,Base,—,Conjuration,Earthwall,34,Instant,3r,15r,Self,—,—,Raise a stone wall — blocks enemy advance for 15 rounds.
+3,Earth,Base,—,Conjuration,Landslide,34,3r,5r,—,All enemies,—,—,500 dmg split across the entire enemy side.
+4,Air,Base,—,Conjuration,Oblivion's Wing,50,2r,4r,—,All enemies,—,—,A massive dark wing sweeps the field — wide AoE bludgeoning strike.
+4,Earth,Base,—,Conjuration,Golem,50,4r,4r,10r,Self,—,—,Conjure a stone golem — HP & dmg scale with Earth skill.
+4,Earth,Base,—,Conjuration,Quicksand,50,Instant,3r,5r,All enemies,—,—,Conjure a 3×3 quicksand trap — 75% movement reduction for 5 rounds.
+4,Nature,Derived,Earth elSk≥2 + Water elSk≥2  OR  Conjuration schoolSk≥2,Conjuration,Overgrow,50,1r,5r,10r,All enemies,—,—,Conjure erupting plants — 50% movement penalty in affected tiles.
+4,Water,Base,—,Conjuration,Ice Elemental,50,4r,4r,10r,Self,—,—,Summon an Ice Elemental with slow aura — at half caster level.
+5,Air,Base,—,Conjuration,Air Elemental,72,3r,3r,15r,Self,—,—,Summon an Air Elemental ranged unit — one at a time.
+5,Fire,Base,—,Conjuration,Fire Elemental,72,4r,4r,15r,Self,—,—,Summon a Fire Elemental — aura disables HP regen within 1 tile.
+1,Fire,Base,—,Destruction,Firebolt,14,Instant,—,—,Single enemy,—,—,"A searing bolt of fire — instant, single target."
+2,Air,Base,—,Destruction,Gust,22,1r,1r,—,All enemies,—,—,Wave of air hits 3 enemies in a line — chance to push back.
+3,Air,Base,—,Destruction,Void Blade,34,Instant,—,—,All enemies,—,—,Razor crescent of compressed air slices through the enemy line.
+3,Electricity,Derived,Air elSk≥2 + Fire elSk≥2  OR  Destruction schoolSk≥2,Destruction,Flash,34,1r,2r,2r,All units,—,—,Blinding burst — all but caster miss for 2 rounds.
+3,Fire,Base,—,Destruction,Inferno,34,3r,4r,3r,Single enemy,—,—,Pillar of fire — massive hit + burn DoT halving each round.
+3,Fire,Base,—,Destruction,Whip of Flames,34,Instant,2r,3r,Single enemy,—,—,Multi-ended fire whip — lash count and damage scale with skill.
+4,Air,Base,—,Destruction,Vacuum,50,2r,1r,5r,Single enemy,—,—,Suffocates target — stops casting; round 5 collapses to 1 HP.
+4,Electricity,Derived,Air elSk≥2 + Fire elSk≥2  OR  Destruction schoolSk≥2,Destruction,Lightning Strike,50,3r,5r,3r,Single enemy,—,—,Chain hits up to 5 enemies: 100%/80%/60%/40%/20%.
+4,Fire,Base,—,Destruction,Incineration,50,5r,2r,5r,Single enemy,—,—,25%+skill% current HP per round for 5 rounds; no regen.
+4,Wild,Derived,Fire elSk≥2 + Water elSk≥2  OR  Alteration schoolSk≥2,Destruction,Death Mark,50,1r,5r,5r,Single enemy,—,—,All damage taken amplified by 25%+skill% for 5 rounds.
+5,Electricity,Derived,Air elSk≥2 + Fire elSk≥2  OR  Destruction schoolSk≥2,Destruction,Chain Lightning,72,5r,6r,—,Single enemy,—,—,250+scaling flat dmg bouncing up to 5 targets within 5 tiles.
+5,Water,Base,—,Destruction,Avalanche,72,4r,6r,2r,All enemies,—,—,1000 dmg each; round 1 stun; round 2 — 50% penalties.
+5,Water,Base,—,Destruction,Tidal Crash,72,3r,4r,2r,All enemies,schoolSkill,lv,"Massive wave — high flat damage, pushes back, dodge 0 for 2 rounds."
+6,Earth,Base,—,Destruction,Earthquake,100,4r,1r,5r,All units,—,—,"Whole map shakes — 50+ dmg/round, 50% all combat penalties, move 0."
+6,Fire,Base,—,Destruction,Disintegration,100,8r,—,—,Single enemy,—,—,50%+1%/skill chance to drop target to 1 HP instantly.
+1,Earth,Base,—,Restoration,Eartharmor,14,Instant,1r,2r,Single ally,—,—,Raise armor on self or ally for 2 rounds.
+1,Water,Base,—,Restoration,Silver Stream,14,Instant,2r,3r,Single ally,schoolSkill,elSkill,+dodge% and +crit% for 3 rounds.
+2,Electricity,Derived,Air elSk≥2 + Fire elSk≥2  OR  Destruction schoolSk≥2,Restoration,Shock Aura,22,Instant,2r,3r,Self,—,—,Crackling protective aura — punishes and interrupts the next attacker.
+2,Holy,Derived,Earth elSk≥2 + Air elSk≥2  OR  Restoration schoolSk≥2,Restoration,Sacred Mending,22,Instant,2r,4r,Single ally,schoolSkill,elSkill,Moderate HP regen per round for 4 rounds.
+2,Water,Base,—,Restoration,Water Guard,22,Instant,2r,3r,Single ally,—,—,Flowing barrier — boosts dodge and reduces damage taken.
+3,Holy,Derived,Earth elSk≥2 + Air elSk≥2  OR  Restoration schoolSk≥2,Restoration,Minor Restoration,34,Instant,—,—,Single ally,—,—,Channel a small burst of holy light — instant heal on one ally.
+3,Nature,Derived,Earth elSk≥2 + Water elSk≥2  OR  Conjuration schoolSk≥2,Restoration,Lifedrain,34,1r,—,10r,Single enemy,—,—,Drain life each round — half the drained amount restored to caster.
+3,Water,Base,—,Restoration,Freeze,34,Instant,3r,5r,Single enemy,—,—,Encase enemy in ice — halts movement; thaws 20%/round over 5 rounds.
+4,Earth,Base,—,Restoration,Earthen Drain,50,2r,3r,4r,Single enemy,—,—,"Open a draining rift — saps 4% max HP/round, feeding caster's regen."
+4,Earth,Base,—,Restoration,Stoneskin,50,1r,3r,5r,Single ally,—,—,"Harden ally's skin to stone — massive armor boost, slightly slowed."
+4,Holy,Derived,Earth elSk≥2 + Air elSk≥2  OR  Restoration schoolSk≥2,Restoration,Major Restoration,50,Instant,—,—,Single ally,—,—,Channel a powerful wave of holy energy — large instant heal on one ally.
+5,Holy,Derived,Earth elSk≥2 + Air elSk≥2  OR  Restoration schoolSk≥2,Restoration,Cleansing Light,72,1r,2r,3r,All allies,—,—,All ally debuffs removed instantly — whole map affected.
+5,Nature,Derived,Earth elSk≥2 + Water elSk≥2  OR  Conjuration schoolSk≥2,Restoration,Nature's Pact,72,2r,4r,8r,Single ally,—,—,"Bond with nature — strong regen + dmg bonus, minor bleed each round."
+6,Holy,Derived,Earth elSk≥2 + Air elSk≥2  OR  Restoration schoolSk≥2,Restoration,Revitalization,100,1r,7r,—,Single ally,—,—,Full HP restoration for one ally instantly.
+6,Nature,Derived,Earth elSk≥2 + Water elSk≥2  OR  Conjuration schoolSk≥2,Restoration,Wither,100,5r,2r,—,All enemies,schoolSkill,elSkill,"1000 flat dmg, ×2 vs nature/conjuration classes; no regen."

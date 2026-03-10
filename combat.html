@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Uzoxia - Combat Simulator</title>
+<title>Uzoxia – Challenge Arena</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -225,31 +225,94 @@ select option{background:#0a0800}
   .r3{grid-template-columns:1fr 1fr}
   .dg{grid-template-columns:repeat(3,1fr)}
 }
+
+/* ── Leaderboard ─────────────────────────────────────── */
+#leaderboard-section { margin-top: 2.5rem; }
+.lb-table { width: 100%; border-collapse: collapse; font-size: .62rem; letter-spacing: .05em; }
+.lb-table th { color: rgba(200,168,100,.4); font-weight: 400; text-transform: uppercase;
+  letter-spacing: .18em; padding: .35rem .5rem; border-bottom: 1px solid var(--border);
+  text-align: left; font-size: .55rem; }
+.lb-table td { padding: .3rem .5rem; border-bottom: 1px solid rgba(200,168,100,.05); }
+.lb-table tr:hover td { background: rgba(200,168,100,.04); }
+.lb-win  { color: #7ecfa0; }
+.lb-loss { color: #e07070; }
+.lb-rank { color: rgba(200,168,100,.3); font-size: .55rem; }
+.lb-lv   { display: inline-block; background: rgba(200,168,100,.08);
+  border: 1px solid var(--border); padding: .05em .35em;
+  font-size: .55rem; letter-spacing: .1em; }
+
+/* ── Result overlay ──────────────────────────────────── */
+#result-overlay {
+  position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.82); z-index: 999; }
+#result-overlay.show { display: flex; }
+.ro-box {
+  border: 1px solid var(--gold); background: var(--panel);
+  padding: 2.5rem 3rem; text-align: center; max-width: 420px; width: 90%;
+  position: relative; }
+.ro-title { font-family: 'Cinzel Decorative', serif; font-size: 1.6rem;
+  letter-spacing: .08em; margin-bottom: .4rem; }
+.ro-title.win  { color: #7ecfa0; text-shadow: 0 0 24px rgba(126,207,160,.4); }
+.ro-title.loss { color: var(--red); text-shadow: 0 0 24px rgba(224,112,112,.4); }
+.ro-sub  { font-family: 'IM Fell English', serif; font-style: italic;
+  color: rgba(200,168,100,.5); margin-bottom: 1.2rem; font-size: .8rem; }
+.ro-stat { font-size: .62rem; letter-spacing: .14em; color: rgba(200,168,100,.6);
+  margin-bottom: 1.4rem; }
+.ro-name-row { display: flex; gap: .5rem; margin-bottom: 1rem; }
+.ro-name-row input {
+  flex: 1; background: rgba(0,0,0,.5); border: 1px solid var(--border);
+  color: var(--gold); padding: .4rem .7rem; font-family: 'Cinzel', serif;
+  font-size: .7rem; letter-spacing: .08em; outline: none; }
+.ro-name-row input:focus { border-color: rgba(200,168,100,.5); }
+.ro-btns { display: flex; gap: .5rem; justify-content: center; }
+
 </style>
 </head>
 <body>
 <div class="page">
-<h1>Combat Simulator</h1>
-<p class="sub">Configure your parties &mdash; let the dice decide</p>
-<div class="sg">
-  <div class="tp">
-    <div class="th"><span class="tn red">&#9876; Party A</span>
-      <div class="sc"><button onclick="chsz('a',-1)">&#8722;</button><span class="sd" id="sz-a">1</span><button onclick="chsz('a',1)">+</button><span style="margin-left:2px">fighters</span></div>
+<h1>Combat System</h1>
+<!-- ── CHALLENGE UI ── -->
+<div id="challenge-ui">
+  <!-- Level picker -->
+  <div style="text-align:center;margin-bottom:1.2rem">
+    <div style="font-size:.6rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(200,168,100,.4);margin-bottom:.6rem">Select Difficulty</div>
+    <div style="display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap" id="lvl-btns">
+      <!-- filled by JS -->
     </div>
-    <div class="cg" id="ca"></div>
+    <div id="lvl-desc" style="margin-top:.5rem;font-size:.6rem;font-family:'IM Fell English',serif;font-style:italic;color:rgba(200,168,100,.35);min-height:1.2em"></div>
   </div>
-  <div class="vc">
-    <div class="vs">VS</div>
-    <div style="display:flex;flex-direction:column;gap:7px;width:100%">
-      <button class="bs" onclick="runSim()">Simulate</button>
-      <button class="bx" onclick="resetB()">Reset</button>
+
+  <div class="sg">
+    <!-- Player team -->
+    <div class="tp">
+      <div class="th">
+        <span class="tn red">&#9876; Your Party</span>
+        <div class="sc"><button onclick="chsz('a',-1)">&#8722;</button><span class="sd" id="sz-a">1</span><button onclick="chsz('a',1)">+</button><span style="margin-left:2px">fighters</span></div>
+      </div>
+      <div class="cg" id="ca"></div>
     </div>
-  </div>
-  <div class="tp">
-    <div class="th"><span class="tn blue">&#9876; Party B</span>
-      <div class="sc"><button onclick="chsz('b',-1)">&#8722;</button><span class="sd" id="sz-b">1</span><button onclick="chsz('b',1)">+</button><span style="margin-left:2px">fighters</span></div>
+
+    <!-- VS column -->
+    <div class="vc">
+      <div class="vs">VS</div>
+      <div style="display:flex;flex-direction:column;gap:7px;width:100%;align-items:center">
+        <div id="enemy-name" style="font-size:.55rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(200,168,100,.35);text-align:center;min-height:1em"></div>
+        <button class="bs" id="fight-btn" onclick="startChallenge()" disabled>Fight!</button>
+        <button class="bx" onclick="resetB()">Reset</button>
+      </div>
     </div>
-    <div class="cg" id="cb"></div>
+
+    <!-- Enemy team (locked) -->
+    <div class="tp" id="enemy-panel">
+      <div class="th">
+        <span class="tn blue">&#9876; Enemy Party</span>
+        <div id="enemy-header-info" style="font-size:.55rem;color:rgba(200,168,100,.3);letter-spacing:.08em"></div>
+      </div>
+      <div id="enemy-placeholder" style="padding:2rem 1rem;text-align:center;color:rgba(200,168,100,.2);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase">
+        Select a difficulty level<br>to reveal your enemy
+      </div>
+      <div class="cg" id="cb" style="display:none"></div>
+    </div>
   </div>
 </div>
 <div id="bs2">
@@ -269,6 +332,32 @@ select option{background:#0a0800}
     </div>
   </div>
 </div>
+
+<!-- ── Result Overlay ── -->
+<div id="result-overlay">
+  <div class="ro-box">
+    <div class="ro-title" id="ro-title">VICTORY</div>
+    <div class="ro-sub" id="ro-sub">Your party triumphed!</div>
+    <div class="ro-stat" id="ro-stat"></div>
+    <div class="ro-name-row">
+      <input id="ro-name" type="text" placeholder="Enter your name..." maxlength="32"/>
+    </div>
+    <div class="ro-btns">
+      <button class="bs" onclick="submitResult()">Submit Score</button>
+      <button class="bx" onclick="closeOverlay()">Skip</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Leaderboard ── -->
+<div id="leaderboard-section">
+  <div class="dv"><div class="dv-l"></div><div class="dv-g"></div><div class="dv-t">Leaderboard</div><div class="dv-g"></div><div class="dv-l"></div></div>
+  <div style="text-align:center;margin-bottom:.8rem">
+    <button class="bx" onclick="loadLeaderboard()" style="font-size:.6rem;padding:.3em 1em;letter-spacing:.15em">&#8635; Refresh</button>
+  </div>
+  <div id="lb-body" style="color:rgba(200,168,100,.25);text-align:center;font-size:.6rem;letter-spacing:.2em;padding:1rem">Loading...</div>
+</div>
+
 </div>
 <script>
 const SP={Human:{s:2,a:2,i:2},Elf:{s:1,a:3,i:3},Dwarf:{s:3,a:1,i:2},Goblinoid:{s:1,a:4,i:2},Orc:{s:4,a:2,i:1},Troll:{s:3,a:3,i:1}};
@@ -375,12 +464,68 @@ const CLASS_ARMOR_AFFINITY={
 // Mana cost baseline per tier
 const SPELL_MANA=[0,14,22,34,50,72,100];
 
-// Which classes can equip spells (Focus or Staff offhand unlocks casting for any class,
-// but these classes start with magic knowledge and can use all schools)
+// Which classes can equip spells
 const MAGIC_CLASSES=new Set(['Mage','Witch','Cleric','Druid','Warlock','Shaman']);
 
-// Min character level to unlock each spell tier
-const TIER_MIN_LV=[0,1,5,10,15,20,25];
+// ── Derived element unlock prerequisites ──────────────────────────────────
+// key: derived element → { els: base elements needed at elSkill≥2, school: school needed at schoolSkill≥2 }
+const DERIVED_EL_PREREQS={
+  Electricity:{ els:['Air','Fire'],   school:null,          schoolAlt:'Destruction' },
+  Wild:       { els:['Fire','Water'],  school:null,          schoolAlt:'Alteration'  },
+  Nature:     { els:['Earth','Water'], school:null,          schoolAlt:'Conjuration' },
+  Holy:       { els:['Earth','Air'],   school:null,          schoolAlt:'Restoration' },
+};
+const DERIVED_ELS=new Set(Object.keys(DERIVED_EL_PREREQS));
+const BASE_ELS=['Fire','Water','Earth','Air'];
+const ALL_ELS=['Fire','Water','Earth','Air','Electricity','Wild','Nature','Holy'];
+const ALL_SCHOOLS=['Destruction','Alteration','Conjuration','Restoration'];
+
+// ── Magic array helpers ────────────────────────────────────────────────────
+// c.magicEls  = [{el, skill}]  (max 4)
+// c.magicSchools = [{school, skill}] (max 4)
+// Backwards-compat: if old flat fields exist, migrate on first read
+function getMagicEls(c){
+  if(!c.magicEls||!c.magicEls.length){
+    c.magicEls=[{el:c.magicEl||'Fire',skill:c.elSkill||1}];
+  }
+  return c.magicEls;
+}
+function getMagicSchools(c){
+  if(!c.magicSchools||!c.magicSchools.length){
+    c.magicSchools=[{school:c.magicSchool||'Destruction',skill:c.schoolSkill||1}];
+  }
+  return c.magicSchools;
+}
+
+// Unlock check — c has magicEls[] and magicSchools[]
+function elUnlocked(el, c){
+  if(!DERIVED_ELS.has(el))return true;
+  const pr=DERIVED_EL_PREREQS[el];
+  const els=getMagicEls(c);const schools=getMagicSchools(c);
+  const elOk=pr.els.some(reqEl=>els.some(e=>e.el===reqEl&&(e.skill||1)>=2));
+  const schoolOk=!pr.schoolAlt||schools.some(s=>s.school===pr.schoolAlt&&(s.skill||1)>=2);
+  return elOk&&schoolOk;
+}
+
+// Spell is castable by c if element OR school matches any entry in their arrays
+// AND derived element is unlocked
+function spellAvailTo(s,c){
+  if(DERIVED_ELS.has(s.el)&&!elUnlocked(s.el,c))return false;
+  const els=getMagicEls(c);const schools=getMagicSchools(c);
+  return els.some(e=>e.el===s.el)||schools.some(sc=>sc.school===s.school);
+}
+
+// Get skill level for a spell from c's arrays (highest matching entry)
+function getSpellSk(spell, c){
+  if(spell.scalePrimary==='schoolSkill'){
+    const schools=getMagicSchools(c);
+    const m=schools.filter(s=>s.school===spell.school);
+    return m.length?Math.max(...m.map(s=>s.skill||1)):1;
+  }
+  const els=getMagicEls(c);
+  const m=els.filter(e=>e.el===spell.el);
+  return m.length?Math.max(...m.map(e=>e.skill||1)):1;
+}
 
 // ── Helper — rand between two ints ─────────────────────────────────────────
 function rand2(a,b){return a+Math.floor(Math.random()*(b-a+1));}
@@ -534,36 +679,38 @@ function tickEffects(all,log){
 function effOvl(c){
   const o={
     armAdd:0, spdMul:1, movePenAdd:0, moveBonusAdd:0,
-    dgAdd:0, dgPen:0, blkPen:0, crPen:0,
+    dgAdd:0, dgPen:0, blkPen:0, crPen:0, crBonus:0,
     accPen:0, accBonus:0, dmgAdd:0, dmgReduce:0, fireDmgAdd:0,
     noRegen:false, stun:false, sleep:false,
     blind:false, confused:false, invisible:false, flying:false,
     shockAura:false, immolAura:false, sparkRet:0,
   };
   for(const ef of (c.effects||[])){
-    if(ef.armAdd)   o.armAdd+=ef.armAdd;
-    if(ef.spdMul)   o.spdMul*=ef.spdMul;
-    if(ef.movePen)  o.movePenAdd=Math.max(o.movePenAdd,ef.movePen);
-    if(ef.moveBonus)o.moveBonusAdd+=ef.moveBonus;
-    if(ef.dgAdd)    o.dgAdd+=ef.dgAdd;
-    if(ef.dgPen)    o.dgPen+=ef.dgPen;
-    if(ef.blkPen)   o.blkPen+=ef.blkPen;
-    if(ef.crPen)    o.crPen+=ef.crPen;
-    if(ef.accPen)   o.accPen+=ef.accPen;
-    if(ef.accBonus) o.accBonus+=ef.accBonus;
-    if(ef.dmgAdd)   o.dmgAdd+=ef.dmgAdd;
-    if(ef.fireDmgAdd)o.fireDmgAdd+=ef.fireDmgAdd;
-    if(ef.dmgReduce)o.dmgReduce=Math.min(0.75,o.dmgReduce+ef.dmgReduce);
-    if(ef.noRegen)  o.noRegen=true;
-    if(ef.stun)     o.stun=true;
-    if(ef.sleep)    o.sleep=true;
-    if(ef.blind)    o.blind=true;
-    if(ef.confused) o.confused=true;
-    if(ef.invisible)o.invisible=true;
-    if(ef.flying)   o.flying=true;
+    if(ef.armAdd)      o.armAdd+=ef.armAdd;
+    if(ef.spdMul)      o.spdMul*=ef.spdMul;
+    if(ef.movePen)     o.movePenAdd=Math.max(o.movePenAdd,ef.movePen);
+    if(ef.moveBonus)   o.moveBonusAdd+=ef.moveBonus;
+    if(ef.moveBonusAdd)o.moveBonusAdd+=ef.moveBonusAdd;
+    if(ef.dgAdd)       o.dgAdd+=ef.dgAdd;
+    if(ef.dgPen)       o.dgPen+=ef.dgPen;
+    if(ef.blkPen)      o.blkPen+=ef.blkPen;
+    if(ef.crPen)       o.crPen+=ef.crPen;
+    if(ef.crBonus)     o.crBonus+=ef.crBonus;
+    if(ef.accPen)      o.accPen+=ef.accPen;
+    if(ef.accBonus)    o.accBonus+=ef.accBonus;
+    if(ef.dmgAdd)      o.dmgAdd+=ef.dmgAdd;
+    if(ef.fireDmgAdd)  o.fireDmgAdd+=ef.fireDmgAdd;
+    if(ef.dmgReduce)   o.dmgReduce=Math.min(0.75,o.dmgReduce+ef.dmgReduce);
+    if(ef.noRegen)     o.noRegen=true;
+    if(ef.stun)        o.stun=true;
+    if(ef.sleep)       o.sleep=true;
+    if(ef.blind)       o.blind=true;
+    if(ef.confused)    o.confused=true;
+    if(ef.invisible)   o.invisible=true;
+    if(ef.flying)      o.flying=true;
     if(ef.id==='shockaura') o.shockAura=true;
     if(ef.id==='immolation')o.immolAura=true;
-    if(ef.sparkRet) o.sparkRet=Math.max(o.sparkRet,ef.sparkRet);
+    if(ef.sparkRet)    o.sparkRet=Math.max(o.sparkRet,ef.sparkRet);
   }
   return o;
 }
@@ -946,223 +1093,277 @@ function castSpell(csr,spell,all,log,sk){
         if(!t.dead)addEffect(t,'wither_dot',3,{noRegen:true,isDebuff:true});});
       log.push({cls:'lsp-aoe',t:`✦ ${csr.nm} casts WITHER — enemy life force drained!`});break;}
 
+    // ── New spells ─────────────────────────────────────────────────────────
+    case'fierceblood':tgts.forEach(t=>{
+      const atkBonus=Math.max(0.05,0.04*(csr.stats.lv||1)+0.01*sk);
+      const dmgBonus=Math.round(3*(csr.stats.lv||1)+2*sk);
+      addEffect(t,'fierceblood',4,{spdMul:Math.max(0.7,1-atkBonus),dmgAdd:dmgBonus});
+      log.push({cls:'lsp-buf',t:`🔥 ${csr.nm} ignites <b>${t.nm}</b> with Fierce Blood — +${dmgBonus} dmg, faster attacks for 4r`});});break;
+
+    case'silverstream':tgts.forEach(t=>{
+      const dgB=Math.round(5+sk*3);const crB=Math.round(3+sk*2);
+      addEffect(t,'silverstream',3,{dgAdd:dgB,crBonus:crB});
+      log.push({cls:'lsp-buf',t:`💧 ${csr.nm} casts Silver Stream on <b>${t.nm}</b> — +${dgB}% dodge, +${crB}% crit for 3r`});});break;
+
+    case'murkydepths':tgts.forEach(t=>{
+      const pen=Math.round(8+sk*4);
+      addEffect(t,'murkydepths',4,{dgPen:pen,crPen:pen,accPen:pen,isDebuff:true});
+      log.push({cls:'lsp-deb',t:`💧 ${csr.nm} shrouds <b>${t.nm}</b> in Murky Depths — −${pen}% dodge/crit/acc for 4r`});});break;
+
+    case'tidalcrash':{
+      const dmg=rand2(80,120)+sk*20+(csr.stats.lv||1)*5;
+      tgts.forEach(t=>{
+        dealSpellDmg(csr,t,dmg,log,`🌊 Tidal Crash slams <b>${t.nm}</b>`);
+        if(!t.dead){
+          addEffect(t,'tidalcrash',2,{dgPen:100,isDebuff:true});
+          const dc=t.side==='a'?-2:2;
+          const nc=Math.max(0,Math.min(29,t.col+dc));
+          if(!all.some(x=>x!==t&&!x.dead&&x.row===t.row&&x.col===nc))t.col=nc;
+          log.push({cls:'lsp-deb',t:`  ↳ <b>${t.nm}</b> knocked back, dodge nullified for 2r`});}});
+      log.push({cls:'lsp-aoe',t:`🌊 ${csr.nm} unleashes Tidal Crash!`});break;}
+
+    case'voltspike':tgts.forEach(t=>{
+      dealSpellDmg(csr,t,rand2(20,28)+sk*8,log,`⚡ ${csr.nm}'s Volt Spike zaps <b>${t.nm}</b>`);});break;
+
+    case'thunderstep':tgts.forEach(t=>{
+      const atkB=Math.max(0.05,0.05*sk);const mvB=Math.min(2,Math.floor(sk/2));
+      addEffect(t,'thunderstep',3,{spdMul:Math.max(0.65,1-atkB),moveBonusAdd:mvB});
+      log.push({cls:'lsp-buf',t:`⚡ ${csr.nm} charges <b>${t.nm}</b> with Thunderstep — faster attacks & movement for 3r`});});break;
+
+    case'sacredmending':tgts.forEach(t=>{
+      const r=Math.round(10+sk*6);
+      addEffect(t,'sacredmending',4,{regenBonus:r});
+      log.push({cls:'lsp-buf',t:`✦ ${csr.nm} casts Sacred Mending on <b>${t.nm}</b> — +${r} HP/round for 4r`});});break;
+
+    case'thornwall':tgts.forEach(t=>{
+      const thornDmg=Math.round(8+sk*4);
+      addEffect(t,'thornwall',6,{movePen:Math.min(0.6,0.3+sk*0.05),burnDmg:thornDmg,isDebuff:true});
+      log.push({cls:'lsp-deb',t:`🌿 ${csr.nm} grows a Thornwall — <b>${t.nm}</b> slowed & takes ${thornDmg} thorn dmg/r for 6r`});});break;
+
     default:
-      log.push({cls:'lsp-cast',t:`✦ ${csr.nm} casts ${spell.name}`});
+      log.push({cls:'lsp-cast',t:`✦ ${csr.nm} casts ${spell.name}`});break;
   }
 }
 
 // ── Master spell list (from CSV + filled blanks) ───────────────────────────
 const SPELLS=[
-  // Tier 1
-  {id:'eartharmor',name:'Eartharmor',tier:1,el:'Earth',school:'Restoration',
-   castTime:0,cool:1,lasting:2,targetType:'ally',
-   desc:'Raise armor on self or ally for 2 rounds.'},
+  // ── ALTERATION (15) — modifying bodies, senses, time, existing matter ─────
+  // T1
   {id:'haste',name:'Haste',tier:1,el:'Air',school:'Alteration',
    castTime:0,cool:2,lasting:2,targetType:'ally',
    desc:'Faster attacks and movement on self or ally for 2 rounds.'},
-  {id:'firebolt',name:'Firebolt',tier:1,el:'Fire',school:'Destruction',
-   castTime:0,cool:0,lasting:0,targetType:'enemy',
-   desc:'A searing bolt of fire — instant, single target.'},
-  {id:'wetwhip',name:'Wet Whip',tier:1,el:'Water',school:'Conjuration',
-   castTime:0,cool:0,lasting:0,targetType:'enemy',
-   desc:'A conjured water whip — 2 strikes, 3-tile reach.'},
-  // Tier 2
-  {id:'gust',name:'Gust',tier:2,el:'Air',school:'Destruction',
-   castTime:1,cool:1,lasting:0,targetType:'aoe_enemy',
-   desc:'Wave of air hits 3 enemies in a line — chance to push back.'},
-  {id:'immolation',name:'Immolation',tier:2,el:'Fire',school:'Alteration',
-   castTime:1,cool:0,lasting:3,targetType:'self',
-   desc:'Self-ignite — burns enemies within 1 tile each round for 3 rounds.'},
-  {id:'rockfall',name:'Rockfall',tier:2,el:'Earth',school:'Conjuration',
-   castTime:1,cool:1,lasting:0,targetType:'aoe_enemy',
-   desc:'Boulders rain on 6-tile area — AoE bludgeoning damage.'},
-  {id:'slow',name:'Slow',tier:2,el:'Water',school:'Restoration',
-   castTime:1,cool:0,lasting:2,targetType:'enemy',
-   desc:'Water coils slowing attacks and movement for 2 rounds.'},
+  // T2
   {id:'sharpness',name:'Sharpness',tier:2,el:'Air',school:'Alteration',
    castTime:1,cool:1,lasting:3,targetType:'ally',
    desc:'Sharpen weapon edges — +damage for 3 rounds.'},
-  {id:'wigglyknees',name:'Wiggly Knees',tier:2,el:'Air',school:'Alteration',
-   castTime:1,cool:1,lasting:3,targetType:'enemy',
-   desc:'Wind tangles feet — slower, worse dodge & accuracy.'},
-  {id:'mudthrow',name:'Mudthrow',tier:2,el:'Earth',school:'Conjuration',
-   castTime:0,cool:1,lasting:1,targetType:'enemy',
-   desc:'Mud hits for flat damage and blinds accuracy for 1 round.'},
-  {id:'shockaura',name:'Shock Aura',tier:2,el:'Electricity',school:'Conjuration',
-   castTime:0,cool:2,lasting:3,targetType:'self',
-   desc:'Crackling aura — interrupts attackers for 3 rounds.'},
-  {id:'shoulderimp',name:'Shoulder Imp',tier:2,el:'Fire',school:'Conjuration',
-   castTime:0,cool:2,lasting:3,targetType:'ally',
-   desc:'Tiny fire imp ignites ranged attacks — bonus fire damage.'},
+  {id:'fierceblood',name:'Fierce Blood',tier:2,el:'Fire',school:'Alteration',
+   castTime:0,cool:3,lasting:4,targetType:'ally',
+   desc:'Ignite an ally\'s blood — +attack speed and +flat damage for 4 rounds.',
+   scalePrimary:'lv',scaleSecondary:'elSkill'},
+  {id:'immolation',name:'Immolation',tier:2,el:'Fire',school:'Alteration',
+   castTime:1,cool:0,lasting:3,targetType:'self',
+   desc:'Self-ignite — burns enemies within 1 tile each round for 3 rounds.'},
   {id:'bless',name:'Bless',tier:2,el:'Holy',school:'Alteration',
    castTime:0,cool:2,lasting:4,targetType:'ally',
    desc:'Divine light raises an ally\'s combat stats for 4 rounds.'},
-  {id:'inspire',name:'Inspire',tier:2,el:'Wild',school:'Alteration',
-   castTime:0,cool:3,lasting:3,targetType:'aoe_ally',
-   desc:'All allies hit for 1 round, then suffer accuracy drain for 2.'},
-  {id:'waterguard',name:'Water Guard',tier:2,el:'Water',school:'Restoration',
-   castTime:0,cool:2,lasting:3,targetType:'ally',
-   desc:'Flowing barrier — boosts dodge and reduces damage taken.'},
-  {id:'sparkshield',name:'Spark Shield',tier:2,el:'Electricity',school:'Alteration',
-   castTime:0,cool:2,lasting:3,targetType:'ally',
-   desc:'Electric sparks return damage to the next attacker.'},
-  {id:'mudwall',name:'Mudwall',tier:2,el:'Water',school:'Conjuration',
-   castTime:1,cool:4,lasting:3,targetType:'aoe_enemy',
-   desc:'A wall of thick mud severely slows enemy movement.'},
-  // Tier 3
-  {id:'curse',name:'Curse',tier:3,el:'Wild',school:'Alteration',
-   castTime:1,cool:0,lasting:2,targetType:'enemy',
-   desc:'Dark hex — reduces accuracy and dodge for 2 rounds.'},
-  {id:'flash',name:'Flash',tier:3,el:'Electricity',school:'Alteration',
-   castTime:1,cool:2,lasting:2,targetType:'aoe_all',
-   desc:'Blinding flash — all but caster miss for 2 rounds.'},
-  {id:'freeze',name:'Freeze',tier:3,el:'Water',school:'Restoration',
-   castTime:0,cool:3,lasting:5,targetType:'enemy',
-   desc:'Fully halts movement; thaws 20% per round over 5 rounds.'},
-  {id:'inferno',name:'Inferno',tier:3,el:'Fire',school:'Destruction',
-   castTime:3,cool:4,lasting:3,targetType:'enemy',
-   desc:'Pillar of fire — massive hit + burn DoT halving each round.'},
-  {id:'landslide',name:'Landslide',tier:3,el:'Earth',school:'Conjuration',
-   castTime:3,cool:5,lasting:0,targetType:'aoe_enemy',
-   desc:'5-round cast: 500 dmg split across the entire enemy side.'},
-  {id:'lifedrain',name:'Lifedrain',tier:3,el:'Nature',school:'Restoration',
-   castTime:1,cool:0,lasting:10,targetType:'enemy',
-   desc:'Drain life each round — half restored to caster.'},
-  {id:'minor_restoration',name:'Minor Restoration',tier:3,el:'Holy',school:'Restoration',
-   castTime:0,cool:0,lasting:0,targetType:'ally',
-   desc:'Instant heal on one ally.'},
-  {id:'tornado',name:'Tornado',tier:3,el:'Air',school:'Conjuration',
-   castTime:2,cool:2,lasting:4,targetType:'aoe_enemy',
-   desc:'Wandering tornado deals 50 dmg/round and hinders for 4 rounds.'},
-  {id:'airslash',name:'Air Slash',tier:3,el:'Air',school:'Destruction',
-   castTime:0,cool:0,lasting:0,targetType:'aoe_enemy',
-   desc:'Blade of air slices through entire enemy line.'},
-  {id:'earthwall',name:'Earthwall',tier:3,el:'Earth',school:'Alteration',
-   castTime:0,cool:3,lasting:15,targetType:'self',
-   desc:'Stone wall blocks enemy advance for 15 rounds.'},
-  {id:'lightningcage',name:'Lightning Cage',tier:3,el:'Electricity',school:'Alteration',
-   castTime:0,cool:3,lasting:4,targetType:'enemy',
-   desc:'Cage of lightning — movement triggers stun and damage.'},
+  // T3
   {id:'burn',name:'Burn',tier:3,el:'Fire',school:'Alteration',
    castTime:0,cool:0,lasting:3,targetType:'ally',
    desc:'Imbue melee attacks with fire damage for 3 rounds.'},
-  {id:'whipofflames',name:'Whip of Flames',tier:3,el:'Fire',school:'Conjuration',
-   castTime:0,cool:2,lasting:3,targetType:'enemy',
-   desc:'Multi-ended fire whip — ends and damage scale with skill.'},
   {id:'holystrike',name:'Holy Strike',tier:3,el:'Holy',school:'Alteration',
    castTime:0,cool:2,lasting:10,targetType:'ally',
    desc:'Double damage against undead for 10 rounds.'},
-  {id:'intervention',name:'Intervention',tier:3,el:'Holy',school:'Alteration',
+  {id:'intervention',name:'Divine Intervention',tier:3,el:'Holy',school:'Alteration',
    castTime:0,cool:4,lasting:1,targetType:'aoe_enemy',
    desc:'Divine intervention — all enemies skip their action this round.'},
-  {id:'fatebonding',name:'Fate Bonding',tier:3,el:'Wild',school:'Alteration',
-   castTime:0,cool:4,lasting:6,targetType:'aoe_enemy',
-   desc:'Links foe & ally — accuracy bonus when attacking each other.'},
-  {id:'lifelink',name:'Lifelink',tier:3,el:'Nature',school:'Restoration',
-   castTime:0,cool:3,lasting:6,targetType:'ally',
-   desc:'Link damage — portion of ally\'s damage shared back to caster.'},
-  {id:'naturegrowth',name:'Nature\'s Growth',tier:3,el:'Nature',school:'Restoration',
-   castTime:1,cool:3,lasting:4,targetType:'ally',
-   desc:'Accelerate HP regen on an ally for 4 rounds.'},
-  // Tier 4
-  {id:'golem',name:'Golem',tier:4,el:'Earth',school:'Conjuration',
-   castTime:4,cool:4,lasting:10,targetType:'self',
-   desc:'Conjure a stone golem — HP & dmg scale with Earth skill.'},
-  {id:'ice_elemental',name:'Ice Elemental',tier:4,el:'Water',school:'Conjuration',
-   castTime:4,cool:4,lasting:10,targetType:'self',
-   desc:'Summon Ice Elemental with slow aura — at half caster level.'},
+  {id:'lightningcage',name:'Lightning Cage',tier:3,el:'Electricity',school:'Alteration',
+   castTime:0,cool:3,lasting:4,targetType:'enemy',
+   desc:'Cage of lightning — movement triggers stun and damage.'},
+  {id:'thunderstep',name:'Lightning Haste',tier:3,el:'Electricity',school:'Alteration',
+   castTime:0,cool:3,lasting:3,targetType:'ally',
+   desc:'Charge an ally with electricity — +attack speed, +move speed for 3 rounds.',
+   scalePrimary:'schoolSkill',scaleSecondary:'elSkill'},
+  {id:'murkydepths',name:'Call of the Deep',tier:3,el:'Water',school:'Alteration',
+   castTime:1,cool:3,lasting:4,targetType:'enemy',
+   desc:'Shroud an enemy in dark water — −dodge%, −crit% and −accuracy for 4 rounds.',
+   scalePrimary:'schoolSkill',scaleSecondary:'elSkill'},
+  {id:'curse',name:'Curse',tier:3,el:'Wild',school:'Alteration',
+   castTime:1,cool:0,lasting:2,targetType:'enemy',
+   desc:'Dark hex — reduces accuracy and dodge for 2 rounds.'},
+  // T4
+  {id:'sleep',name:'Sleep',tier:4,el:'Wild',school:'Alteration',
+   castTime:3,cool:6,lasting:6,targetType:'enemy',
+   desc:'Magically sleep one enemy — no actions for 6 rounds.'},
+  // T5
+  {id:'confusion',name:'Confusion',tier:5,el:'Wild',school:'Alteration',
+   castTime:2,cool:4,lasting:4,targetType:'aoe_enemy',
+   desc:'3×3 confusion cloud — enemies attack nearest unit for 4 rounds.'},
+  {id:'wildfury',name:'Wild Fury',tier:5,el:'Wild',school:'Alteration',
+   castTime:2,cool:5,lasting:5,targetType:'ally',
+   desc:'Wild energy: massive dmg boost but −accuracy for 5 rounds.'},
+
+  // ── DESTRUCTION (15) — raw damage, lethal force, offensive debuffs ─────────
+  // T1
+  {id:'firebolt',name:'Firebolt',tier:1,el:'Fire',school:'Destruction',
+   castTime:0,cool:0,lasting:0,targetType:'enemy',
+   desc:'A searing bolt of fire — instant, single target.'},
+  // T2
+  {id:'gust',name:'Gust',tier:2,el:'Air',school:'Destruction',
+   castTime:1,cool:1,lasting:0,targetType:'aoe_enemy',
+   desc:'Wave of air hits 3 enemies in a line — chance to push back.'},
+  // T3
+  {id:'flash',name:'Flash',tier:3,el:'Electricity',school:'Destruction',
+   castTime:1,cool:2,lasting:2,targetType:'aoe_all',
+   desc:'Blinding burst — all but caster miss for 2 rounds.'},
+  {id:'inferno',name:'Inferno',tier:3,el:'Fire',school:'Destruction',
+   castTime:3,cool:4,lasting:3,targetType:'enemy',
+   desc:'Pillar of fire — massive hit + burn DoT halving each round.'},
+  {id:'voidblade',name:'Void Blade',tier:3,el:'Air',school:'Destruction',
+   castTime:0,cool:0,lasting:0,targetType:'aoe_enemy',
+   desc:'Razor crescent of compressed air slices through the enemy line.'},
+  {id:'whipofflames',name:'Firewhip',tier:3,el:'Fire',school:'Destruction',
+   castTime:0,cool:2,lasting:3,targetType:'enemy',
+   desc:'Multi-ended fire whip — lash count and damage scale with skill.'},
+  // T4
+  {id:'vacuum',name:'Vacuum',tier:4,el:'Air',school:'Destruction',
+   castTime:2,cool:1,lasting:5,targetType:'enemy',
+   desc:'Suffocates target — stops casting; round 5 target collapses to 1 HP.'},
+  {id:'deathmark',name:'Death Mark',tier:4,el:'Wild',school:'Destruction',
+   castTime:1,cool:5,lasting:5,targetType:'enemy',
+   desc:'All damage taken amplified by 25%+skill% for 5 rounds.'},
   {id:'incineration',name:'Incineration',tier:4,el:'Fire',school:'Destruction',
    castTime:5,cool:2,lasting:5,targetType:'enemy',
    desc:'25%+skill% current HP per round for 5 rounds; no regen.'},
   {id:'lightning_strike',name:'Lightning Strike',tier:4,el:'Electricity',school:'Destruction',
    castTime:3,cool:5,lasting:3,targetType:'enemy',
    desc:'Chain hits up to 5 enemies: 100%/80%/60%/40%/20%.'},
-  {id:'major_restoration',name:'Major Restoration',tier:4,el:'Holy',school:'Restoration',
-   castTime:0,cool:0,lasting:0,targetType:'ally',
-   desc:'Large instant heal on one ally.'},
-  {id:'overgrow',name:'Overgrow',tier:4,el:'Nature',school:'Conjuration',
-   castTime:1,cool:5,lasting:10,targetType:'aoe_enemy',
-   desc:'Plants erupt — 50% movement penalty in affected tiles.'},
-  {id:'sleep',name:'Sleep',tier:4,el:'Wild',school:'Alteration',
-   castTime:3,cool:6,lasting:6,targetType:'enemy',
-   desc:'Magically sleep one enemy — no actions for 6 rounds.'},
-  {id:'vacuum',name:'Vacuum',tier:4,el:'Air',school:'Alteration',
-   castTime:2,cool:1,lasting:5,targetType:'enemy',
-   desc:'Stops casting; round 5 — target collapses to 1 HP.'},
-  {id:'quicksand',name:'Quicksand',tier:4,el:'Earth',school:'Alteration',
-   castTime:0,cool:3,lasting:5,targetType:'aoe_enemy',
-   desc:'3×3 tile trap — 75% movement reduction for 5 rounds.'},
-  {id:'oblwing',name:"Oblivion's Wing",tier:4,el:'Air',school:'Conjuration',
-   castTime:2,cool:4,lasting:0,targetType:'aoe_enemy',
-   desc:'A massive black wing sweeps across the field.'},
-  {id:'deathmark',name:'Death Mark',tier:4,el:'Wild',school:'Alteration',
-   castTime:1,cool:5,lasting:5,targetType:'enemy',
-   desc:'All damage taken amplified by 25%+skill% for 5 rounds.'},
-  {id:'stoneskin',name:'Stoneskin',tier:4,el:'Earth',school:'Restoration',
-   castTime:1,cool:3,lasting:5,targetType:'ally',
-   desc:'Massive armor boost — slightly slowed for 5 rounds.'},
-  // Tier 5
-  {id:'air_elemental',name:'Air Elemental',tier:5,el:'Air',school:'Conjuration',
-   castTime:3,cool:3,lasting:15,targetType:'self',
-   desc:'Summon Air Elemental ranged unit — one elemental at a time.'},
-  {id:'avalanche',name:'Avalanche',tier:5,el:'Water',school:'Alteration',
+  // T5
+  {id:'avalanche',name:'Avalanche',tier:5,el:'Water',school:'Destruction',
    castTime:4,cool:6,lasting:2,targetType:'aoe_enemy',
-   desc:'1000 dmg each; round 1 stun; round 2 — 50% penalties.'},
+   desc:'Crushing wave of ice and water — 1000 dmg each; round 1 stun; round 2 50% penalties.'},
   {id:'chain_lightning',name:'Chain Lightning',tier:5,el:'Electricity',school:'Destruction',
    castTime:5,cool:6,lasting:0,targetType:'enemy',
    desc:'250+scaling flat dmg bouncing up to 5 targets within 5 tiles.'},
-  {id:'cleansing_light',name:'Cleansing Light',tier:5,el:'Holy',school:'Restoration',
-   castTime:1,cool:2,lasting:3,targetType:'aoe_ally',
-   desc:'All ally debuffs removed instantly — whole map affected.'},
-  {id:'confusion',name:'Confusion',tier:5,el:'Wild',school:'Alteration',
-   castTime:2,cool:4,lasting:4,targetType:'aoe_enemy',
-   desc:'3×3 confusion cloud — enemies attack nearest unit for 4 rounds.'},
-  {id:'fire_elemental',name:'Fire Elemental',tier:5,el:'Fire',school:'Conjuration',
-   castTime:4,cool:4,lasting:15,targetType:'self',
-   desc:'Summon Fire Elemental — aura disables HP regen within 1 tile.'},
-  {id:'lifetransfer',name:'Lifetransfer',tier:5,el:'Nature',school:'Restoration',
-   castTime:4,cool:2,lasting:12,targetType:'aoe_enemy',
-   desc:'Links enemy → ally: drains foe, heals ally for 12 rounds.'},
-  {id:'sinkhole',name:'Sinkhole',tier:5,el:'Earth',school:'Destruction',
-   castTime:3,cool:1,lasting:3,targetType:'enemy',
-   desc:'Target sinks — 5% max HP damage per round for 3 rounds.'},
-  {id:'boulderthrow',name:'Boulderthrow',tier:5,el:'Earth',school:'Conjuration',
-   castTime:2,cool:1,lasting:0,targetType:'aoe_enemy',
-   desc:'Conjure & hurl a boulder — hits 4 tiles, scales with level.'},
-  {id:'stormwall',name:'Stormwall',tier:5,el:'Air',school:'Conjuration',
-   castTime:2,cool:4,lasting:5,targetType:'aoe_enemy',
-   desc:'Wall of wind & debris — 40+/round dmg and −dodge for 5 rounds.'},
-  {id:'naturespact',name:"Nature's Pact",tier:5,el:'Nature',school:'Restoration',
-   castTime:2,cool:4,lasting:8,targetType:'ally',
-   desc:'Strong regen + dmg bonus but minor bleed each round.'},
-  {id:'wildfury',name:'Wild Fury',tier:5,el:'Wild',school:'Alteration',
-   castTime:2,cool:5,lasting:5,targetType:'ally',
-   desc:'Wild energy: massive dmg boost but −accuracy for 5 rounds.'},
-  // Tier 6
+  {id:'tidalcrash',name:'Tidal Crash',tier:5,el:'Water',school:'Destruction',
+   castTime:3,cool:4,lasting:2,targetType:'aoe_enemy',
+   desc:'A massive wave crashes — high flat damage, pushes back, dodge 0 for 2 rounds.',
+   scalePrimary:'schoolSkill',scaleSecondary:'lv'},
+  // T6
   {id:'disintegration',name:'Disintegration',tier:6,el:'Fire',school:'Destruction',
    castTime:8,cool:0,lasting:0,targetType:'enemy',
    desc:'50%+1%/skill chance to drop target to 1 HP instantly.'},
   {id:'earthquake',name:'Earthquake',tier:6,el:'Earth',school:'Destruction',
    castTime:4,cool:1,lasting:5,targetType:'aoe_all',
    desc:'Whole map shakes — 50+ dmg/round, 50% all combat penalties, move 0.'},
-  {id:'fly',name:'Fly',tier:6,el:'Air',school:'Alteration',
-   castTime:3,cool:4,lasting:25,targetType:'self',
-   desc:'Take flight — move & attack at run speed, immune to melee.'},
-  {id:'invisibility',name:'Invisibility',tier:6,el:'Wild',school:'Alteration',
-   castTime:0,cool:8,lasting:8,targetType:'ally',
-   desc:'Cannot be targeted until unit takes offensive action.'},
+
+  // ── CONJURATION (15) — summoning, creating matter, terrain, creatures ─────
+  // T1
+  {id:'wetwhip',name:'Wet Whip',tier:1,el:'Water',school:'Conjuration',
+   castTime:0,cool:0,lasting:0,targetType:'enemy',
+   desc:'A conjured water whip — 2 strikes, 3-tile reach.'},
+  // T2
+  {id:'rockfall',name:'Rockfall',tier:2,el:'Earth',school:'Conjuration',
+   castTime:1,cool:1,lasting:0,targetType:'aoe_enemy',
+   desc:'Boulders rain on 6-tile area — AoE bludgeoning damage.'},
+  {id:'shoulderimp',name:'Shoulder Imp',tier:2,el:'Fire',school:'Conjuration',
+   castTime:0,cool:2,lasting:3,targetType:'ally',
+   desc:'Tiny fire imp ignites ranged attacks — bonus fire damage per hit.'},
+  {id:'sparkshield',name:'Spark Shield',tier:2,el:'Electricity',school:'Conjuration',
+   castTime:0,cool:2,lasting:3,targetType:'ally',
+   desc:'Conjure an electric barrier — retaliates against the next attacker.'},
+  {id:'thornwall',name:'Thornwall',tier:2,el:'Nature',school:'Conjuration',
+   castTime:1,cool:4,lasting:6,targetType:'aoe_enemy',
+   desc:'Grow a wall of thorns — enemies moving through take damage and lose move speed.',
+   scalePrimary:'schoolSkill',scaleSecondary:'elSkill'},
+  // T3
+  {id:'earthwall',name:'Earthwall',tier:3,el:'Earth',school:'Conjuration',
+   castTime:0,cool:3,lasting:15,targetType:'self',
+   desc:'Raise a stone wall — blocks enemy advance for 15 rounds.'},
+  {id:'tornado',name:'Tornado',tier:3,el:'Air',school:'Conjuration',
+   castTime:2,cool:2,lasting:4,targetType:'aoe_enemy',
+   desc:'Conjure a wandering tornado — 50 dmg/round and hinders for 4 rounds.'},
+  {id:'landslide',name:'Landslide',tier:3,el:'Earth',school:'Conjuration',
+   castTime:3,cool:5,lasting:0,targetType:'aoe_enemy',
+   desc:'500 dmg split across the entire enemy side.'},
+  // T4
+  {id:'quicksand',name:'Quicksand',tier:4,el:'Earth',school:'Conjuration',
+   castTime:0,cool:3,lasting:5,targetType:'aoe_enemy',
+   desc:'Conjure a 3×3 quicksand trap — 75% movement reduction for 5 rounds.'},
+  {id:'golem',name:'Golem',tier:4,el:'Earth',school:'Conjuration',
+   castTime:4,cool:4,lasting:10,targetType:'self',
+   desc:'Conjure a stone golem — HP & dmg scale with Earth skill.'},
+  {id:'oblwing',name:"Oblivion's Wing",tier:4,el:'Air',school:'Conjuration',
+   castTime:2,cool:4,lasting:0,targetType:'aoe_enemy',
+   desc:'A massive dark wing sweeps the field — wide AoE bludgeoning strike.'},
+  {id:'overgrow',name:'Overgrow',tier:4,el:'Nature',school:'Conjuration',
+   castTime:1,cool:5,lasting:10,targetType:'aoe_enemy',
+   desc:'Conjure erupting plants — 50% movement penalty in affected tiles.'},
+  {id:'ice_elemental',name:'Ice Elemental',tier:4,el:'Water',school:'Conjuration',
+   castTime:4,cool:4,lasting:10,targetType:'self',
+   desc:'Summon an Ice Elemental with slow aura — at half caster level.'},
+  // T5
+  {id:'air_elemental',name:'Air Elemental',tier:5,el:'Air',school:'Conjuration',
+   castTime:3,cool:3,lasting:15,targetType:'self',
+   desc:'Summon an Air Elemental ranged unit — one elemental at a time.'},
+  {id:'fire_elemental',name:'Fire Elemental',tier:5,el:'Fire',school:'Conjuration',
+   castTime:4,cool:4,lasting:15,targetType:'self',
+   desc:'Summon a Fire Elemental — aura disables HP regen within 1 tile.'},
+
+  // ── RESTORATION (15) — healing, protection, sustain, sealing ─────────────
+  // T1
+  {id:'eartharmor',name:'Eartharmor',tier:1,el:'Earth',school:'Restoration',
+   castTime:0,cool:1,lasting:2,targetType:'ally',
+   desc:'Raise armor on self or ally for 2 rounds.'},
+  {id:'silverstream',name:'Silver Stream',tier:1,el:'Water',school:'Restoration',
+   castTime:0,cool:2,lasting:3,targetType:'ally',
+   desc:'Flowing water heightens reflexes — +dodge% and +crit% for 3 rounds.',
+   scalePrimary:'schoolSkill',scaleSecondary:'elSkill'},
+  // T2
+  {id:'waterguard',name:'Water Guard',tier:2,el:'Water',school:'Restoration',
+   castTime:0,cool:2,lasting:3,targetType:'ally',
+   desc:'Flowing barrier — boosts dodge and reduces damage taken.'},
+  {id:'shockaura',name:'Shock Aura',tier:2,el:'Electricity',school:'Restoration',
+   castTime:0,cool:2,lasting:3,targetType:'self',
+   desc:'Crackling protective aura — punishes and interrupts the next attacker.'},
+  {id:'sacredmending',name:'Sacred Mending',tier:2,el:'Holy',school:'Restoration',
+   castTime:0,cool:2,lasting:4,targetType:'ally',
+   desc:'Continuously mend an ally — moderate HP regen per round for 4 rounds.',
+   scalePrimary:'schoolSkill',scaleSecondary:'elSkill'},
+  // T3
+  {id:'freeze',name:'Freeze',tier:3,el:'Water',school:'Restoration',
+   castTime:0,cool:3,lasting:5,targetType:'enemy',
+   desc:'Encase enemy in ice — fully halts movement; thaws 20%/round over 5 rounds.'},
+  {id:'minor_restoration',name:'Minor Restoration',tier:3,el:'Holy',school:'Restoration',
+   castTime:0,cool:0,lasting:0,targetType:'ally',
+   desc:'Channel a small burst of holy light — instant heal on one ally.'},
+  {id:'lifedrain',name:'Lifedrain',tier:3,el:'Nature',school:'Restoration',
+   castTime:1,cool:0,lasting:10,targetType:'enemy',
+   desc:'Drain life each round — half the drained amount restored to caster.'},
+  // T4
+  {id:'stoneskin',name:'Stoneskin',tier:4,el:'Earth',school:'Restoration',
+   castTime:1,cool:3,lasting:5,targetType:'ally',
+   desc:'Harden an ally\'s skin to stone — massive armor boost, slightly slowed.'},
+  {id:'major_restoration',name:'Major Restoration',tier:4,el:'Holy',school:'Restoration',
+   castTime:0,cool:0,lasting:0,targetType:'ally',
+   desc:'Channel a powerful wave of holy energy — large instant heal on one ally.'},
+  {id:'sinkhole',name:'Earthen Drain',tier:4,el:'Earth',school:'Restoration',
+   castTime:2,cool:3,lasting:4,targetType:'enemy',
+   desc:'Open a draining rift beneath an enemy — saps 4% max HP/round, feeding caster\'s regen.'},
+  // T5
+  {id:'cleansing_light',name:'Cleansing Light',tier:5,el:'Holy',school:'Restoration',
+   castTime:1,cool:2,lasting:3,targetType:'aoe_ally',
+   desc:'All ally debuffs removed instantly — whole map affected.'},
+  {id:'naturespact',name:"Nature's Pact",tier:5,el:'Nature',school:'Restoration',
+   castTime:2,cool:4,lasting:8,targetType:'ally',
+   desc:'Bond with nature — strong regen + dmg bonus, minor bleed each round.'},
+  // T6
   {id:'revitalization',name:'Revitalization',tier:6,el:'Holy',school:'Restoration',
    castTime:1,cool:7,lasting:0,targetType:'ally',
    desc:'Full HP restoration for one ally instantly.'},
-  {id:'tsunami',name:'Tsunami',tier:6,el:'Water',school:'Conjuration',
-   castTime:4,cool:2,lasting:8,targetType:'aoe_all',
-   desc:'Flood pushes all back 1-3 tiles by armor; 50% all penalties.'},
-  {id:'volcano',name:'Volcano',tier:6,el:'Fire',school:'Conjuration',
-   castTime:6,cool:3,lasting:6,targetType:'aoe_enemy',
-   desc:'Volcano erupts — 2/4/6/8 lava chunks/round, 350+50×skill dmg.'},
   {id:'wither',name:'Wither',tier:6,el:'Nature',school:'Restoration',
    castTime:5,cool:2,lasting:0,targetType:'aoe_enemy',
-   desc:'1000 flat dmg, ×2 vs nature/conjuration classes; no regen.'},
+   desc:'1000 flat dmg, ×2 vs nature/conjuration classes; no regen.',
+   scalePrimary:'schoolSkill',scaleSecondary:'elSkill'},
 ];
 const SPELL_BY_ID=Object.fromEntries(SPELLS.map(s=>[s.id,s]));
 
@@ -1579,7 +1780,7 @@ function ds(c){
 }
 
 const ST={a:[],b:[]};let szA=1,szB=1;
-function dfc(i){return{nm:`Fighter ${i+1}`,sp:'Human',cl:'Knight',lv:1,arm:'Unarmored',wp:'Short Sword',offhand:'Shield',wpMat:'',armMat:'',cmds:[dfc_cmd(),dfc_cmd(),dfc_cmd()],pts:{s:0,a:0,i:0},spells:[]}}
+function dfc(i){return{nm:`Fighter ${i+1}`,sp:'Human',cl:'Knight',lv:1,arm:'Unarmored',wp:'Short Sword',offhand:'Shield',wpMat:'',armMat:'',cmds:[dfc_cmd(),dfc_cmd(),dfc_cmd()],pts:{s:0,a:0,i:0},magicEl:'Fire',magicSchool:'Destruction',elSkill:1,schoolSkill:1}}
 function pu(c){return(c.pts.s||0)+(c.pts.a||0)+(c.pts.i||0)}
 function pm(c){return c.lv||1}
 
@@ -1589,15 +1790,20 @@ function renderCmd(team,i){
   const wp=c.wp;
   const acts=availableActionsForChar(c);
   const isMel=!isRanged(wp);
-  const skip=new Array(c.cmds.length).fill(0);
+  const hasMagic=c.offhand==='Focus'||isMagicWp(c.wp);
+
+  // Build skip map — observe slots AND cast-charge slots
+  const skip=new Array(c.cmds.length).fill(0);// 0=normal,1=observe-locked,2=cast-locked
   let skipUntil=0;
   for(let ph=0;ph<c.cmds.length;ph++){
-    if(ph<skipUntil){skip[ph]=1;continue;}
+    if(c.cmds[ph]._castLock){skip[ph]=2;continue;}
+    if(ph<skipUntil){skip[ph]=skip[ph]||1;continue;}
     if(c.cmds[ph].action==='observe'){
       const n=c.cmds[ph].observeRounds||1;
       skipUntil=ph+n;
     }
   }
+
   let html=`<div style="margin-bottom:.4rem">
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.35rem">
   <div class="fl">Command Chain</div>
@@ -1607,7 +1813,23 @@ function renderCmd(team,i){
     const isLocked=skip[ph];
     const repeatLabel=ph===c.cmds.length-1&&ph>0?' <span style="color:rgba(200,168,100,.2);font-size:.55rem">· repeats for remaining rounds</span>'
       :ph===0&&c.cmds.length===1?' <span style="color:rgba(200,168,100,.2);font-size:.55rem">· repeats every round</span>':'';
-    if(isLocked){
+    if(isLocked===2){
+      const ownerPh=c.cmds[ph]._castOwner??ph-1;
+      const ownerSpell=SPELL_BY_ID[c.cmds[ownerPh]?.spellId||''];
+      const chargeRound=ph-ownerPh;
+      const elCol=ownerSpell?EL_COL[ownerSpell.el]||'rgba(160,140,240,.6)':'rgba(160,140,240,.6)';
+      const borderCol=elCol.replace(/[\d.]+\)$/,'.15)');
+      html+=`<div class="cmd-block" style="opacity:.6;pointer-events:none;border-color:${borderCol};background:rgba(10,8,28,.45)">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.2rem">
+  <div class="cmd-ph" style="color:${elCol}">Round ${ph+1} <span style="font-size:.55rem">· channelling</span></div>
+</div>
+<div style="font-size:.63rem;color:${elCol};letter-spacing:.05em;padding:.15rem 0">
+  ✦ ${ownerSpell?ownerSpell.name:'Spell'} — casting round ${chargeRound} of ${ownerSpell?ownerSpell.castTime:'?'}
+</div>
+</div>`;
+      return;
+    }
+    if(isLocked===1){
       let ownerPh=ph-1;while(ownerPh>=0&&skip[ownerPh])ownerPh--;
       html+=`<div class="cmd-block" style="opacity:.35;pointer-events:none;border-color:rgba(200,168,100,.05);background:rgba(0,0,0,.15)">
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem">
@@ -1622,12 +1844,59 @@ function renderCmd(team,i){
     const wpTypes=WP_DMG_TYPE[wp];
     const dualTypes=Array.isArray(wpTypes)?wpTypes:null;
     const curDmgChoice=(dualTypes&&dualTypes.includes(cmd.dmgTypeChoice))?cmd.dmgTypeChoice:'';
+
+    // For cast action — build spell info display
+    const castSpellInfo=(()=>{
+      if(cmd.action!=='cast'||!hasMagic)return'';
+      const els=getMagicEls(c);
+      const schools=getMagicSchools(c);
+      const availSpells=SPELLS.filter(s=>spellAvailTo(s,c));
+      const cur=cmd.spellId||'';
+      const spell=SPELL_BY_ID[cur];
+      // Use primary element color for header
+      const elCol=EL_COL[els[0].el]||'rgba(160,140,240,.85)';
+      const nextActionRound=spell&&spell.castTime>0?ph+spell.castTime+2:ph+2;
+      const sk=spell?getSpellSk(spell,c):1;
+      const elNames=els.map(e=>e.el).join('/');
+      const schoolNames=schools.map(s=>s.school).join('/');
+      // Group: ★ both el AND school match, ◈ el only, ◇ school only
+      function isElMatch(s){return els.some(e=>e.el===s.el);}
+      function isSchoolMatch(s){return schools.some(sc=>sc.school===s.school);}
+      const bothMatch=availSpells.filter(s=>isElMatch(s)&&isSchoolMatch(s));
+      const elOnly=availSpells.filter(s=>isElMatch(s)&&!isSchoolMatch(s));
+      const schoolOnly=availSpells.filter(s=>!isElMatch(s)&&isSchoolMatch(s));
+      function grpOpts(list,prefix){
+        return[1,2,3,4,5,6].flatMap(tier=>{
+          const ts=list.filter(s=>s.tier===tier);if(!ts.length)return[];
+          return[`<optgroup label="${prefix} · Tier ${tier}">`,...ts.map(s=>{
+            const mana=Math.max(4,SPELL_MANA[s.tier]||20);
+            const cl=s.castTime===0?'instant':`${s.castTime}r`;
+            return`<option value="${s.id}"${s.id===cur?' selected':''}>${prefix} ${s.name} [${s.el}·${s.school}] · ${cl} · ${mana}mp</option>`;
+          }),'</optgroup>'];
+        }).join('');
+      }
+      const hasGroups=bothMatch.length||elOnly.length||schoolOnly.length;
+      return`<div class="cmd-sel" style="min-width:140px"><div class="fl" style="color:${elCol.replace('.85','.55').replace('.9','.55').replace('.8','.55')}">${elNames} · ${schoolNames}</div>
+    <select onchange="setCastSpell('${team}',${i},${ph},this.value)" style="border-color:${elCol.replace('.85','.3').replace('.9','.3').replace('.8','.3')};color:${elCol}">
+      <option value="">— choose spell —</option>
+      ${grpOpts(bothMatch,'★')}
+      ${grpOpts(elOnly,'◈')}
+      ${grpOpts(schoolOnly,'◇')}
+      ${!hasGroups?'<option disabled>No spells — add element or school</option>':''}
+    </select></div>
+    ${spell?`<div style="font-size:.53rem;color:rgba(160,140,240,.42);padding:.3rem 0 0;line-height:1.45;flex-basis:100%">
+      <span style="color:${EL_COL[spell.el]||'rgba(160,140,240,.6)'}">●</span> ${spell.desc}
+      <span style="color:rgba(160,140,240,.3)"> · ⏱${spell.castTime===0?'instant':spell.castTime+'r'} · cd ${spell.cool}r${spell.lasting?` · ${spell.lasting}r effect`:''}${spell.castTime>0?` · <b style="color:rgba(160,140,240,.5)">next action: r${nextActionRound}</b>`:''}</span>
+      <span style="color:rgba(180,155,255,.35)"> · sk ${sk} (${spell.scalePrimary==='schoolSkill'?spell.school+' school':spell.el+' el'})</span>
+    </div>`:''}`;
+    })();
+
     html+=`<div class="cmd-block">
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem">
   <div class="cmd-ph">Round ${ph+1}${repeatLabel}</div>
   ${c.cmds.length>1?`<button onclick="removeCmd('${team}',${i},${ph})" style="font-size:.55rem;padding:.1em .4em;background:transparent;border:1px solid rgba(200,80,80,.2);color:rgba(200,80,80,.4);cursor:pointer;font-family:'Cinzel',serif">✕</button>`:''}
 </div>
-<div class="cmd-row">
+<div class="cmd-row" style="${cmd.action==='cast'?'flex-wrap:wrap;gap:.3rem':''}">
   <div class="cmd-sel"><div class="fl">Action</div>
   <select onchange="setCmd('${team}',${i},${ph},'action',this.value)">
     ${acts.map(a=>`<option value="${a}"${a===cmd.action?' selected':''}>${a.charAt(0).toUpperCase()+a.slice(1).replace('_',' ')}</option>`).join('')}
@@ -1646,22 +1915,7 @@ function renderCmd(team,i){
     <option value=""${!curDmgChoice?' selected':''}>Random</option>
     ${dualTypes.map(t=>`<option value="${t}"${t===curDmgChoice?' selected':''}>${t.charAt(0).toUpperCase()+t.slice(1)}</option>`).join('')}
   </select></div>`:''}
-  ${cmd.action==='cast'?(()=>{
-    const lv=c.lv||1;
-    const avail=SPELLS.filter(s=>s.tier<=Math.floor((lv+4)/5)&&s.tier>=1);
-    const cur=cmd.spellId||'';
-    const spell=SPELL_BY_ID[cur];
-    return `<div class="cmd-sel" style="min-width:120px"><div class="fl">Spell</div>
-    <select onchange="setCmd('${team}',${i},${ph},'spellId',this.value)" style="border-color:rgba(160,140,240,.3);color:rgba(200,180,255,.9)">
-      <option value="">— choose —</option>
-      ${[1,2,3,4,5,6].map(tier=>{
-        const ts=avail.filter(s=>s.tier===tier);
-        if(!ts.length)return'';
-        return`<optgroup label="Tier ${tier}">${ts.map(s=>`<option value="${s.id}"${s.id===cur?' selected':''}>${s.name} [${s.el}]</option>`).join('')}</optgroup>`;
-      }).join('')}
-    </select></div>
-    ${spell?`<div style="font-size:.55rem;color:rgba(160,140,240,.5);padding-top:.4rem;line-height:1.35;max-width:160px">${spell.desc}<br><span style="color:rgba(160,140,240,.35)">⏱ cast ${spell.castTime===0?'instant':spell.castTime+'r'} · cd ${spell.cool}r${spell.lasting?` · lasts ${spell.lasting}r`:''}</span></div>`:''}`;
-  })():''}
+  ${castSpellInfo}
 </div>
 ${cmd.action==='attack'?`<div class="cmd-sub">
   <div class="cmd-sel"><div class="fl">Target</div>
@@ -1701,13 +1955,68 @@ function addCmd(team,i){
   ST[team][i].cmds.push(dfc_cmd());rc(team);
 }
 function removeCmd(team,i,ph){
-  if(ST[team][i].cmds.length<=1)return;
-  ST[team][i].cmds.splice(ph,1);rc(team);
+  const c=ST[team][i];
+  if(c.cmds.length<=1)return;
+  // If removing a cast cmd, also remove its locked rows
+  const spell=SPELL_BY_ID[c.cmds[ph]?.spellId||''];
+  if(spell&&spell.castTime>0){
+    let rem=0;
+    while(rem<spell.castTime&&ph+1<c.cmds.length&&c.cmds[ph+1]._castLock){
+      c.cmds.splice(ph+1,1);rem++;}}
+  c.cmds.splice(ph,1);rc(team);
 }
-function setSp(team,i,si,key,val){
-  const c=ST[team][i];if(!c.spells)c.spells=[];
-  while(c.spells.length<=si)c.spells.push({id:'',sk:1});
-  c.spells[si][key]=(key==='sk'?+val:val);rc(team);
+function setCastSpell(team,i,ph,spellId){
+  const c=ST[team][i];
+  if(!c.cmds)c.cmds=[dfc_cmd()];
+  // Clear any old cast-charge placeholder rows that this slot owned
+  const oldSpell=SPELL_BY_ID[c.cmds[ph]?.spellId||''];
+  if(oldSpell&&oldSpell.castTime>0){
+    // Remove the locked rows that were auto-inserted after ph
+    let removed=0;
+    while(removed<oldSpell.castTime&&ph+1<c.cmds.length&&c.cmds[ph+1]._castLock){
+      c.cmds.splice(ph+1,1);removed++;}}
+  // Set the new spell
+  c.cmds[ph].spellId=spellId;
+  // Auto-insert locked placeholder rows for new spell's cast time
+  const newSpell=SPELL_BY_ID[spellId||''];
+  if(newSpell&&newSpell.castTime>0){
+    for(let k=0;k<newSpell.castTime;k++){
+      c.cmds.splice(ph+1+k,0,{...dfc_cmd(),_castLock:true,_castOwner:ph,action:'_casting'});}}
+  rc(team);
+}
+
+// ── Magic training array mutation helpers ─────────────────────────────────
+function addMagicEl(team,i){
+  const c=ST[team][i];getMagicEls(c);
+  if(c.magicEls.length>=4)return;
+  const used=new Set(c.magicEls.map(e=>e.el));
+  const next=ALL_ELS.find(el=>!used.has(el))||ALL_ELS[0];
+  c.magicEls.push({el:next,skill:1});rc(team);
+}
+function removeMagicEl(team,i,idx){
+  const c=ST[team][i];getMagicEls(c);
+  if(c.magicEls.length<=1)return;
+  c.magicEls.splice(idx,1);rc(team);
+}
+function setMagicEl(team,i,idx,key,val){
+  const c=ST[team][i];getMagicEls(c);
+  c.magicEls[idx][key]=key==='skill'?+val:val;rc(team);
+}
+function addMagicSchool(team,i){
+  const c=ST[team][i];getMagicSchools(c);
+  if(c.magicSchools.length>=4)return;
+  const used=new Set(c.magicSchools.map(s=>s.school));
+  const next=ALL_SCHOOLS.find(s=>!used.has(s))||ALL_SCHOOLS[0];
+  c.magicSchools.push({school:next,skill:1});rc(team);
+}
+function removeMagicSchool(team,i,idx){
+  const c=ST[team][i];getMagicSchools(c);
+  if(c.magicSchools.length<=1)return;
+  c.magicSchools.splice(idx,1);rc(team);
+}
+function setMagicSchool(team,i,idx,key,val){
+  const c=ST[team][i];getMagicSchools(c);
+  c.magicSchools[idx][key]=key==='skill'?+val:val;rc(team);
 }
 
 // ── Armor performance summary for card display ────────────────────────────────
@@ -1855,44 +2164,89 @@ ${DMG_TYPES.map(dt=>{
 ${(()=>{
   const hasMagic=c.offhand==='Focus'||isMagicWp(c.wp);
   if(!hasMagic)return'';
-  const lv=c.lv||1;
-  const maxTier=Math.min(6,Math.floor((lv+4)/5));
-  const avail=SPELLS.filter(s=>s.tier<=maxTier);
-  const slots=c.spells||[];
-  let out=`<div style="margin-bottom:5px"><div class="fl sp-sect-hd">✦ Spell Loadout <span style="font-size:.5rem;color:rgba(120,100,220,.3)">· tier 1–${maxTier} available · Focus/Staff required</span></div>`;
-  for(let si=0;si<3;si++){
-    const slot=slots[si]||{id:'',sk:1};
-    const sp=SPELL_BY_ID[slot.id||''];
-    const elCol=sp?EL_COL[sp.el]||'rgba(160,140,240,.85)':'rgba(120,100,220,.4)';
-    out+=`<div class="sp-block" style="border-color:${sp?elCol.replace('.85','.18').replace('.9','.18'):''}" >
-<div class="sp-hd">
-  <span class="sp-name">${sp?sp.name:'<span style="color:rgba(120,100,220,.3)">— empty slot —</span>'}</span>
-  ${sp?`<span class="sp-badge" style="border-color:${elCol.replace('.85','.3')};color:${elCol}">${sp.el} · T${sp.tier}</span>`:''}
-</div>
-<div class="sp-row">
-  <div><div class="fl">Spell</div>
-  <select onchange="setSp('${team}',${i},${si},'id',this.value)" style="border-color:rgba(120,100,220,.25);color:rgba(200,180,255,.85);font-size:8px">
-    <option value="">— none —</option>
-    ${[1,2,3,4,5,6].map(tier=>{const ts=avail.filter(s=>s.tier===tier);if(!ts.length)return'';
-      return`<optgroup label="Tier ${tier}">${ts.map(s=>`<option value="${s.id}"${s.id===slot.id?' selected':''}>${s.name}</option>`).join('')}</optgroup>`;}).join('')}
-  </select></div>
-  <div><div class="fl">Skill Tier</div>
-  <select onchange="setSp('${team}',${i},${si},'sk',+this.value)" style="border-color:rgba(120,100,220,.25);color:rgba(200,180,255,.7);font-size:8px">
-    ${[1,2,3,4,5,6].map(n=>`<option value="${n}"${n===(slot.sk||1)?' selected':''}>Tier ${n}</option>`).join('')}
-  </select></div>
-</div>
-${sp?`<div class="sp-stats">
-  <span class="sp-stat">${sp.el} · ${sp.school}</span>
-  <span class="sp-stat">⏱ ${sp.castTime===0?'instant':sp.castTime+'r cast'}</span>
-  <span class="sp-stat">cd ${sp.cool}r</span>
-  ${sp.lasting?`<span class="sp-stat">lasts ${sp.lasting}r</span>`:''}
-  <span class="sp-mana sp-stat">⬡ ${Math.max(4,SPELL_MANA[sp.tier]||20)} mana</span>
-</div>
-<div class="sp-desc">${sp.desc}</div>`:''}
-</div>`;
+  const els=getMagicEls(c);
+  const schools=getMagicSchools(c);
+  const availSpells=SPELLS.filter(s=>spellAvailTo(s,c));
+  // Use first element's color for the panel border
+  const elCol=EL_COL[els[0].el]||'rgba(160,140,240,.85)';
+  const borderCol=elCol.replace('.85','.18').replace('.9','.15').replace('.8','.15');
+  const dimCol=(col)=>col.replace('.85','.45').replace('.9','.45').replace('.8','.45').replace('.75','.4').replace('.7','.35');
+
+  function elRow(e,idx){
+    const ec=EL_COL[e.el]||'rgba(160,140,240,.75)';
+    const isDerived=DERIVED_ELS.has(e.el);
+    const locked=isDerived&&!elUnlocked(e.el,c);
+    return`<div style="display:flex;align-items:center;gap:.25rem;margin-bottom:.22rem">
+      <select onchange="setMagicEl('${team}',${i},${idx},'el',this.value)"
+        style="flex:1;border-color:${ec.replace('.85','.3').replace('.9','.3').replace('.8','.3').replace('.75','.28')};color:${ec};font-size:8px">
+        ${BASE_ELS.map(el=>`<option value="${el}"${el===e.el?' selected':''}>${el}</option>`).join('')}
+        <optgroup label="── Derived ──">
+        ${Object.entries(DERIVED_EL_PREREQS).map(([de,pr])=>{
+          const ok=elUnlocked(de,c);
+          return`<option value="${de}"${de===e.el?' selected':''}>${ok?de:`${de} 🔒`}</option>`;
+        }).join('')}
+        </optgroup>
+      </select>
+      <select onchange="setMagicEl('${team}',${i},${idx},'skill',this.value)"
+        style="width:52px;border-color:${ec.replace('.85','.22').replace('.9','.22').replace('.8','.22').replace('.75','.2')};color:${dimCol(ec)};font-size:8px">
+        ${[1,2,3,4,5,6].map(n=>`<option value="${n}"${n===e.skill?' selected':''}>Sk ${n}</option>`).join('')}
+      </select>
+      ${els.length>1?`<button onclick="removeMagicEl('${team}',${i},${idx})"
+        style="padding:0 .3rem;line-height:1.5;background:transparent;border:1px solid rgba(200,80,80,.2);color:rgba(200,80,80,.45);cursor:pointer;font-size:9px">✕</button>`
+        :'<div style="width:16px"></div>'}
+      ${locked?`<span style="font-size:7px;color:rgba(220,120,60,.55)">🔒</span>`:''}
+    </div>`;
   }
-  out+=`</div>`;
-  return out;
+
+  function schoolRow(s,idx){
+    const sc='rgba(180,155,255,.7)';
+    return`<div style="display:flex;align-items:center;gap:.25rem;margin-bottom:.22rem">
+      <select onchange="setMagicSchool('${team}',${i},${idx},'school',this.value)"
+        style="flex:1;border-color:rgba(180,155,255,.28);color:${sc};font-size:8px">
+        ${ALL_SCHOOLS.map(sl=>`<option value="${sl}"${sl===s.school?' selected':''}>${sl}</option>`).join('')}
+      </select>
+      <select onchange="setMagicSchool('${team}',${i},${idx},'skill',this.value)"
+        style="width:52px;border-color:rgba(180,155,255,.2);color:rgba(180,155,255,.45);font-size:8px">
+        ${[1,2,3,4,5,6].map(n=>`<option value="${n}"${n===s.skill?' selected':''}>Sk ${n}</option>`).join('')}
+      </select>
+      ${schools.length>1?`<button onclick="removeMagicSchool('${team}',${i},${idx})"
+        style="padding:0 .3rem;line-height:1.5;background:transparent;border:1px solid rgba(200,80,80,.2);color:rgba(200,80,80,.45);cursor:pointer;font-size:9px">✕</button>`
+        :'<div style="width:16px"></div>'}
+    </div>`;
+  }
+
+  const btnStyle=`font-size:.55rem;padding:.18em .5em;letter-spacing:.08em;background:transparent;cursor:pointer;font-family:'Cinzel',serif`;
+
+  return`<div style="margin-bottom:5px;border:1px solid ${borderCol};padding:.4rem .5rem;background:rgba(10,8,28,.45)">
+<div style="font-size:.55rem;letter-spacing:.18em;text-transform:uppercase;color:${dimCol(elCol)};margin-bottom:.38rem">✦ Magic Training</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:.15rem .6rem">
+  <div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.22rem">
+      <span class="fl" style="font-size:.55rem">Elements</span>
+      ${els.length<4?`<button onclick="addMagicEl('${team}',${i})"
+        style="${btnStyle};border:1px solid rgba(160,140,240,.22);color:rgba(160,140,240,.5)">+ El.</button>`
+        :`<span style="font-size:.5rem;color:rgba(160,140,240,.25)">max 4</span>`}
+    </div>
+    ${els.map((e,idx)=>elRow(e,idx)).join('')}
+  </div>
+  <div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.22rem">
+      <span class="fl" style="font-size:.55rem">Schools</span>
+      ${schools.length<4?`<button onclick="addMagicSchool('${team}',${i})"
+        style="${btnStyle};border:1px solid rgba(180,155,255,.22);color:rgba(180,155,255,.45)">+ Sch.</button>`
+        :`<span style="font-size:.5rem;color:rgba(180,155,255,.2)">max 4</span>`}
+    </div>
+    ${schools.map((s,idx)=>schoolRow(s,idx)).join('')}
+  </div>
+</div>
+
+<div style="margin-top:.3rem;font-size:.5rem;color:rgba(160,140,240,.3);line-height:1.5">
+  ${availSpells.length} spells accessible
+  ${Object.keys(DERIVED_EL_PREREQS).filter(de=>!elUnlocked(de,c)).length>0
+    ?`· <span style="color:rgba(220,120,60,.4)">🔒 ${Object.keys(DERIVED_EL_PREREQS).filter(de=>!elUnlocked(de,c)).join(', ')} locked</span>`:''}
+</div>
+</div>`;
 })()}
 ${renderCmd(team,i)}
 </div>`;
@@ -2112,7 +2466,12 @@ function runSim(){
         mhp:d.hp,hp:d.hp,
         maxMana:d.mana,mana:d.mana,
         effects:[],cooldowns:{},castCharge:null,
-        spellLoadout:(c.spells||[]).filter(s=>s&&s.id),
+        magicSkill:getMagicEls(c)[0]?.skill||1,
+        magicEl:getMagicEls(c)[0]?.el||'Fire',
+        magicSchool:getMagicSchools(c)[0]?.school||'Destruction',
+        schoolSkill:getMagicSchools(c)[0]?.skill||1,
+        magicEls:getMagicEls(c).map(e=>({...e})),
+        magicSchools:getMagicSchools(c).map(s=>({...s})),
         stats:d,dead:false,
         row:pos[i].row,col:pos[i].col,
       };
@@ -2138,7 +2497,7 @@ function runSim(){
       if(atk.dead)continue;
       atk.switchingWeapon=false;
       const cmdIdx=Math.min(round-1, atk.cmds.length-1);
-      const cmd=atk.cmds[cmdIdx];
+      let cmd=atk.cmds[cmdIdx];
       const cmdDmgType=cmd.dmgTypeChoice||null;
       const cmdSpeed=cmd.speed||'walk';
       atk.running=(cmdSpeed==='run');
@@ -2168,6 +2527,9 @@ function runSim(){
         }
         return en[Math.floor(Math.random()*en.length)];
       }
+
+      // ── CAST LOCK (locked channelling row — handled by castCharge override above) ─
+      if(cmd.action==='_casting')continue;
 
       // ── OBSERVE ─────────────────────────────────────────────────────────
       if(cmd.action==='observe'){
@@ -2223,8 +2585,7 @@ function runSim(){
                 } else {
                   log.push({cls:'lsp-cast',t:`${atk.nm} finishes casting <b>${spell.name}</b>!`});
                   atk.mana-=manaCost;
-                  const spellCfg2=(atk.spellLoadout||[]).find(sl=>sl.id===spell.id);
-                  const sk=spellCfg2?Math.max(1,Math.min(6,spellCfg2.sk)):spell.tier;
+                  const sk=Math.max(1,Math.min(6,getSpellSk(spell,atk)));
                   castSpell(atk,spell,all,log,sk);
                   atk.cooldowns[spell.id]=spell.cool;
                   atk.castCharge=null;
@@ -2234,9 +2595,7 @@ function runSim(){
             }
             // Instant cast
             atk.mana-=manaCost;
-            // Skill level from loadout config (default to spell tier)
-            const spellCfg=(atk.spellLoadout||[]).find(sl=>sl.id===spell.id);
-            const sk=spellCfg?Math.max(1,Math.min(6,spellCfg.sk)):spell.tier;
+            const sk=Math.max(1,Math.min(6,getSpellSk(spell,atk)));
             castSpell(atk,spell,all,log,sk);
             atk.cooldowns[spell.id]=spell.cool;
             atk.castCharge=null;
@@ -2324,7 +2683,7 @@ function runSim(){
         if(Math.random()*100<effDg){log.push({cls:'lm',t:`${atk.nm} fires at <b>${tgt.nm}</b> \u2014 <i>dodged</i>`});continue;}
         let rawDmg=rand2(s.dmin+ovl.dmgAdd,s.dmax+ovl.dmgAdd)+ovl.fireDmgAdd;
         rawDmg=Math.max(1,rawDmg);
-        const ic=Math.random()*100<Math.max(0,s.cr-tgtOvl.crPen);if(ic)rawDmg=Math.floor(rawDmg*2);
+        const ic=Math.random()*100<Math.max(0,s.cr+ovl.crBonus-tgtOvl.crPen);if(ic)rawDmg=Math.floor(rawDmg*2);
         const {dmg,blocked,resLabel,dmgType}=applyHit(rawDmg,atk.activeWp||atk.wp,atk,tgt,1,cmdDmgType);
         if(blocked){log.push({cls:'lm',t:`${atk.nm} fires at <b>${tgt.nm}</b> \u2014 <i>blocked</i>`});continue;}
         const finalDmg=Math.max(1,Math.round(dmg*(1-tgtOvl.dmgReduce)));
@@ -2484,6 +2843,99 @@ function rbars(cmb,id){
 function resetB(){if(pt){clearInterval(pt);pt=null;}rd=[];cr=0;document.getElementById('bs2').style.display='none';}
 
 // INIT
+
+// ══════════════════════════════════════════════════════
+//  CHALLENGE MODE
+// ══════════════════════════════════════════════════════
+let PRESETS = null;
+let selectedLevel = null;
+let selectedPreset = null;
+
+// Load presets.json on startup
+fetch('presets.json')
+  .then(r => r.json())
+  .then(data => {
+    PRESETS = data.levels;
+    buildLevelButtons();
+  })
+  .catch(() => {
+    // Fallback: hide level buttons, show plain sim mode
+    document.getElementById('lvl-btns').innerHTML =
+      '<span style="color:rgba(200,168,100,.3);font-size:.6rem">presets.json not found — running in free-sim mode</span>';
+    document.getElementById('fight-btn').textContent = 'Simulate';
+    document.getElementById('fight-btn').disabled = false;
+    document.getElementById('fight-btn').onclick = () => runSimWrapped();
+    document.getElementById('enemy-placeholder').style.display = 'none';
+    document.getElementById('cb').style.display = '';
+  });
+
+function buildLevelButtons() {
+  const cont = document.getElementById('lvl-btns');
+  cont.innerHTML = '';
+  Object.entries(PRESETS).forEach(([lv, data]) => {
+    const btn = document.createElement('button');
+    btn.className = 'bs';
+    btn.style.cssText = 'padding:.3em .9em;font-size:.65rem;letter-spacing:.12em;min-width:5rem';
+    btn.innerHTML = `<span style="opacity:.5;font-size:.8em">LV ${lv}</span><br>${data.name}`;
+    btn.onclick = () => selectLevel(lv);
+    btn.id = 'lvl-btn-' + lv;
+    cont.appendChild(btn);
+  });
+}
+
+function selectLevel(lv) {
+  selectedLevel = lv;
+  // Highlight selected
+  Object.keys(PRESETS).forEach(l => {
+    const b = document.getElementById('lvl-btn-' + l);
+    if (b) b.style.borderColor = l === lv ? 'var(--gold)' : 'var(--border)';
+  });
+  const lvData = PRESETS[lv];
+  document.getElementById('lvl-desc').textContent = lvData.desc;
+  // Pick a random preset team for this level
+  const teams = lvData.teams;
+  selectedPreset = teams[Math.floor(Math.random() * teams.length)];
+  loadEnemyTeam(selectedPreset);
+  document.getElementById('fight-btn').disabled = false;
+}
+
+function loadEnemyTeam(preset) {
+  document.getElementById('enemy-placeholder').style.display = 'none';
+  document.getElementById('cb').style.display = '';
+  document.getElementById('enemy-name').textContent = preset.name;
+  document.getElementById('enemy-header-info').textContent = `${preset.fighters.length} fighters`;
+
+  // Load into ST.b
+  ST.b = preset.fighters.map((f, i) => {
+    const c = JSON.parse(JSON.stringify(f)); // deep clone
+    // Ensure all required fields
+    if (!c.pts) c.pts = {s:0,a:0,i:0};
+    if (!c.magicEls) c.magicEls = [{el: c.magicEl||'Fire', skill: c.elSkill||1}];
+    if (!c.magicSchools) c.magicSchools = [{school: c.magicSchool||'Destruction', skill: c.schoolSkill||1}];
+    if (!c.cmds || !c.cmds.length) c.cmds = [dfc_cmd()];
+    return c;
+  });
+  szB = ST.b.length;
+  document.getElementById('sz-b').textContent = szB;
+  rc('b');
+}
+
+function startChallenge() {
+  if (!selectedPreset) return;
+  // Re-roll enemy for variety on each fight
+  const teams = PRESETS[selectedLevel].teams;
+  selectedPreset = teams[Math.floor(Math.random() * teams.length)];
+  loadEnemyTeam(selectedPreset);
+  runSimWrapped();
+}
+
+// Wrap chsz to lock enemy team size in challenge mode
+const _chszOrig = window.chsz || chsz;
+window.chszChallenge = function(team, d) {
+  if (team === 'b' && selectedPreset) return; // lock enemy size in challenge mode
+  chsz(team, d);
+};
+
 ST.a.push(dfc(0));ST.b.push(dfc(0));rc('a');rc('b');
 (function(){
   const pA=gpos(1,'a'),pB=gpos(1,'b');
@@ -2495,6 +2947,139 @@ ST.a.push(dfc(0));ST.b.push(dfc(0));rc('a');rc('b');
   drawMap(prev);
   document.getElementById('bs2').style.display='none';
 })();
+
+
+// ══════════════════════════════════════════════════════
+//  LEADERBOARD & RESULT OVERLAY
+// ══════════════════════════════════════════════════════
+let lastResult = null;
+
+// Hook into runSim to catch the result — use variable, not function decl, to avoid hoisting issue
+let _simHooked = false;
+const _runSimBase = runSim; // capture before any override
+const runSimWrapped = function() {
+  _runSimBase();
+  // After sim runs, check for a winner in rd (round data array)
+  setTimeout(() => {
+    if (!rd || !rd.length) return;
+    const finalRound = rd[rd.length - 1];
+    if (!finalRound || !finalRound.res) return;
+    const res = finalRound.res; // 'a' | 'b' | 'draw'
+    const isWin = res === 'a';
+    const isDraw = res === 'draw';
+    const survivorsA = finalRound.cmb.filter(c => c.side === 'a' && !c.dead).length;
+    lastResult = {
+      result: isWin ? 'win' : isDraw ? 'draw' : 'loss',
+      rounds: rd.length - 1,
+      survivors: survivorsA,
+      level: selectedLevel || '?',
+      enemy: selectedPreset ? selectedPreset.name : '?',
+    };
+    if (selectedLevel) showResultOverlay(lastResult);
+  }, (rd.length * 600) + 800); // wait for animation to finish
+}
+
+function showResultOverlay(r) {
+  const ov = document.getElementById('result-overlay');
+  const title = document.getElementById('ro-title');
+  const sub   = document.getElementById('ro-sub');
+  const stat  = document.getElementById('ro-stat');
+  if (r.result === 'win') {
+    title.textContent = 'VICTORY';
+    title.className = 'ro-title win';
+    sub.textContent = 'Your party has triumphed!';
+  } else if (r.result === 'draw') {
+    title.textContent = 'DRAW';
+    title.className = 'ro-title';
+    sub.textContent = 'Both sides fell...';
+  } else {
+    title.textContent = 'DEFEAT';
+    title.className = 'ro-title loss';
+    sub.textContent = 'Your party was vanquished.';
+  }
+  stat.textContent = `Level ${r.level}  ·  ${r.enemy}  ·  ${r.rounds} rounds  ·  ${r.survivors} survivors`;
+  ov.classList.add('show');
+}
+
+function closeOverlay() {
+  document.getElementById('result-overlay').classList.remove('show');
+}
+
+function submitResult() {
+  const name = document.getElementById('ro-name').value.trim() || 'Anonymous';
+  if (!lastResult) return closeOverlay();
+  const entry = { ...lastResult, name };
+  fetch('/api/leaderboard', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(entry),
+  })
+    .then(r => r.json())
+    .then(() => { closeOverlay(); loadLeaderboard(); })
+    .catch(() => closeOverlay());
+}
+
+function loadLeaderboard() {
+  const container = document.getElementById('lb-body');
+  fetch('/api/leaderboard')
+    .then(r => r.json())
+    .then(entries => {
+      if (!entries.length) {
+        container.innerHTML = '<span style="color:rgba(200,168,100,.2)">No battles recorded yet.</span>';
+        return;
+      }
+      const levels = ['All', '1', '2', '3', '4', '5'];
+      let filter = container.dataset.filter || 'All';
+      const filtered = filter === 'All' ? entries : entries.filter(e => String(e.level) === filter);
+
+      // Build filter tabs
+      const tabs = levels.map(l =>
+        `<span onclick="setLbFilter('${l}')" style="cursor:pointer;padding:.15em .6em;margin:.1em;
+          border:1px solid ${l===filter?'var(--gold)':'var(--border)'};
+          color:${l===filter?'var(--gold)':'rgba(200,168,100,.35)'};
+          font-size:.55rem;letter-spacing:.12em">${l==='All'?'ALL':'LV '+l}</span>`
+      ).join('');
+
+      const rows = filtered.slice(0, 30).map((e, i) => {
+        const dt = new Date(e.ts).toLocaleDateString();
+        const res = e.result === 'win'
+          ? '<span class="lb-win">WIN</span>'
+          : e.result === 'draw'
+            ? '<span style="color:rgba(200,168,100,.4)">DRAW</span>'
+            : '<span class="lb-loss">LOSS</span>';
+        return `<tr>
+          <td class="lb-rank">#${i+1}</td>
+          <td>${e.name}</td>
+          <td>${res}</td>
+          <td><span class="lb-lv">LV ${e.level}</span></td>
+          <td style="color:rgba(200,168,100,.4)">${e.enemy}</td>
+          <td style="color:rgba(200,168,100,.35)">${e.rounds}r</td>
+          <td style="color:rgba(200,168,100,.25)">${dt}</td>
+        </tr>`;
+      }).join('');
+
+      container.innerHTML = `
+        <div style="display:flex;flex-wrap:wrap;gap:.25rem;margin-bottom:.8rem;justify-content:center">${tabs}</div>
+        <table class="lb-table">
+          <thead><tr>
+            <th>#</th><th>Name</th><th>Result</th><th>Level</th><th>Enemy</th><th>Rounds</th><th>Date</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    })
+    .catch(() => {
+      container.innerHTML = '<span style="color:rgba(200,168,100,.2)">Leaderboard unavailable (server not running?)</span>';
+    });
+}
+
+function setLbFilter(lv) {
+  document.getElementById('lb-body').dataset.filter = lv;
+  loadLeaderboard();
+}
+
+// Load on startup
+loadLeaderboard();
+
 </script>
 </body>
 </html>
