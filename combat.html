@@ -270,7 +270,8 @@ select option{background:#0a0800}
 </head>
 <body>
 <div class="page">
-<h1>Combat System</h1>
+<h1>Challenge Arena</h1>
+<p class="sub">Build your team &mdash; face the enemy &mdash; conquer the ranks</p>
 <!-- ── CHALLENGE UI ── -->
 <div id="challenge-ui">
   <!-- Level picker -->
@@ -2281,7 +2282,7 @@ function ap(t,i,s,d2){const c=ST[t][i];const nv=Math.max(0,(c.pts[s]||0)+d2);con
 function sp2(t,i,s,v){const c=ST[t][i];const others=pu(c)-(c.pts[s]||0);c.pts[s]=Math.max(0,Math.min(pm(c)-others,v||0));rc(t)}
 function chsz(team,d2){
   if(team==='a'){szA=Math.max(1,Math.min(8,szA+d2));document.getElementById('sz-a').textContent=szA;while(ST.a.length<szA)ST.a.push(dfc(ST.a.length));}
-  else{szB=Math.max(1,Math.min(8,szB+d2));document.getElementById('sz-b').textContent=szB;while(ST.b.length<szB)ST.b.push(dfc(ST.b.length));}
+  else{szB=Math.max(1,Math.min(8,szB+d2));const _szb=document.getElementById('sz-b');if(_szb)_szb.textContent=szB;while(ST.b.length<szB)ST.b.push(dfc(ST.b.length));}
   rc('a');rc('b');
 }
 
@@ -2902,8 +2903,8 @@ function selectLevel(lv) {
 function loadEnemyTeam(preset) {
   document.getElementById('enemy-placeholder').style.display = 'none';
   document.getElementById('cb').style.display = '';
-  document.getElementById('enemy-name').textContent = preset.name;
-  document.getElementById('enemy-header-info').textContent = `${preset.fighters.length} fighters`;
+  const _enEl=document.getElementById('enemy-name');if(_enEl)_enEl.textContent=preset.name;
+  const _ehEl=document.getElementById('enemy-header-info');if(_ehEl)_ehEl.textContent=preset.fighters.length+' fighters';
 
   // Load into ST.b
   ST.b = preset.fighters.map((f, i) => {
@@ -2916,7 +2917,7 @@ function loadEnemyTeam(preset) {
     return c;
   });
   szB = ST.b.length;
-  document.getElementById('sz-b').textContent = szB;
+  const _szbEl=document.getElementById('sz-b');if(_szbEl)_szbEl.textContent=szB;
   rc('b');
 }
 
